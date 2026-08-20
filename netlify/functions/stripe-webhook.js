@@ -11,33 +11,49 @@ exports.handler = async (event) => {
         return { statusCode: 400, body: `Webhook Error: ${err.message}` };
     }
 
+    const supabaseAdmin = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
+
+    // 1️⃣ CAS N°1 : NOUVEL ABONNEMENT
     if (stripeEvent.type === 'checkout.session.completed') {
         const session = stripeEvent.data.object;
         const emailClient = session.customer_details.email;
         
-        const supabaseAdmin = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
-
-        // 1. Récupérer le lien de l'offre achetée (price_id) depuis Stripe
-        const sessionWithLineItems = await stripe.checkout.sessions.retrieve(
-            session.id,
-            { expand: ['line_items'] }
-        );
+        // Trouver l'offre pour connaître le nombre de partages
+        const sessionWithLineItems = await stripe.checkout.sessions.retrieve(session.id, { expand: ['line_items'] });
         const priceId = sessionWithLineItems.line_items.data[0].price.id;
-
-        // 2. Trouver cette offre dans Supabase pour lire son nombre de partages
         const { data: offre } = await supabaseAdmin.from('offres').select('partages_autorises').eq('stripe_price_id', priceId).single();
         const partagesDefinis = offre ? (offre.partages_autorises || 0) : 0;
 
         let nouvelleDate = new Date();
         nouvelleDate.setDate(nouvelleDate.getDate() + 31);
 
-        // 3. Mettre à jour le lecteur avec le BON nombre
         await supabaseAdmin.from('lecteurs').update({
             est_abonne: true,
             fin_abonnement: nouvelleDate.toISOString(),
-            credits_partage: partagesDefinis
+            credits_partage: partagesDefinis // Initialisation du quota
         }).eq('email', emailClient);
     }
 
-    return { statusCode: 200, body: 'Paiement reçu et compte mis à jour !' };
+    // 2️⃣ CAS N°2 : RENOUVELLEMENT MENSUEL AUTOMATIQUE
+    if (stripeEvent.type === 'invoice.paid') {
+        const invoice = stripeEvent.data.object;
+        const emailClient = invoice.customer_email;
+        
+        // On récupère l'offre liée à cette facture mensuelle
+        const priceId = invoice.lines.data[0].price.id;
+        const { data: offre } = await supabaseAdmin.from('offres').select('partages_autorises').eq('stripe_price_id', priceId).single();
+        const partagesDefinis = offre ? (offre.partages_autorises || 0) : 0;
+
+        let nouvelleDate = new Date();
+        nouvelleDate.setDate(nouvelleDate.getDate() + 31); // On rajoute 1 mois
+
+        // On met à jour la date ET on remet les crédits à neuf !
+        await supabaseAdmin.from('lecteurs').update({
+            est_abonne: true,
+            fin_abonnement: nouvelleDate.toISOString(),
+            credits_partage: partagesDefinis // Remise à zéro du quota mensuel
+        }).eq('email', emailClient);
+    }
+
+    return { statusCode: 200, body: 'Événement Stripe traité avec succès !' };
 };

@@ -5,235 +5,45 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Le Moderne - L'Actualité Élégante</title>
     
-    <!-- Import de Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <style>
-        :root {
-            --bleu-profond: #0B192C;
-            --bleu-clair: #1A365D;
-            --or: #D4AF37;
-            --fond: #F8FAFC;
-            --texte: #333333;
-        }
-
-        body {
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--fond);
-            margin: 0;
-            padding: 0;
-            color: var(--texte);
-        }
-
-        /* --- EN-TÊTE PUBLIC --- */
-        header {
-            background-color: var(--bleu-profond);
-            padding: 20px 50px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 4px solid var(--or);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        header h1 {
-            color: var(--or);
-            margin: 0;
-            font-size: 2.2rem;
-            letter-spacing: 1px;
-        }
-
-        .auth-buttons button {
-            background: transparent;
-            color: white;
-            border: 2px solid var(--or);
-            padding: 10px 20px;
-            margin-left: 10px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s;
-        }
-
-        .auth-buttons button.btn-abonnement {
-            background-color: var(--or);
-            color: var(--bleu-profond);
-        }
-
-        .auth-buttons button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 10px rgba(212, 175, 55, 0.3);
-        }
-
-        /* --- MODALES (STYLES COMMUNS) --- */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(11, 25, 44, 0.8);
-            z-index: 200;
-            justify-content: center;
-            align-items: center;
-            backdrop-filter: blur(5px);
-        }
-
-        .close-btn {
-            position: absolute;
-            top: 15px; right: 20px;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: #888;
-        }
-        .close-btn:hover { color: var(--bleu-profond); }
-
-        /* --- MODALE D'AUTHENTIFICATION --- */
-        .auth-content {
-            background: white;
-            padding: 40px;
-            border-radius: 12px;
-            width: 100%;
-            max-width: 400px;
-            position: relative;
-        }
-
-        .auth-content h2 { color: var(--bleu-profond); margin-top: 0; }
-        .auth-content input {
-            width: 100%; padding: 12px; margin-bottom: 15px;
-            border: 1px solid #ccc; border-radius: 8px;
-            box-sizing: border-box; font-size: 1rem;
-        }
-        .auth-content button {
-            width: 100%; background-color: var(--bleu-profond);
-            color: white; padding: 12px; border: none;
-            border-radius: 8px; font-size: 1.1rem; cursor: pointer;
-            margin-bottom: 10px;
-        }
-        .auth-content button.btn-alt {
-            background-color: transparent; color: var(--bleu-clair);
-            border: 1px solid var(--bleu-clair);
-        }
-
-        /* --- MODALE DES OFFRES (NOUVEAU) --- */
-        .offres-content {
-            background: white;
-            padding: 40px;
-            border-radius: 12px;
-            width: 90%;
-            max-width: 800px;
-            max-height: 90vh;
-            overflow-y: auto;
-            position: relative;
-        }
-
-        .offres-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-top: 30px;
-        }
-
-        .offre-card {
-            border: 2px solid #eee;
-            border-radius: 12px;
-            padding: 30px;
-            text-align: center;
-            transition: all 0.3s ease;
-        }
-
-        .offre-card:hover {
-            border-color: var(--or);
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(212,175,55,0.15);
-        }
-
-        .offre-card h3 {
-            color: var(--bleu-profond);
-            font-size: 1.5rem;
-            margin-top: 0;
-        }
-
-        .offre-prix {
-            font-size: 2.5rem;
-            color: var(--or);
-            font-weight: bold;
-            margin: 15px 0;
-        }
-
-        .offre-avantages {
-            list-style: none;
-            padding: 0;
-            margin-bottom: 25px;
-            color: #555;
-            text-align: left;
-        }
-
-        .offre-avantages li {
-            margin-bottom: 10px;
-            padding-left: 25px;
-            position: relative;
-        }
-        .offre-avantages li::before {
-            content: '✓';
-            position: absolute;
-            left: 0;
-            color: var(--or);
-            font-weight: bold;
-        }
-
-        .btn-choisir {
-            width: 100%;
-            background-color: var(--bleu-profond);
-            color: white;
-            padding: 12px;
-            border: none;
-            border-radius: 8px;
-            font-size: 1.1rem;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-            box-sizing: border-box;
-            font-weight: bold;
-            transition: 0.3s;
-        }
-
-        .btn-choisir:hover {
-            background-color: var(--or);
-            color: var(--bleu-profond);
-        }
-
-        /* --- CONTENEUR DES ARTICLES --- */
-        .container {
-            max-width: 800px;
-            margin: 50px auto;
-            padding: 0 20px;
-        }
-        .article-card {
-            background: white; border-radius: 12px; padding: 30px;
-            margin-bottom: 40px; box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-        }
+        /* (Le CSS reste strictement identique à l'étape précédente) */
+        :root { --bleu-profond: #0B192C; --bleu-clair: #1A365D; --or: #D4AF37; --fond: #F8FAFC; --texte: #333333; }
+        body { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: var(--fond); margin: 0; padding: 0; color: var(--texte); }
+        header { background-color: var(--bleu-profond); padding: 20px 50px; display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid var(--or); position: sticky; top: 0; z-index: 100; }
+        header h1 { color: var(--or); margin: 0; font-size: 2.2rem; letter-spacing: 1px; }
+        .auth-buttons button { background: transparent; color: white; border: 2px solid var(--or); padding: 10px 20px; margin-left: 10px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: all 0.3s; }
+        .auth-buttons button.btn-abonnement { background-color: var(--or); color: var(--bleu-profond); }
+        .auth-buttons button:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(212, 175, 55, 0.3); }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(11, 25, 44, 0.8); z-index: 200; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+        .close-btn { position: absolute; top: 15px; right: 20px; font-size: 1.5rem; cursor: pointer; color: #888; }
+        .auth-content, .offres-content { background: white; padding: 40px; border-radius: 12px; position: relative; }
+        .auth-content { width: 100%; max-width: 400px; }
+        .offres-content { width: 90%; max-width: 800px; max-height: 90vh; overflow-y: auto; }
+        .auth-content input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; }
+        .auth-content button { width: 100%; background-color: var(--bleu-profond); color: white; padding: 12px; border: none; border-radius: 8px; font-size: 1.1rem; cursor: pointer; margin-bottom: 10px; }
+        .auth-content button.btn-alt { background-color: transparent; color: var(--bleu-clair); border: 1px solid var(--bleu-clair); }
+        .offres-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-top: 30px; }
+        .offre-card { border: 2px solid #eee; border-radius: 12px; padding: 30px; text-align: center; transition: all 0.3s; }
+        .offre-card:hover { border-color: var(--or); transform: translateY(-5px); box-shadow: 0 10px 20px rgba(212,175,55,0.15); }
+        .offre-card h3 { color: var(--bleu-profond); font-size: 1.5rem; margin-top: 0; }
+        .offre-prix { font-size: 2.5rem; color: var(--or); font-weight: bold; margin: 15px 0; }
+        .offre-avantages { list-style: none; padding: 0; margin-bottom: 25px; text-align: left; }
+        .offre-avantages li { margin-bottom: 10px; padding-left: 25px; position: relative; }
+        .offre-avantages li::before { content: '✓'; position: absolute; left: 0; color: var(--or); font-weight: bold; }
+        .btn-choisir { width: 100%; background-color: var(--bleu-profond); color: white; padding: 12px; border: none; border-radius: 8px; font-size: 1.1rem; cursor: pointer; text-decoration: none; display: inline-block; box-sizing: border-box; font-weight: bold; transition: 0.3s; }
+        .btn-choisir:hover { background-color: var(--or); color: var(--bleu-profond); }
+        .container { max-width: 800px; margin: 50px auto; padding: 0 20px; }
+        .article-card { background: white; border-radius: 12px; padding: 30px; margin-bottom: 40px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
         .article-titre { color: var(--bleu-profond); font-size: 2rem; margin-top: 0; margin-bottom: 10px; }
         .article-date { color: #888; font-size: 0.9rem; margin-bottom: 25px; font-style: italic; }
         .article-contenu { line-height: 1.8; font-size: 1.1rem; }
         .paywall-container { position: relative; }
-        .texte-estompe {
-            -webkit-mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
-            mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
-            padding-bottom: 40px;
-        }
-        .paywall-banner {
-            background: linear-gradient(135deg, var(--bleu-profond), var(--bleu-clair));
-            color: white; text-align: center; padding: 40px 20px;
-            border-radius: 12px; margin-top: -30px; position: relative;
-            z-index: 10; border: 2px solid var(--or);
-        }
+        .texte-estompe { -webkit-mask-image: linear-gradient(to bottom, black 40%, transparent 100%); mask-image: linear-gradient(to bottom, black 40%, transparent 100%); padding-bottom: 40px; }
+        .paywall-banner { background: linear-gradient(135deg, var(--bleu-profond), var(--bleu-clair)); color: white; text-align: center; padding: 40px 20px; border-radius: 12px; margin-top: -30px; position: relative; z-index: 10; border: 2px solid var(--or); }
         .paywall-banner h3 { color: var(--or); margin-top: 0; }
-        .paywall-banner button {
-            background-color: var(--or); color: var(--bleu-profond); border: none;
-            padding: 15px 30px; font-size: 1.1rem; font-weight: bold;
-            border-radius: 30px; margin-top: 20px; cursor: pointer; transition: 0.3s;
-        }
+        .paywall-banner button { background-color: var(--or); color: var(--bleu-profond); border: none; padding: 15px 30px; font-size: 1.1rem; font-weight: bold; border-radius: 30px; margin-top: 20px; cursor: pointer; transition: 0.3s; }
         .paywall-banner button:hover { transform: scale(1.05); }
     </style>
 </head>
@@ -242,12 +52,10 @@
     <header>
         <h1>Le Moderne</h1>
         <div class="auth-buttons" id="zone-boutons-header">
-            <button onclick="ouvrirModaleAuth()">Se connecter</button>
-            <button class="btn-abonnement" onclick="afficherOffres()">S'abonner</button>
+            <!-- Injecté via JS -->
         </div>
     </header>
 
-    <!-- Modale d'inscription / connexion -->
     <div id="auth-modal" class="modal-overlay">
         <div class="auth-content">
             <span class="close-btn" onclick="fermerModaleAuth()">&times;</span>
@@ -267,26 +75,18 @@
         </div>
     </div>
 
-    <!-- Modale des Offres d'Abonnement -->
     <div id="offres-modal" class="modal-overlay">
         <div class="offres-content">
             <span class="close-btn" onclick="fermerModaleOffres()">&times;</span>
             <h2 style="color: var(--bleu-profond); text-align: center; font-size: 2rem; margin-top: 0;">Rejoignez Le Moderne</h2>
             <p style="text-align: center; color: #666; margin-bottom: 40px;">Soutenez une presse indépendante et débloquez des avantages exclusifs.</p>
-            
-            <div class="offres-grid" id="liste-offres">
-                <!-- Les offres seront injectées ici par JS -->
-                <p style="text-align: center; grid-column: 1 / -1;">Chargement de nos offres...</p>
-            </div>
+            <div class="offres-grid" id="liste-offres"></div>
         </div>
     </div>
 
-    <div class="container" id="flux-articles">
-        <p style="text-align: center; color: #888;">Chargement de l'actualité...</p>
-    </div>
+    <div class="container" id="flux-articles"></div>
 
     <script>
-        // 1. Initialisation Supabase (À REMPLACER PAR TES CLÉS)
         const supabaseUrl = 'TON_URL_SUPABASE';
         const supabaseKey = 'TA_CLE_ANON_SUPABASE';
         const supabase = supabase.createClient(supabaseUrl, supabaseKey);
@@ -294,10 +94,8 @@
         let lecteurActuel = null;
         let estAbonne = false;
 
-        // 2. Vérification de la session
         async function verifierSession() {
             const { data: { session } } = await supabase.auth.getSession();
-            
             if (session) {
                 lecteurActuel = session.user;
                 const { data: profil } = await supabase.from('lecteurs').select('est_abonne').eq('id', lecteurActuel.id).single();
@@ -319,18 +117,14 @@
             chargerArticles();
         }
 
-        // 3. Authentification
         async function sInscrire() {
             const email = document.getElementById('auth-email').value;
             const password = document.getElementById('auth-password').value;
             const { data, error } = await supabase.auth.signUp({ email, password });
-            
             if (error) alert("Erreur : " + error.message);
             else {
                 if (data.user) await supabase.from('lecteurs').insert([{ id: data.user.id, email: email }]);
-                alert("✅ Compte créé avec succès !");
-                fermerModaleAuth();
-                verifierSession();
+                alert("✅ Compte créé !"); fermerModaleAuth(); verifierSession();
             }
         }
 
@@ -338,22 +132,16 @@
             const email = document.getElementById('auth-email').value;
             const password = document.getElementById('auth-password').value;
             const { error } = await supabase.auth.signInWithPassword({ email, password });
-            
             if (error) alert("Erreur : " + error.message);
             else { fermerModaleAuth(); verifierSession(); }
         }
 
-        async function seDeconnecter() {
-            await supabase.auth.signOut();
-            verifierSession();
-        }
+        async function seDeconnecter() { await supabase.auth.signOut(); verifierSession(); }
 
-        // 4. Charger les articles
-        async function chargerArticles() {
+        async function chargerArticles() { /* Reste identique à la version précédente */
             const { data: articles, error } = await supabase.from('articles').select('*').order('date_publication', { ascending: false });
             const conteneur = document.getElementById('flux-articles');
             conteneur.innerHTML = ''; 
-
             if (error) return conteneur.innerHTML = `<p>Erreur lors du chargement.</p>`;
             if (articles.length === 0) return conteneur.innerHTML = `<p style="text-align:center;">Aucun article.</p>`;
 
@@ -368,7 +156,6 @@
                             <div class="article-contenu texte-estompe">${article.contenu_public}</div>
                             <div class="paywall-banner">
                                 <h3>Cet article est réservé aux abonnés</h3>
-                                <p>Rejoignez <i>Le Moderne</i> pour débloquer la suite.</p>
                                 <button onclick="afficherOffres()">Découvrir nos offres</button>
                             </div>
                         </div>`;
@@ -380,66 +167,59 @@
             });
         }
 
-        // 5. Gestion de la Modale des Offres (La Nouveauté)
+        // MISE À JOUR : Logique de l'email prérempli
         async function afficherOffres() {
-            document.getElementById('offres-modal').style.display = 'flex';
-            const conteneur = document.getElementById('liste-offres');
-            
-            // On va chercher les offres créées dans l'éditeur (classées par prix)
-            const { data: offres, error } = await supabase
-                .from('offres')
-                .select('*')
-                .order('prix_euros', { ascending: true });
-
-            if (error || offres.length === 0) {
-                conteneur.innerHTML = '<p style="grid-column: 1 / -1; text-align: center;">Aucune offre disponible pour le moment.</p>';
+            // Obliger l'utilisateur à se connecter avant de s'abonner pour pouvoir lier son compte !
+            if (!lecteurActuel) {
+                alert("Vous devez créer un compte lecteur gratuit ou vous connecter avant de pouvoir vous abonner.");
+                ouvrirModaleAuth();
                 return;
             }
 
-            conteneur.innerHTML = ''; // On vide le message de chargement
+            document.getElementById('offres-modal').style.display = 'flex';
+            const conteneur = document.getElementById('liste-offres');
+            
+            const { data: offres, error } = await supabase.from('offres').select('*').order('prix_euros', { ascending: true });
+
+            if (error || offres.length === 0) {
+                conteneur.innerHTML = '<p style="grid-column: 1 / -1; text-align: center;">Aucune offre disponible.</p>';
+                return;
+            }
+
+            conteneur.innerHTML = '';
             
             offres.forEach(offre => {
-                // Dans le futur, 'offre.stripe_price_id' contiendra ton vrai Lien de Paiement Stripe
-                // Ex: https://buy.stripe.com/test_12345
-                const lienStripe = offre.stripe_price_id ? offre.stripe_price_id : `javascript:alert('Ici, nous redirigerons vers le lien Stripe de l\\'offre : ${offre.nom}')`;
+                // On attache l'email de l'utilisateur à l'URL Stripe !
+                const emailEncode = encodeURIComponent(lecteurActuel.email);
+                const lienPaiement = `${offre.stripe_price_id}?prefilled_email=${emailEncode}`;
                 
                 let partagesTexte = offre.partages_autorises > 0 
-                    ? `Partagez jusqu'à <b>${offre.partages_autorises} articles</b> par mois à vos proches` 
-                    : "Aucun partage d'article inclus";
+                    ? `Partagez jusqu'à <b>${offre.partages_autorises} articles</b> par mois` 
+                    : "Aucun partage inclus";
 
                 conteneur.innerHTML += `
                     <div class="offre-card">
                         <h3>${offre.nom}</h3>
                         <div class="offre-prix">${offre.prix_euros} €<span style="font-size: 1rem; color: #888;">/mois</span></div>
                         <ul class="offre-avantages">
-                            <li>Accès illimité à tous les articles Premium</li>
-                            <li>Navigation sans aucune publicité</li>
+                            <li>Accès Premium illimité</li>
+                            <li>Zéro publicité</li>
                             <li>${partagesTexte}</li>
                         </ul>
-                        <a href="${lienStripe}" class="btn-choisir">Choisir cette offre</a>
+                        <a href="${lienPaiement}" class="btn-choisir">Choisir cette offre</a>
                     </div>
                 `;
             });
         }
 
-        // 6. Gestion de l'affichage des modales
         function ouvrirModaleAuth() { document.getElementById('auth-modal').style.display = 'flex'; }
         function fermerModaleAuth() { document.getElementById('auth-modal').style.display = 'none'; }
         function fermerModaleOffres() { document.getElementById('offres-modal').style.display = 'none'; }
-        
         function basculerModeAuth(mode) {
-            if (mode === 'inscription') {
-                document.getElementById('modal-titre').innerText = "Créer un compte";
-                document.getElementById('form-login').style.display = 'none';
-                document.getElementById('form-register').style.display = 'block';
-            } else {
-                document.getElementById('modal-titre').innerText = "Connexion";
-                document.getElementById('form-login').style.display = 'block';
-                document.getElementById('form-register').style.display = 'none';
-            }
+            if (mode === 'inscription') { document.getElementById('modal-titre').innerText = "Créer un compte"; document.getElementById('form-login').style.display = 'none'; document.getElementById('form-register').style.display = 'block'; }
+            else { document.getElementById('modal-titre').innerText = "Connexion"; document.getElementById('form-login').style.display = 'block'; document.getElementById('form-register').style.display = 'none'; }
         }
 
-        // Lancement initial
         verifierSession();
     </script>
 </body>

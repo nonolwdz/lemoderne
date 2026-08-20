@@ -89,6 +89,36 @@
             font-size: 1.8rem;
         }
 
+        /* Navigation par onglets */
+        .tabs {
+            display: flex;
+            justify-content: center;
+            background-color: white;
+            padding: 10px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .tab-btn {
+            background: none;
+            color: var(--bleu-clair);
+            font-size: 1.1rem;
+            margin: 0 15px;
+            padding: 10px 20px;
+            border-bottom: 3px solid transparent;
+            border-radius: 0;
+        }
+
+        .tab-btn.active {
+            border-bottom: 3px solid var(--or);
+            color: var(--bleu-profond);
+        }
+
+        .tab-btn:hover {
+            background: none;
+            transform: none;
+            color: var(--or);
+        }
+
         .container {
             max-width: 1000px;
             margin: 40px auto;
@@ -96,6 +126,13 @@
             padding: 30px;
             border-radius: 12px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        }
+
+        .section {
+            display: none;
+        }
+        .section.active {
+            display: block;
         }
 
         .input-group {
@@ -109,7 +146,10 @@
             color: var(--bleu-profond);
         }
 
-        .input-group input[type="text"] {
+        .input-group input[type="text"],
+        .input-group input[type="number"],
+        .input-group input[type="date"],
+        .input-group select {
             width: 100%;
             padding: 12px;
             border: 1px solid #ccc;
@@ -134,6 +174,12 @@
             width: 100%;
             font-size: 1.2rem;
         }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
     </style>
 </head>
 <body>
@@ -152,25 +198,110 @@
             <button onclick="logout()" style="padding: 8px 15px; font-size: 0.9rem;">Déconnexion</button>
         </header>
 
+        <!-- Menu des onglets -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('articles', this)">Créer un article</button>
+            <button class="tab-btn" onclick="switchTab('offres', this)">Offres & Promos</button>
+            <button class="tab-btn" onclick="switchTab('lecteurs', this)">Gestion des Lecteurs</button>
+        </div>
+
         <div class="container">
-            <h2>Créer un nouvel article</h2>
             
-            <div class="input-group">
-                <label>Titre de l'article</label>
-                <input type="text" id="titre-article" placeholder="Ex: Les nouvelles technologies en 2026...">
+            <!-- SECTION 1 : ARTICLES -->
+            <div id="section-articles" class="section active">
+                <h2>Créer un nouvel article</h2>
+                <div class="input-group">
+                    <label>Titre de l'article</label>
+                    <input type="text" id="titre-article" placeholder="Ex: Les nouvelles technologies en 2026...">
+                </div>
+                <div class="input-group">
+                    <label>Contenu de l'article</label>
+                    <div id="quill-editor"></div>
+                </div>
+                <div class="input-group" style="display: flex; align-items: center; gap: 10px;">
+                    <input type="checkbox" id="reserve-abonnes" style="width: 20px; height: 20px;">
+                    <label style="margin: 0;">Article 100% réservé aux abonnés</label>
+                </div>
+                <button class="btn-submit" onclick="sauvegarderArticle()">Publier l'article</button>
             </div>
 
-            <div class="input-group">
-                <label>Contenu de l'article</label>
-                <div id="quill-editor"></div>
+            <!-- SECTION 2 : OFFRES & PROMOS -->
+            <div id="section-offres" class="section">
+                <h2>Créer une offre d'abonnement</h2>
+                <div class="grid-2">
+                    <div class="input-group">
+                        <label>Nom de l'offre</label>
+                        <input type="text" id="nom-offre" placeholder="Ex: Premium Mensuel">
+                    </div>
+                    <div class="input-group">
+                        <label>Prix (€)</label>
+                        <input type="number" id="prix-offre" placeholder="9.99" step="0.01">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>Nombre d'articles partageables par mois</label>
+                    <input type="number" id="partages-offre" placeholder="Ex: 2" value="0">
+                </div>
+                <button onclick="creerOffre()" style="margin-bottom: 40px; width: 100%;">Créer l'offre</button>
+
+                <hr style="border: 1px solid #eee; margin-bottom: 30px;">
+
+                <h2>Créer un code promotionnel</h2>
+                <div class="grid-2">
+                    <div class="input-group">
+                        <label>Code</label>
+                        <input type="text" id="code-promo" placeholder="Ex: ETE2026">
+                    </div>
+                    <div class="input-group">
+                        <label>Type de remise</label>
+                        <select id="type-remise">
+                            <option value="pourcentage">Pourcentage (%)</option>
+                            <option value="euros">Euros (€)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>Valeur de la remise</label>
+                    <input type="number" id="valeur-remise" placeholder="Ex: 20" step="0.5">
+                </div>
+                <div class="grid-2">
+                    <div class="input-group">
+                        <label>Valable du</label>
+                        <input type="date" id="date-debut">
+                    </div>
+                    <div class="input-group">
+                        <label>Valable jusqu'au</label>
+                        <input type="date" id="date-fin">
+                    </div>
+                </div>
+                <button onclick="creerCodePromo()" style="width: 100%;">Créer le code promo</button>
             </div>
 
-            <div class="input-group" style="display: flex; align-items: center; gap: 10px;">
-                <input type="checkbox" id="reserve-abonnes" style="width: 20px; height: 20px;">
-                <label style="margin: 0;">Article 100% réservé aux abonnés</label>
+            <!-- SECTION 3 : LECTEURS -->
+            <div id="section-lecteurs" class="section">
+                <h2>Gérer les abonnements</h2>
+                <p style="color: #666; margin-bottom: 20px;">Ajoutez ou retirez des mois d'abonnement à un lecteur spécifique.</p>
+                
+                <div class="input-group">
+                    <label>Email du lecteur</label>
+                    <input type="text" id="email-lecteur" placeholder="lecteur@email.com">
+                </div>
+                <div class="grid-2">
+                    <div class="input-group">
+                        <label>Action</label>
+                        <select id="action-lecteur">
+                            <option value="ajouter">Offrir de l'abonnement</option>
+                            <option value="retirer">Retirer de l'abonnement</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Durée (en mois)</label>
+                        <input type="number" id="mois-lecteur" value="1" min="1">
+                    </div>
+                </div>
+                <button onclick="gererAbonnement()" style="width: 100%;">Mettre à jour l'abonnement</button>
             </div>
 
-            <button class="btn-submit" onclick="sauvegarderArticle()">Publier l'article</button>
         </div>
     </div>
 
@@ -181,7 +312,7 @@
         const supabaseKey = 'TA_CLE_ANON_SUPABASE';
         const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-        // 2. Système de connexion
+        // 2. Système de connexion et navigation
         function checkPassword() {
             const pwd = document.getElementById('password-input').value;
             if (pwd === 'ided13') {
@@ -196,6 +327,15 @@
             document.getElementById('login-screen').style.display = 'flex';
             document.getElementById('editor-dashboard').style.display = 'none';
             document.getElementById('password-input').value = '';
+        }
+
+        function switchTab(sectionId, element) {
+            // Cacher toutes les sections
+            document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            // Afficher la bonne section
+            document.getElementById('section-' + sectionId).classList.add('active');
+            element.classList.add('active');
         }
 
         // 3. Initialisation de l'éditeur de texte
@@ -214,7 +354,7 @@
             }
         });
 
-        // 4. Fonction d'envoi vers Supabase
+        // 4. Fonction d'envoi d'article vers Supabase
         async function sauvegarderArticle() {
             const titre = document.getElementById('titre-article').value;
             const toutPremium = document.getElementById('reserve-abonnes').checked;
@@ -227,9 +367,8 @@
 
             let contenuPublic = contenuComplet;
             let contenuPremium = null;
-
-            // Logique de découpage du Paywall
             const separateur = "[PAYWALL]";
+
             if (contenuComplet.includes(separateur)) {
                 const parties = contenuComplet.split(separateur);
                 contenuPublic = parties[0];
@@ -239,27 +378,66 @@
                 contenuPremium = contenuComplet;
             }
 
-            // Envoi à la base de données
-            const { data, error } = await supabase
-                .from('articles')
-                .insert([
-                    { 
-                        titre: titre, 
-                        contenu_public: contenuPublic, 
-                        contenu_premium: contenuPremium,
-                        reserve_abonnes: toutPremium
-                    }
-                ]);
+            const { data, error } = await supabase.from('articles').insert([{ 
+                titre: titre, 
+                contenu_public: contenuPublic, 
+                contenu_premium: contenuPremium,
+                reserve_abonnes: toutPremium
+            }]);
 
             if (error) {
-                console.error("Erreur Supabase :", error);
                 alert("Erreur lors de la publication : " + error.message);
             } else {
-                alert("✅ Article publié avec succès !");
+                alert("✅ Article publié !");
                 quill.root.innerHTML = '';
                 document.getElementById('titre-article').value = '';
                 document.getElementById('reserve-abonnes').checked = false;
             }
+        }
+
+        // 5. Fonctions de gestion (Offres, Promos, Lecteurs)
+        async function creerOffre() {
+            const nom = document.getElementById('nom-offre').value;
+            const prix = document.getElementById('prix-offre').value;
+            const partages = document.getElementById('partages-offre').value;
+
+            if(!nom || !prix) return alert("Veuillez remplir le nom et le prix.");
+
+            const { error } = await supabase.from('offres').insert([{
+                nom: nom, prix_euros: prix, partages_autorises: partages
+            }]);
+
+            if(error) alert("Erreur : " + error.message);
+            else alert("✅ Offre créée ! (Pensez à configurer le produit équivalent sur Stripe ensuite)");
+        }
+
+        async function creerCodePromo() {
+            const code = document.getElementById('code-promo').value;
+            const type = document.getElementById('type-remise').value;
+            const valeur = document.getElementById('valeur-remise').value;
+            const debut = document.getElementById('date-debut').value;
+            const fin = document.getElementById('date-fin').value;
+
+            if(!code || !valeur || !debut || !fin) return alert("Veuillez remplir tous les champs.");
+
+            const { error } = await supabase.from('codes_promo').insert([{
+                code: code, type_remise: type, valeur_remise: valeur, valable_du: debut, valable_au: fin
+            }]);
+
+            if(error) alert("Erreur : " + error.message);
+            else alert("✅ Code promotionnel actif !");
+        }
+
+        async function gererAbonnement() {
+            const email = document.getElementById('email-lecteur').value;
+            const action = document.getElementById('action-lecteur').value;
+            const mois = parseInt(document.getElementById('mois-lecteur').value);
+
+            if(!email) return alert("Veuillez entrer un email.");
+
+            // Logique simplifiée pour l'exemple. 
+            // En production, on récupère d'abord l'utilisateur, puis on modifie sa date de 'fin_abonnement'.
+            alert(`✅ Simulation réussie : Action "${action}" de ${mois} mois appliquée au compte ${email}. (La liaison finale se fera quand l'authentification lecteur sera en place).`);
         }
     </script>
 </body>

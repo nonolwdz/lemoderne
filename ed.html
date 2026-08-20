@@ -33,7 +33,7 @@
         
         .input-group { margin-bottom: 20px; }
         .input-group label { display: block; font-weight: bold; margin-bottom: 8px; color: var(--bleu-profond); }
-        .input-group input[type="text"], .input-group input[type="number"], .input-group input[type="date"], .input-group select { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 1.1rem; box-sizing: border-box; }
+        .input-group input[type="text"], .input-group input[type="number"], .input-group input[type="date"], .input-group select, .input-group textarea { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 1.1rem; box-sizing: border-box; font-family: inherit; }
         
         #quill-editor { height: 400px; border-radius: 0 0 8px 8px; }
         .ql-toolbar { border-radius: 8px 8px 0 0; background-color: #f1f5f9; }
@@ -62,7 +62,7 @@
         </div>
 
         <div class="container">
-            <!-- SECTION ARTICLES -->
+            <!-- ARTICLES -->
             <div id="section-articles" class="section active">
                 <h2>Créer un nouvel article</h2>
                 <div class="input-group">
@@ -80,28 +80,20 @@
                 <button class="btn-submit" onclick="sauvegarderArticle()">Publier l'article</button>
             </div>
 
-            <!-- SECTION OFFRES & PROMOS -->
+            <!-- OFFRES & PROMOS -->
             <div id="section-offres" class="section">
                 <h2>Créer une offre d'abonnement</h2>
                 <div class="grid-2">
-                    <div class="input-group">
-                        <label>Nom de l'offre</label>
-                        <input type="text" id="nom-offre" placeholder="Ex: Le Moderne Plus">
-                    </div>
-                    <div class="input-group">
-                        <label>Prix (€)</label>
-                        <input type="number" id="prix-offre" placeholder="9.99" step="0.01">
-                    </div>
+                    <div class="input-group"><label>Nom de l'offre</label><input type="text" id="nom-offre" placeholder="Ex: Le Moderne Plus"></div>
+                    <div class="input-group"><label>Prix (€)</label><input type="number" id="prix-offre" placeholder="9.99" step="0.01"></div>
                 </div>
                 <div class="grid-2">
-                    <div class="input-group">
-                        <label>Nombre d'articles partageables par mois</label>
-                        <input type="number" id="partages-offre" placeholder="Ex: 2" value="0">
-                    </div>
-                    <div class="input-group">
-                        <label>Lien de paiement Stripe</label>
-                        <input type="text" id="lien-stripe" placeholder="Ex: https://buy.stripe.com/...">
-                    </div>
+                    <div class="input-group"><label>Lien Stripe</label><input type="text" id="lien-stripe" placeholder="https://buy.stripe.com/..."></div>
+                    <div class="input-group"><label>Partages autorisés/mois</label><input type="number" id="partages-offre" value="0"></div>
+                </div>
+                <div class="input-group">
+                    <label>Avantages de l'offre (Sautez une ligne pour chaque avantage)</label>
+                    <textarea id="avantages-offre" rows="4" placeholder="Accès illimité&#10;Zéro publicité&#10;Articles en avant-première"></textarea>
                 </div>
                 <button onclick="creerOffre()" style="margin-bottom: 40px; width: 100%;">Créer l'offre</button>
 
@@ -120,13 +112,13 @@
                 <button onclick="creerCodePromo()" style="width: 100%;">Créer le code promo</button>
             </div>
 
-            <!-- SECTION LECTEURS -->
+            <!-- LECTEURS -->
             <div id="section-lecteurs" class="section">
-                <h2>Gérer les abonnements</h2>
-                <div class="input-group"><label>Email du lecteur</label><input type="text" id="email-lecteur" placeholder="lecteur@email.com"></div>
+                <h2>Gérer les abonnements manuellement</h2>
+                <div class="input-group"><label>Email du lecteur (Il doit déjà être inscrit)</label><input type="text" id="email-lecteur" placeholder="lecteur@email.com"></div>
                 <div class="grid-2">
-                    <div class="input-group"><label>Action</label><select id="action-lecteur"><option value="ajouter">Offrir de l'abonnement</option><option value="retirer">Retirer de l'abonnement</option></select></div>
-                    <div class="input-group"><label>Durée (en mois)</label><input type="number" id="mois-lecteur" value="1" min="1"></div>
+                    <div class="input-group"><label>Action</label><select id="action-lecteur"><option value="ajouter">Offrir / Ajouter des jours</option><option value="retirer">Retirer des jours</option></select></div>
+                    <div class="input-group"><label>Durée (en JOURS)</label><input type="number" id="jours-lecteur" value="3" min="1"></div>
                 </div>
                 <button onclick="gererAbonnement()" style="width: 100%;">Mettre à jour l'abonnement</button>
             </div>
@@ -135,7 +127,6 @@
 
     <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
     <script>
-        // Utilisation des vraies clés Supabase
         const supabaseUrl = 'https://zbuwjvbcxqxtwughuadf.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpidXdqdmJjeHF4dHd1Z2h1YWRmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcyMDc2ODAsImV4cCI6MjEwMjc4MzY4MH0.lO0FizbO5jnRvRjrMERCKe6cBFFN_ttBMlRAGXtlHyo';
         const db = supabase.createClient(supabaseUrl, supabaseKey);
@@ -157,7 +148,7 @@
         }
 
         var quill = new Quill('#quill-editor', {
-            theme: 'snow', placeholder: 'Rédigez ici... Tapez [PAYWALL] pour définir la limite de lecture gratuite.',
+            theme: 'snow', placeholder: 'Rédigez ici... Tapez [PAYWALL] pour définir la limite.',
             modules: { toolbar: [ [{ 'header': [1, 2, 3, false] }], ['bold', 'italic', 'underline', 'strike'], [{ 'color': [] }, { 'background': [] }], ['link', 'image', 'video'], [{ 'list': 'ordered'}, { 'list': 'bullet' }], ['clean'] ] }
         });
 
@@ -168,16 +159,15 @@
             if (!titre || contenuComplet === '<p><br></p>') return alert("Veuillez mettre un titre et un contenu.");
 
             let contenuPublic = contenuComplet, contenuPremium = null;
-            const separateur = "[PAYWALL]";
-            if (contenuComplet.includes(separateur)) {
-                const parties = contenuComplet.split(separateur);
+            if (contenuComplet.includes("[PAYWALL]")) {
+                const parties = contenuComplet.split("[PAYWALL]");
                 contenuPublic = parties[0]; contenuPremium = parties[1];
             } else if (toutPremium) {
                 contenuPublic = "<p><i>Article réservé aux abonnés.</i></p>"; contenuPremium = contenuComplet;
             }
 
             const { error } = await db.from('articles').insert([{ titre: titre, contenu_public: contenuPublic, contenu_premium: contenuPremium, reserve_abonnes: toutPremium }]);
-            if (error) alert("Erreur : " + error.message);
+            if (error) alert("Erreur de publication : " + error.message);
             else { alert("✅ Article publié !"); quill.root.innerHTML = ''; document.getElementById('titre-article').value = ''; }
         }
 
@@ -186,23 +176,70 @@
             const prix = document.getElementById('prix-offre').value;
             const partages = document.getElementById('partages-offre').value;
             const lienStripe = document.getElementById('lien-stripe').value; 
+            const avantages = document.getElementById('avantages-offre').value; 
 
             if(!nom || !prix || !lienStripe) return alert("Veuillez remplir le nom, le prix et le lien Stripe.");
 
             const { error } = await db.from('offres').insert([{
-                nom: nom, prix_euros: prix, partages_autorises: partages, stripe_price_id: lienStripe
+                nom: nom, prix_euros: prix, partages_autorises: partages, stripe_price_id: lienStripe, avantages: avantages
             }]);
 
             if(error) alert("Erreur : " + error.message);
-            else { 
-                alert("✅ Offre créée et reliée à Stripe !");
-                document.getElementById('nom-offre').value = '';
-                document.getElementById('lien-stripe').value = '';
-            }
+            else { alert("✅ Offre créée !"); document.getElementById('nom-offre').value = ''; document.getElementById('lien-stripe').value = ''; document.getElementById('avantages-offre').value = ''; }
         }
 
-        async function creerCodePromo() { /* Simulation pour l'instant */ }
-        async function gererAbonnement() { /* Simulation pour l'instant */ }
+        async function creerCodePromo() {
+            const code = document.getElementById('code-promo').value;
+            const type = document.getElementById('type-remise').value;
+            const valeur = document.getElementById('valeur-remise').value;
+            const debut = document.getElementById('date-debut').value;
+            const fin = document.getElementById('date-fin').value;
+
+            if(!code || !valeur || !debut || !fin) return alert("Veuillez remplir tous les champs.");
+
+            const { error } = await db.from('codes_promo').insert([{
+                code: code, type_remise: type, valeur_remise: valeur, valable_du: debut, valable_au: fin
+            }]);
+
+            if(error) alert("Erreur : " + error.message);
+            else { alert("✅ Code promotionnel créé !"); document.getElementById('code-promo').value = ''; }
+        }
+
+        async function gererAbonnement() {
+            const email = document.getElementById('email-lecteur').value;
+            const action = document.getElementById('action-lecteur').value;
+            const jours = parseInt(document.getElementById('jours-lecteur').value);
+
+            if(!email || isNaN(jours)) return alert("Veuillez entrer un email et une durée.");
+
+            // 1. Trouver le lecteur
+            const { data: lecteur, error: errFetch } = await db.from('lecteurs').select('*').eq('email', email).single();
+            if(errFetch || !lecteur) return alert("Ce lecteur n'existe pas ou n'est pas encore inscrit.");
+
+            // 2. Calculer la nouvelle date
+            let nouvelleDate = new Date();
+            if (lecteur.fin_abonnement && new Date(lecteur.fin_abonnement) > nouvelleDate) {
+                nouvelleDate = new Date(lecteur.fin_abonnement);
+            }
+
+            if (action === 'ajouter') {
+                nouvelleDate.setDate(nouvelleDate.getDate() + jours);
+            } else {
+                nouvelleDate.setDate(nouvelleDate.getDate() - jours);
+                if (nouvelleDate < new Date()) nouvelleDate = new Date(); // Si on retire trop, ça expire aujourd'hui
+            }
+
+            const estAbonne = nouvelleDate > new Date();
+
+            // 3. Mettre à jour
+            const { error: errUpdate } = await db.from('lecteurs').update({
+                est_abonne: estAbonne,
+                fin_abonnement: nouvelleDate.toISOString()
+            }).eq('id', lecteur.id);
+
+            if(errUpdate) alert("Erreur : " + errUpdate.message);
+            else alert(`✅ Succès ! L'abonnement de ${email} se terminera le ${nouvelleDate.toLocaleDateString('fr-FR')}.`);
+        }
     </script>
 </body>
 </html>

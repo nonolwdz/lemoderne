@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Le Moderne - L'Actualité Élégante</title>
+    
+    <!-- Import de Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <style>
+        :root {
+            --bleu-profond: #0B192C;
+            --bleu-clair: #1A365D;
+            --or: #D4AF37;
+            --fond: #F8FAFC;
+            --texte: #333333;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--fond);
+            margin: 0;
+            padding: 0;
+            color: var(--texte);
+        }
+
+        /* --- EN-TÊTE PUBLIC --- */
+        header {
+            background-color: var(--bleu-profond);
+            padding: 20px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 4px solid var(--or);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        header h1 {
+            color: var(--or);
+            margin: 0;
+            font-size: 2.2rem;
+            letter-spacing: 1px;
+        }
+
+        .auth-buttons button {
+            background: transparent;
+            color: white;
+            border: 2px solid var(--or);
+            padding: 10px 20px;
+            margin-left: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .auth-buttons button.btn-abonnement {
+            background-color: var(--or);
+            color: var(--bleu-profond);
+        }
+
+        .auth-buttons button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(212, 175, 55, 0.3);
+        }
+
+        /* --- CONTENEUR DES ARTICLES --- */
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 0 20px;
+        }
+
+        .article-card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 40px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        }
+
+        .article-titre {
+            color: var(--bleu-profond);
+            font-size: 2rem;
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+
+        .article-date {
+            color: #888;
+            font-size: 0.9rem;
+            margin-bottom: 25px;
+            font-style: italic;
+        }
+
+        .article-contenu {
+            line-height: 1.8;
+            font-size: 1.1rem;
+        }
+
+        /* --- EFFET PAYWALL --- */
+        .paywall-container {
+            position: relative;
+        }
+
+        /* Le texte juste avant le paywall s'estompe vers le blanc */
+        .texte-estompe {
+            -webkit-mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
+            mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
+            padding-bottom: 40px;
+        }
+
+        .paywall-banner {
+            background: linear-gradient(135deg, var(--bleu-profond), var(--bleu-clair));
+            color: white;
+            text-align: center;
+            padding: 40px 20px;
+            border-radius: 12px;
+            margin-top: -30px; /* Remonte légèrement sur le texte estompé */
+            position: relative;
+            z-index: 10;
+            border: 2px solid var(--or);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .paywall-banner h3 {
+            color: var(--or);
+            font-size: 1.5rem;
+            margin-top: 0;
+        }
+
+        .paywall-banner button {
+            background-color: var(--or);
+            color: var(--bleu-profond);
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 30px;
+            margin-top: 20px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .paywall-banner button:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Le Moderne</h1>
+        <div class="auth-buttons">
+            <button onclick="afficherConnexion()">Se connecter</button>
+            <button class="btn-abonnement" onclick="afficherOffres()">S'abonner</button>
+        </div>
+    </header>
+
+    <div class="container" id="flux-articles">
+        <!-- Les articles seront injectés ici par JavaScript -->
+        <p style="text-align: center; color: #888;">Chargement de l'actualité...</p>
+    </div>
+
+    <script>
+        // 1. Initialisation de Supabase (À REMPLACER PAR TES CLÉS)
+        const supabaseUrl = 'TON_URL_SUPABASE';
+        const supabaseKey = 'TA_CLE_ANON_SUPABASE';
+        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+        // 2. Récupérer et afficher les articles
+        async function chargerArticles() {
+            // On va chercher les articles du plus récent au plus ancien
+            const { data: articles, error } = await supabase
+                .from('articles')
+                .select('*')
+                .order('date_publication', { ascending: false });
+
+            const conteneur = document.getElementById('flux-articles');
+            conteneur.innerHTML = ''; // On vide le message de chargement
+
+            if (error) {
+                console.error("Erreur de chargement :", error);
+                conteneur.innerHTML = `<p>Erreur lors du chargement des articles.</p>`;
+                return;
+            }
+
+            if (articles.length === 0) {
+                conteneur.innerHTML = `<p style="text-align:center;">Aucun article publié pour le moment.</p>`;
+                return;
+            }
+
+            // 3. Boucle pour générer l'affichage de chaque article
+            articles.forEach(article => {
+                const dateFormatee = new Date(article.date_publication).toLocaleDateString('fr-FR', {
+                    year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute:'2-digit'
+                });
+
+                let htmlArticle = `
+                    <div class="article-card">
+                        <h2 class="article-titre">${article.titre}</h2>
+                        <div class="article-date">Publié le ${dateFormatee}</div>
+                `;
+
+                // Si l'article est 100% réservé aux abonnés OU s'il possède une partie Premium (Paywall activé)
+                if (article.reserve_abonnes || article.contenu_premium) {
+                    htmlArticle += `
+                        <div class="paywall-container">
+                            <div class="article-contenu texte-estompe">
+                                ${article.contenu_public}
+                            </div>
+                            <div class="paywall-banner">
+                                <h3>Cet article est réservé aux abonnés</h3>
+                                <p>Rejoignez <i>Le Moderne</i> pour débloquer la suite de cet article et profiter d'une expérience sans publicité.</p>
+                                <button onclick="afficherOffres()">Découvrir nos offres</button>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    // Article 100% gratuit (pas de paywall)
+                    htmlArticle += `
+                        <div class="article-contenu">
+                            ${article.contenu_public}
+                        </div>
+                    `;
+                }
+
+                htmlArticle += `</div>`; // Fermeture de la carte
+                conteneur.innerHTML += htmlArticle;
+            });
+        }
+
+        // Fonctions pour les boutons du header (simulation pour l'instant)
+        function afficherConnexion() {
+            alert("La fenêtre de connexion lecteur sera ajoutée à la prochaine étape !");
+        }
+
+        function afficherOffres() {
+            alert("Redirection vers les abonnements Stripe à configurer !");
+        }
+
+        // Charger les articles au lancement de la page
+        chargerArticles();
+    </script>
+</body>
+</html>

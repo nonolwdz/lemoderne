@@ -8,7 +8,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <style>
-        /* (Le CSS reste strictement identique à l'étape précédente) */
         :root { --bleu-profond: #0B192C; --bleu-clair: #1A365D; --or: #D4AF37; --fond: #F8FAFC; --texte: #333333; }
         body { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: var(--fond); margin: 0; padding: 0; color: var(--texte); }
         header { background-color: var(--bleu-profond); padding: 20px 50px; display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid var(--or); position: sticky; top: 0; z-index: 100; }
@@ -16,14 +15,18 @@
         .auth-buttons button { background: transparent; color: white; border: 2px solid var(--or); padding: 10px 20px; margin-left: 10px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: all 0.3s; }
         .auth-buttons button.btn-abonnement { background-color: var(--or); color: var(--bleu-profond); }
         .auth-buttons button:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(212, 175, 55, 0.3); }
+        
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(11, 25, 44, 0.8); z-index: 200; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
         .close-btn { position: absolute; top: 15px; right: 20px; font-size: 1.5rem; cursor: pointer; color: #888; }
+        
         .auth-content, .offres-content { background: white; padding: 40px; border-radius: 12px; position: relative; }
         .auth-content { width: 100%; max-width: 400px; }
         .offres-content { width: 90%; max-width: 800px; max-height: 90vh; overflow-y: auto; }
+        
         .auth-content input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; }
         .auth-content button { width: 100%; background-color: var(--bleu-profond); color: white; padding: 12px; border: none; border-radius: 8px; font-size: 1.1rem; cursor: pointer; margin-bottom: 10px; }
         .auth-content button.btn-alt { background-color: transparent; color: var(--bleu-clair); border: 1px solid var(--bleu-clair); }
+        
         .offres-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-top: 30px; }
         .offre-card { border: 2px solid #eee; border-radius: 12px; padding: 30px; text-align: center; transition: all 0.3s; }
         .offre-card:hover { border-color: var(--or); transform: translateY(-5px); box-shadow: 0 10px 20px rgba(212,175,55,0.15); }
@@ -32,13 +35,16 @@
         .offre-avantages { list-style: none; padding: 0; margin-bottom: 25px; text-align: left; }
         .offre-avantages li { margin-bottom: 10px; padding-left: 25px; position: relative; }
         .offre-avantages li::before { content: '✓'; position: absolute; left: 0; color: var(--or); font-weight: bold; }
+        
         .btn-choisir { width: 100%; background-color: var(--bleu-profond); color: white; padding: 12px; border: none; border-radius: 8px; font-size: 1.1rem; cursor: pointer; text-decoration: none; display: inline-block; box-sizing: border-box; font-weight: bold; transition: 0.3s; }
         .btn-choisir:hover { background-color: var(--or); color: var(--bleu-profond); }
+        
         .container { max-width: 800px; margin: 50px auto; padding: 0 20px; }
         .article-card { background: white; border-radius: 12px; padding: 30px; margin-bottom: 40px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
         .article-titre { color: var(--bleu-profond); font-size: 2rem; margin-top: 0; margin-bottom: 10px; }
         .article-date { color: #888; font-size: 0.9rem; margin-bottom: 25px; font-style: italic; }
         .article-contenu { line-height: 1.8; font-size: 1.1rem; }
+        
         .paywall-container { position: relative; }
         .texte-estompe { -webkit-mask-image: linear-gradient(to bottom, black 40%, transparent 100%); mask-image: linear-gradient(to bottom, black 40%, transparent 100%); padding-bottom: 40px; }
         .paywall-banner { background: linear-gradient(135deg, var(--bleu-profond), var(--bleu-clair)); color: white; text-align: center; padding: 40px 20px; border-radius: 12px; margin-top: -30px; position: relative; z-index: 10; border: 2px solid var(--or); }
@@ -87,18 +93,19 @@
     <div class="container" id="flux-articles"></div>
 
     <script>
-        const supabaseUrl = 'sb_publishable_WjoZw5I2qfj6pIHE6z1OdA_oe5-P95k';
+        // Utilisation des vraies clés Supabase
+        const supabaseUrl = 'https://zbuwjvbcxqxtwughuadf.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpidXdqdmJjeHF4dHd1Z2h1YWRmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcyMDc2ODAsImV4cCI6MjEwMjc4MzY4MH0.lO0FizbO5jnRvRjrMERCKe6cBFFN_ttBMlRAGXtlHyo';
-        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+        const db = supabase.createClient(supabaseUrl, supabaseKey);
 
         let lecteurActuel = null;
         let estAbonne = false;
 
         async function verifierSession() {
-            const { data: { session } } = await supabase.auth.getSession();
+            const { data: { session } } = await db.auth.getSession();
             if (session) {
                 lecteurActuel = session.user;
-                const { data: profil } = await supabase.from('lecteurs').select('est_abonne').eq('id', lecteurActuel.id).single();
+                const { data: profil } = await db.from('lecteurs').select('est_abonne').eq('id', lecteurActuel.id).single();
                 if (profil && profil.est_abonne) estAbonne = true;
                 
                 document.getElementById('zone-boutons-header').innerHTML = `
@@ -120,10 +127,10 @@
         async function sInscrire() {
             const email = document.getElementById('auth-email').value;
             const password = document.getElementById('auth-password').value;
-            const { data, error } = await supabase.auth.signUp({ email, password });
+            const { data, error } = await db.auth.signUp({ email, password });
             if (error) alert("Erreur : " + error.message);
             else {
-                if (data.user) await supabase.from('lecteurs').insert([{ id: data.user.id, email: email }]);
+                if (data.user) await db.from('lecteurs').insert([{ id: data.user.id, email: email }]);
                 alert("✅ Compte créé !"); fermerModaleAuth(); verifierSession();
             }
         }
@@ -131,15 +138,15 @@
         async function seConnecter() {
             const email = document.getElementById('auth-email').value;
             const password = document.getElementById('auth-password').value;
-            const { error } = await supabase.auth.signInWithPassword({ email, password });
+            const { error } = await db.auth.signInWithPassword({ email, password });
             if (error) alert("Erreur : " + error.message);
             else { fermerModaleAuth(); verifierSession(); }
         }
 
-        async function seDeconnecter() { await supabase.auth.signOut(); verifierSession(); }
+        async function seDeconnecter() { await db.auth.signOut(); verifierSession(); }
 
-        async function chargerArticles() { /* Reste identique à la version précédente */
-            const { data: articles, error } = await supabase.from('articles').select('*').order('date_publication', { ascending: false });
+        async function chargerArticles() {
+            const { data: articles, error } = await db.from('articles').select('*').order('date_publication', { ascending: false });
             const conteneur = document.getElementById('flux-articles');
             conteneur.innerHTML = ''; 
             if (error) return conteneur.innerHTML = `<p>Erreur lors du chargement.</p>`;
@@ -167,9 +174,7 @@
             });
         }
 
-        // MISE À JOUR : Logique de l'email prérempli
         async function afficherOffres() {
-            // Obliger l'utilisateur à se connecter avant de s'abonner pour pouvoir lier son compte !
             if (!lecteurActuel) {
                 alert("Vous devez créer un compte lecteur gratuit ou vous connecter avant de pouvoir vous abonner.");
                 ouvrirModaleAuth();
@@ -179,7 +184,7 @@
             document.getElementById('offres-modal').style.display = 'flex';
             const conteneur = document.getElementById('liste-offres');
             
-            const { data: offres, error } = await supabase.from('offres').select('*').order('prix_euros', { ascending: true });
+            const { data: offres, error } = await db.from('offres').select('*').order('prix_euros', { ascending: true });
 
             if (error || offres.length === 0) {
                 conteneur.innerHTML = '<p style="grid-column: 1 / -1; text-align: center;">Aucune offre disponible.</p>';
@@ -189,7 +194,6 @@
             conteneur.innerHTML = '';
             
             offres.forEach(offre => {
-                // On attache l'email de l'utilisateur à l'URL Stripe !
                 const emailEncode = encodeURIComponent(lecteurActuel.email);
                 const lienPaiement = `${offre.stripe_price_id}?prefilled_email=${emailEncode}`;
                 

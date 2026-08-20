@@ -17,13 +17,25 @@ exports.handler = async (event) => {
         
         const supabaseAdmin = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
 
+        // 1. Récupérer le lien de l'offre achetée (price_id) depuis Stripe
+        const sessionWithLineItems = await stripe.checkout.sessions.retrieve(
+            session.id,
+            { expand: ['line_items'] }
+        );
+        const priceId = sessionWithLineItems.line_items.data[0].price.id;
+
+        // 2. Trouver cette offre dans Supabase pour lire son nombre de partages
+        const { data: offre } = await supabaseAdmin.from('offres').select('partages_autorises').eq('stripe_price_id', priceId).single();
+        const partagesDefinis = offre ? (offre.partages_autorises || 0) : 0;
+
         let nouvelleDate = new Date();
         nouvelleDate.setDate(nouvelleDate.getDate() + 31);
 
+        // 3. Mettre à jour le lecteur avec le BON nombre
         await supabaseAdmin.from('lecteurs').update({
             est_abonne: true,
             fin_abonnement: nouvelleDate.toISOString(),
-            credits_partage: 2
+            credits_partage: partagesDefinis
         }).eq('email', emailClient);
     }
 

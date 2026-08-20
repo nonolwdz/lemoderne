@@ -14,7 +14,7 @@
         :root { 
             --fond: #f8fafc; --texte: #0f172a; --texte-clair: #64748b; 
             --accent: #6366f1; --premium: #f43f5e; --blanc: #ffffff;
-            --vip: #059669; --vip-bg: #d1fae5;
+            --vip: #b45309; --vip-bg: #fef3c7; /* Couleurs or/jaune pour le côté bourgeois */
             --shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
             --shadow-hover: 0 20px 30px rgba(0, 0, 0, 0.08);
             --transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
@@ -28,13 +28,14 @@
             background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(12px);
             padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; 
             position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #e2e8f0;
+            flex-wrap: wrap; gap: 15px;
         }
         .logo-container { display: flex; flex-direction: column; cursor: pointer; }
         .logo { font-size: 1.8rem; font-weight: 800; color: var(--texte); text-decoration: none; line-height: 1; }
         .logo span { color: var(--accent); }
         .tagline { font-family: 'Caveat', cursive; color: var(--premium); font-size: 1.2rem; transform: rotate(-3deg); margin-top: -2px; margin-left: 20px; }
         
-        /* FLASH INFO ADOUCI ET RALENTI */
+        /* FLASH INFO */
         .flash-info { background: #1e293b; color: #f1f5f9; padding: 10px 5%; font-size: 0.9rem; font-weight: 500; display: flex; align-items: center; overflow: hidden; white-space: nowrap; border-bottom: 1px solid #334155; }
         .flash-badge { background: #ef4444; color: white; padding: 3px 10px; border-radius: 4px; margin-right: 20px; font-weight: 800; font-size: 0.8rem; letter-spacing: 1px; z-index: 2; position: relative; }
         .flash-text { animation: defilement 40s linear infinite; display: inline-block; }
@@ -68,9 +69,9 @@
         .card-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .card-categorie { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: var(--accent); letter-spacing: 0.5px; }
         
-        /* BADGES */
+        /* BADGES PARODIQUES */
         .badge-fautpayer { background: #ffe4e6; color: var(--premium); font-size: 0.75rem; padding: 4px 10px; border-radius: 50px; font-weight: bold; border: 1px solid #fda4af; }
-        .badge-inclus { background: var(--vip-bg); color: var(--vip); font-size: 0.75rem; padding: 4px 10px; border-radius: 50px; font-weight: bold; border: 1px solid #a7f3d0; }
+        .badge-inclus { background: var(--vip-bg); color: var(--vip); font-size: 0.75rem; padding: 4px 10px; border-radius: 50px; font-weight: bold; border: 1px solid #fcd34d; }
         
         .card-titre { font-size: 1.5rem; margin: 0 0 15px 0; line-height: 1.3; color: var(--texte); }
         .card:first-child .card-titre { font-size: 2.5rem; }
@@ -91,8 +92,8 @@
 
         .paywall-box { background: linear-gradient(to bottom, rgba(248,250,252,0), rgba(248,250,252,1) 20%); padding-top: 80px; margin-top: -60px; position: relative; text-align: center; padding-bottom: 50px; }
         .paywall-card { background: var(--blanc); border: 1px solid #e2e8f0; border-radius: 20px; padding: 40px; box-shadow: var(--shadow-hover); max-width: 500px; margin: 0 auto; position: relative; z-index: 10; }
-        .cadeau-banner { background: #fdf2f8; border: 1px dashed #fbcfe8; color: #be185d; padding: 20px; border-radius: 12px; margin-bottom: 40px; font-weight: 600; display: flex; align-items: center; gap: 15px; justify-content: center; }
-        .share-box { background: var(--blanc); border: 1px solid #e2e8f0; padding: 25px 30px; border-radius: 16px; margin-top: 50px; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow); }
+        .cadeau-banner { background: #fdf2f8; border: 1px dashed #fbcfe8; color: #be185d; padding: 20px; border-radius: 12px; margin-bottom: 40px; font-weight: 600; display: flex; align-items: center; gap: 15px; justify-content: center; text-align: center; line-height: 1.4;}
+        .share-box { background: var(--blanc); border: 1px solid #e2e8f0; padding: 25px 30px; border-radius: 16px; margin-top: 50px; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow); flex-wrap: wrap; gap: 15px;}
 
         /* FOOTER */
         footer { background: var(--blanc); border-top: 1px solid #e2e8f0; padding: 40px 5%; text-align: center; color: var(--texte-clair); font-size: 0.9rem; margin-top: auto; }
@@ -136,7 +137,9 @@
                 <div class="logo">Le<span>Moderne</span></div>
                 <div class="tagline">on avait pas d'inspi.</div>
             </div>
-            <div id="zone-boutons-header" style="display: flex; gap: 10px; align-items: center;"></div>
+            
+            <!-- CONTENEUR DES BOUTONS HEADER AVEC SALUT -->
+            <div id="zone-boutons-header" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;"></div>
         </header>
 
         <div class="flash-info">
@@ -180,9 +183,12 @@
             </div>
             
             <div id="form-register" style="display: none;">
-                <input type="text" id="reg-prenom" class="input-champ" placeholder="Votre petit prénom sympa">
+                <!-- Les champs blagues demandés -->
+                <input type="text" id="reg-prenom" class="input-champ" placeholder="Votre petit prénom sympa" style="margin-bottom: 15px;">
+                
                 <input type="text" id="reg-couleur" class="input-champ" placeholder="Votre couleur préférée" style="margin-bottom: 5px;">
-                <p style="font-size: 0.75rem; color: var(--texte-clair); font-style: italic; margin-top: 0; margin-bottom: 15px; line-height: 1.2;">(Honnêtement on s'en fout royalement de la couleur, mais ça fait genre on s'intéresse à vous).</p>
+                <p style="font-size: 0.8rem; color: var(--texte-clair); font-style: italic; margin-top: 0; margin-bottom: 15px; line-height: 1.3;">(Honnêtement on s'en fout royalement de votre couleur, c'est juste pour faire genre on s'intéresse à vous. On la sauvegarde même pas).</p>
+                
                 <input type="email" id="reg-email" class="input-champ" placeholder="Votre email">
                 <input type="password" id="reg-password" class="input-champ" placeholder="Mot de passe">
                 
@@ -279,13 +285,16 @@
                 
                 let nomAffichage = profilLecteur?.prenom ? profilLecteur.prenom : lecteurActuel.email.split('@')[0];
                 
+                // HEADER CONNECTE
                 document.getElementById('zone-boutons-header').innerHTML = `
-                    <span style="font-weight:600; color:var(--texte-clair); display:none; @media(min-width:600px){display:inline;}">Salut ${nomAffichage} !</span>
-                    <button class="btn btn-outline" style="padding:8px 16px; border-radius:8px;" onclick="ouvrirCompte()">Mon Compte</button>
-                    ${!estAbonne ? `<button class="btn btn-primaire" style="background:var(--premium)" onclick="ouvrirOffres()">S'abonner</button>` : ``}
+                    <span style="font-weight:600; font-size:1.1rem; color:var(--texte); margin-right:5px;">👋 Salut ${nomAffichage} !</span>
+                    <button class="btn btn-outline" style="padding:6px 12px; border-radius:8px;" onclick="ouvrirCompte()">Mon profil</button>
+                    ${!estAbonne ? `<button class="btn btn-primaire" style="background:var(--premium)" onclick="ouvrirOffres()">S'abonner</button>` : `<span style="color:var(--vip); font-weight:800; font-size:0.8rem; background:var(--vip-bg); padding:6px 12px; border-radius:50px;">PIGEON PREMIUM</span>`}
+                    <button class="btn btn-outline" style="padding:6px 12px; border:none; text-decoration:underline;" onclick="seDeconnecter()">Déconnexion</button>
                 `;
             } else {
                 lecteurActuel = null; profilLecteur = null; estAbonne = false; creditsPartage = 0; articlesOfferts = [];
+                // HEADER DECONNECTE
                 document.getElementById('zone-boutons-header').innerHTML = `
                     <button class="btn btn-outline" onclick="ouvrirAuth()">Connexion</button>
                     <button class="btn btn-primaire" style="background:var(--premium)" onclick="ouvrirAuth()">S'abonner</button>
@@ -326,8 +335,11 @@
                 
                 let badge = '';
                 if (art.reserve_abonnes) {
-                    if (estAbonne || articlesOfferts.includes(art.id)) { badge = `<span class="badge-inclus">ACCÈS VIP</span>`; } 
-                    else { badge = `<span class="badge-fautpayer">FAUT PAYER</span>`; }
+                    if (estAbonne || articlesOfferts.includes(art.id)) { 
+                        badge = `<span class="badge-inclus">BOURGEOIS 🎩</span>`; 
+                    } else { 
+                        badge = `<span class="badge-fautpayer">FAUT PAYER</span>`; 
+                    }
                 }
 
                 conteneur.innerHTML += `
@@ -373,7 +385,7 @@
                     </div>
                 </div>`;
             } else {
-                if (articlesOfferts.includes(id) && !estAbonne) html += `<div class="cadeau-banner">✨ Incroyable : Un pigeon de nos lecteurs a payé pour vous offrir l'accès à cet article !</div>`;
+                if (articlesOfferts.includes(id) && !estAbonne) html += `<div class="cadeau-banner">✨ Incroyable : Un de nos abonnés (un pigeon sans doute) a payé pour vous offrir l'accès à cet article !</div>`;
                 html += `<div class="art-contenu">${art.contenu_public || ''} ${art.contenu_premium || ''}</div>`;
                 
                 if (estAbonne && art.reserve_abonnes) {
@@ -382,7 +394,7 @@
                     html += `
                     <div class="share-box">
                         <div>
-                            <h4 style="margin:0 0 8px 0; font-size:1.2rem;">Faites profiter un proche</h4>
+                            <h4 style="margin:0 0 8px 0; font-size:1.2rem;">Faites profiter un proche (ou un pauvre)</h4>
                             <div style="font-size:0.95rem; color:var(--texte-clair);">Vous avez encore <b>${creditsPartage} articles à offrir</b> ce mois-ci.</div>
                         </div>
                         <button class="${btnStyle}" style="padding:12px 25px; font-size:1.1rem;" ${actStr}>🎁 Partager</button>
@@ -395,7 +407,7 @@
         // --- GESTION COMPTE ---
         function ouvrirCompte() {
             document.getElementById('profil-prenom').value = profilLecteur?.prenom || '';
-            document.getElementById('profil-statut').innerText = estAbonne ? "VIP PREMIUM" : "Gratuit (La honte)";
+            document.getElementById('profil-statut').innerText = estAbonne ? "PIGEON PREMIUM 🕊️" : "Gratuit (La honte)";
             document.getElementById('profil-statut').style.color = estAbonne ? "var(--vip)" : "var(--texte-clair)";
             document.getElementById('profil-cadeaux').innerText = creditsPartage;
             document.getElementById('compte-modal').style.display = 'flex';
@@ -414,8 +426,8 @@
 
         async function supprimerCompte() {
             if(!confirm("Vous allez perdre votre accès et tout notre respect. Vous êtes sûr ?")) return;
-            await db.from('lecteurs').delete().eq('id', lecteurActuel.id); // Suppression en base
-            seDeconnecter(); // Déconnexion forcée
+            await db.from('lecteurs').delete().eq('id', lecteurActuel.id); 
+            seDeconnecter(); 
         }
 
         async function ouvrirOffres() {
@@ -444,15 +456,16 @@
         }
 
         async function sInscrire() {
+            // Note: On ignore royalement le champ 'reg-couleur' (comme promis dans la blague)
             const email = document.getElementById('reg-email').value, password = document.getElementById('reg-password').value;
-            const prenom = document.getElementById('reg-prenom').value;
+            const prenom = document.getElementById('reg-prenom').value.trim();
             const { data, error } = await db.auth.signUp({ email, password });
             if (error) alert(error.message); else { if (data.user) await db.from('lecteurs').insert([{ id: data.user.id, email, prenom }]); fermerModales(); initialiserSite(); }
         }
         async function seConnecter() {
             const email = document.getElementById('login-email').value, password = document.getElementById('login-password').value;
             const { error } = await db.auth.signInWithPassword({ email, password });
-            if (error) alert("Oops, accès refusé."); else { fermerModales(); initialiserSite(); }
+            if (error) alert("Oops, accès refusé. Vous avez fait une faute de frappe."); else { fermerModales(); initialiserSite(); }
         }
         async function seDeconnecter() { await db.auth.signOut(); window.location.reload(); }
 
@@ -460,7 +473,7 @@
             const emailAmi = document.getElementById('partage-email').value; if(!emailAmi) return;
             const { error } = await db.from('partages_articles').insert([{ article_id: articleActifId, lecteur_id: lecteurActuel.id, email_destinataire: emailAmi }]);
             if (error) alert(error.message);
-            else { creditsPartage--; await db.from('lecteurs').update({ credits_partage: creditsPartage }).eq('id', lecteurActuel.id); alert("Cadeau envoyé avec succès !"); fermerModales(); ouvrirArticle(articleActifId); }
+            else { creditsPartage--; await db.from('lecteurs').update({ credits_partage: creditsPartage }).eq('id', lecteurActuel.id); alert("Cadeau envoyé avec succès ! Vous êtes quelqu'un de bien."); fermerModales(); ouvrirArticle(articleActifId); }
         }
 
         function ouvrirAuth() { document.getElementById('auth-modal').style.display = 'flex'; }

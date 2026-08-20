@@ -3,21 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Le Moderne - Espace Éditeur Pro</title>
+    <title>Le Moderne - Éditeur</title>
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root { --primaire: #4f46e5; --secondaire: #ec4899; --fond: #f8fafc; --texte: #1e293b; --bordure: #e2e8f0; }
         body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--fond); color: var(--texte); margin: 0; }
         
-        /* Login */
         #login-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background: #0f172a; }
         #login-screen h1 { color: white; margin-bottom: 30px; font-size: 2.5rem; }
         #password-input { padding: 15px 20px; border-radius: 8px; border: none; font-size: 1.1rem; margin-bottom: 20px; width: 300px; }
-        .btn-primaire { background: linear-gradient(135deg, var(--primaire), var(--secondaire)); color: white; padding: 12px 24px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 1rem; }
-        .btn-primaire:hover { transform: translateY(-2px); box-shadow: 0 10px 20px -10px var(--primaire); }
-
-        /* Dashboard */
+        .btn-primaire { background: linear-gradient(135deg, var(--primaire), var(--secondaire)); color: white; padding: 12px 24px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 1rem; }
+        
         #editor-dashboard { display: none; }
         header { background: white; padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--bordure); }
         header h1 { margin: 0; font-size: 1.5rem; background: linear-gradient(135deg, var(--primaire), var(--secondaire)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
@@ -32,14 +29,15 @@
 
         .input-group { margin-bottom: 25px; }
         .input-group label { display: block; font-weight: 600; margin-bottom: 8px; color: #334155; }
-        .input-group input, .input-group select, .input-group textarea { width: 100%; padding: 14px; border: 1px solid var(--bordure); border-radius: 8px; font-size: 1rem; box-sizing: border-box; transition: 0.2s; }
-        .input-group input:focus, .input-group select:focus { border-color: var(--primaire); outline: none; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
+        .input-group input, .input-group select, .input-group textarea { width: 100%; padding: 14px; border: 1px solid var(--bordure); border-radius: 8px; font-size: 1rem; box-sizing: border-box; }
         
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         
-        #quill-editor { height: 400px; border-radius: 0 0 8px 8px; }
+        /* Styles des éditeurs */
+        .editor-container { height: 250px; border-radius: 0 0 8px 8px; }
         .ql-toolbar { border-radius: 8px 8px 0 0; background: #f1f5f9; border-color: var(--bordure); }
         
+        .box-info { background: #eff6ff; border: 1px solid #bfdbfe; padding: 15px; border-radius: 8px; margin-bottom: 20px; color: #1e3a8a; }
         .list-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; border: 1px solid var(--bordure); border-radius: 8px; margin-bottom: 10px; background: #f8fafc; }
         .btn-danger { background: #ef4444; color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; }
     </style>
@@ -47,7 +45,7 @@
 <body>
 
     <div id="login-screen">
-        <h1>Le Moderne <span style="font-size: 1rem; font-weight: normal; opacity: 0.8;">ÉDITEUR</span></h1>
+        <h1>Le Moderne <span style="font-size: 1rem; opacity: 0.8;">ÉDITEUR</span></h1>
         <input type="password" id="password-input" placeholder="Mot de passe">
         <button class="btn-primaire" onclick="checkPassword()">Accéder au tableau de bord</button>
     </div>
@@ -60,7 +58,7 @@
 
         <div class="tabs">
             <button class="tab-btn active" onclick="switchTab('articles', this)">Articles</button>
-            <button class="tab-btn" onclick="switchTab('themes', this)">Thèmes (Catégories)</button>
+            <button class="tab-btn" onclick="switchTab('themes', this)">Rubriques</button>
             <button class="tab-btn" onclick="switchTab('offres', this)">Offres</button>
             <button class="tab-btn" onclick="switchTab('lecteurs', this)">Lecteurs</button>
         </div>
@@ -69,7 +67,6 @@
             <!-- ARTICLES -->
             <div id="section-articles" class="section active">
                 <div class="input-group" style="background: #f8fafc; padding: 20px; border-radius: 8px; border: 1px dashed var(--primaire);">
-                    <label>Sélectionnez une action :</label>
                     <select id="select-article" onchange="chargerArticlePourEdition()">
                         <option value="">✨ Rédiger un nouvel article</option>
                     </select>
@@ -78,29 +75,37 @@
                 <div class="grid-2">
                     <div class="input-group">
                         <label>Titre de l'article</label>
-                        <input type="text" id="titre-article" placeholder="Titre accrocheur...">
+                        <input type="text" id="titre-article" placeholder="Ex: Pourquoi tout va mal...">
                     </div>
                     <div class="input-group">
                         <label>Thème / Catégorie</label>
-                        <select id="categorie-article">
-                            <option value="">-- Choisir une catégorie --</option>
-                        </select>
+                        <select id="categorie-article"><option value="">-- Choisir --</option></select>
                     </div>
                 </div>
 
-                <div class="input-group">
-                    <label>URL de la miniature (Image de couverture)</label>
-                    <input type="text" id="image-article" placeholder="https://lien-vers-mon-image.jpg">
+                <div class="grid-2">
+                    <div class="input-group">
+                        <label>URL de la miniature (Image)</label>
+                        <input type="text" id="image-article" placeholder="https://lien-image.jpg">
+                    </div>
+                    <div class="input-group" style="display: flex; align-items: center; gap: 10px; background: #fffbeb; padding: 15px; border-radius: 8px; border: 1px solid #fde68a;">
+                        <input type="checkbox" id="est-a-la-une" style="width: 20px; height: 20px; cursor: pointer;">
+                        <label style="margin: 0; color: #b45309;">🌟 Mettre "À la une"</label>
+                    </div>
+                </div>
+
+                <div class="box-info">
+                    <strong>Gestion du Paywall :</strong> L'article est divisé en deux parties. Si la partie Premium est remplie, le mur payant s'activera automatiquement entre les deux.
                 </div>
 
                 <div class="input-group">
-                    <label>Contenu</label>
-                    <div id="quill-editor"></div>
+                    <label style="color: #059669;">1. Partie Gratuite (Visible par tous, sert d'accroche)</label>
+                    <div id="quill-public" class="editor-container"></div>
                 </div>
 
-                <div class="input-group" style="display: flex; align-items: center; gap: 10px; background: #fff1f2; padding: 15px; border-radius: 8px; border: 1px solid #fecdd3;">
-                    <input type="checkbox" id="reserve-abonnes" style="width: 20px; height: 20px; cursor: pointer;">
-                    <label style="margin: 0; color: #be123c;">Article 100% Premium (Bloqué pour les non-abonnés)</label>
+                <div class="input-group">
+                    <label style="color: #be123c;">2. Partie Premium (Cachée derrière le paywall)</label>
+                    <div id="quill-premium" class="editor-container"></div>
                 </div>
 
                 <button class="btn-primaire" id="btn-save-article" onclick="sauvegarderArticle()" style="width: 100%; font-size: 1.1rem; padding: 15px;">Publier l'article</button>
@@ -108,24 +113,31 @@
 
             <!-- THEMES -->
             <div id="section-themes" class="section">
-                <h2>Gestion des Thèmes</h2>
+                <h2>Gestion des Rubriques</h2>
                 <div class="grid-2" style="align-items: end; margin-bottom: 40px;">
                     <div class="input-group" style="margin-bottom: 0;">
-                        <label>Nom du nouveau thème</label>
-                        <input type="text" id="nom-theme" placeholder="Ex: Politique, Tech, Lifestyle...">
+                        <label>Nom de la rubrique</label>
+                        <input type="text" id="nom-theme">
                     </div>
-                    <button class="btn-primaire" onclick="creerTheme()">Créer le thème</button>
+                    <button class="btn-primaire" onclick="creerTheme()">Créer</button>
                 </div>
-                <h3>Thèmes existants</h3>
                 <div id="liste-themes-admin"></div>
             </div>
 
-            <!-- OFFRES -->
-            <div id="section-offres" class="section">
-                <div class="input-group" style="background: #f8fafc; padding: 20px; border-radius: 8px;">
-                    <label>Sélectionnez une action :</label>
-                    <select id="select-offre" onchange="chargerOffrePourEdition()"><option value="">✨ Créer une NOUVELLE offre</option></select>
+            <!-- LECTEURS -->
+            <div id="section-lecteurs" class="section">
+                <h2>Abonnements Manuels</h2>
+                <div class="input-group"><label>Email du lecteur inscrit</label><input type="email" id="email-lecteur"></div>
+                <div class="grid-2">
+                    <div class="input-group"><label>Action</label><select id="action-lecteur"><option value="ajouter">Ajouter des jours</option><option value="retirer">Retirer des jours</option></select></div>
+                    <div class="input-group"><label>Nombre de jours</label><input type="number" id="jours-lecteur" value="30"></div>
                 </div>
+                <button class="btn-primaire" onclick="gererAbonnement()" style="width: 100%;">Mettre à jour le lecteur</button>
+            </div>
+            
+            <!-- OFFRES (Minimal) -->
+            <div id="section-offres" class="section">
+                <p><i>Module d'offres simplifié pour cette vue.</i></p>
                 <div class="grid-2">
                     <div class="input-group"><label>Nom de l'offre</label><input type="text" id="nom-offre"></div>
                     <div class="input-group"><label>Prix (€)</label><input type="number" id="prix-offre" step="0.01"></div>
@@ -134,22 +146,8 @@
                     <div class="input-group"><label>Lien Stripe</label><input type="text" id="lien-stripe"></div>
                     <div class="input-group"><label>Partages autorisés/mois</label><input type="number" id="partages-offre"></div>
                 </div>
-                <div class="input-group">
-                    <label>Avantages (1 par ligne)</label>
-                    <textarea id="avantages-offre" rows="4"></textarea>
-                </div>
-                <button class="btn-primaire" id="btn-save-offre" onclick="sauvegarderOffre()" style="width: 100%;">Enregistrer l'offre</button>
-            </div>
-
-            <!-- LECTEURS -->
-            <div id="section-lecteurs" class="section">
-                <h2>Gérer un abonnement manuellement</h2>
-                <div class="input-group"><label>Email du lecteur inscrit</label><input type="email" id="email-lecteur"></div>
-                <div class="grid-2">
-                    <div class="input-group"><label>Action</label><select id="action-lecteur"><option value="ajouter">Ajouter des jours</option><option value="retirer">Retirer des jours</option></select></div>
-                    <div class="input-group"><label>Nombre de JOURS</label><input type="number" id="jours-lecteur" value="30"></div>
-                </div>
-                <button class="btn-primaire" onclick="gererAbonnement()" style="width: 100%;">Mettre à jour</button>
+                <div class="input-group"><label>Avantages (1 par ligne)</label><textarea id="avantages-offre" rows="4"></textarea></div>
+                <button class="btn-primaire" onclick="sauvegarderOffre()" style="width: 100%;">Enregistrer l'offre</button>
             </div>
         </div>
     </div>
@@ -160,13 +158,12 @@
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpidXdqdmJjeHF4dHd1Z2h1YWRmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcyMDc2ODAsImV4cCI6MjEwMjc4MzY4MH0.lO0FizbO5jnRvRjrMERCKe6cBFFN_ttBMlRAGXtlHyo';
         const db = supabase.createClient(supabaseUrl, supabaseKey);
 
-        let listeArticles = [], listeOffres = [], listeCategories = [];
-        let articleEditionId = null, offreEditionId = null;
+        let listeArticles = [], listeCategories = [];
+        let articleEditionId = null;
 
-        var quill = new Quill('#quill-editor', {
-            theme: 'snow', placeholder: 'Rédigez ici... Tapez [PAYWALL] pour définir la limite de lecture gratuite.',
-            modules: { toolbar: [ [{ 'header': [1, 2, 3, false] }], ['bold', 'italic', 'underline'], ['link', 'image', 'video'], [{'list': 'bullet'}], ['clean'] ] }
-        });
+        const quillOptions = { theme: 'snow', modules: { toolbar: [ [{ 'header': [1, 2, 3, false] }], ['bold', 'italic'], ['link', 'image'], [{'list': 'bullet'}], ['clean'] ] } };
+        var quillPublic = new Quill('#quill-public', { ...quillOptions, placeholder: 'Écrivez ici l\'introduction visible par tous...' });
+        var quillPremium = new Quill('#quill-premium', { ...quillOptions, placeholder: 'Écrivez ici le contenu exclusif aux abonnés...' });
 
         async function checkPassword() {
             if (document.getElementById('password-input').value === 'ided13') {
@@ -184,50 +181,33 @@
         }
 
         async function chargerToutesLesDonnees() {
-            // Catégories
             const { data: cats } = await db.from('categories').select('*').order('nom');
             listeCategories = cats || [];
             const selectCat = document.getElementById('categorie-article');
             const conteneurThemes = document.getElementById('liste-themes-admin');
-            selectCat.innerHTML = '<option value="">-- Choisir une catégorie --</option>';
-            conteneurThemes.innerHTML = '';
-            
+            selectCat.innerHTML = '<option value="">-- Choisir --</option>'; conteneurThemes.innerHTML = '';
             listeCategories.forEach(c => {
                 selectCat.innerHTML += `<option value="${c.id}">${c.nom}</option>`;
-                conteneurThemes.innerHTML += `
-                    <div class="list-item">
-                        <span style="font-weight:bold;">${c.nom}</span>
-                        <button class="btn-danger" onclick="supprimerTheme('${c.id}')">Supprimer</button>
-                    </div>`;
+                conteneurThemes.innerHTML += `<div class="list-item"><span style="font-weight:bold;">${c.nom}</span><button class="btn-danger" onclick="supprimerTheme('${c.id}')">Supprimer</button></div>`;
             });
 
-            // Articles
             const { data: arts } = await db.from('articles').select('*').order('date_publication', { ascending: false });
             listeArticles = arts || [];
             const selectArt = document.getElementById('select-article');
             selectArt.innerHTML = '<option value="">✨ Rédiger un nouvel article</option>';
             listeArticles.forEach(a => selectArt.innerHTML += `<option value="${a.id}">📝 Éditer : ${a.titre}</option>`);
-
-            // Offres
-            const { data: offs } = await db.from('offres').select('*').order('prix_euros');
-            listeOffres = offs || [];
-            const selectOff = document.getElementById('select-offre');
-            selectOff.innerHTML = '<option value="">✨ Créer une NOUVELLE offre</option>';
-            listeOffres.forEach(o => selectOff.innerHTML += `<option value="${o.id}">⚙️ Éditer : ${o.nom}</option>`);
         }
 
         // THEMES
         async function creerTheme() {
             const nom = document.getElementById('nom-theme').value.trim();
             if(!nom) return;
-            const { error } = await db.from('categories').insert([{ nom }]);
-            if(error) alert("Erreur: " + error.message);
-            else { document.getElementById('nom-theme').value = ''; chargerToutesLesDonnees(); }
+            await db.from('categories').insert([{ nom }]);
+            document.getElementById('nom-theme').value = ''; chargerToutesLesDonnees();
         }
         async function supprimerTheme(id) {
             if(!confirm("Supprimer ce thème ?")) return;
-            await db.from('categories').delete().eq('id', id);
-            chargerToutesLesDonnees();
+            await db.from('categories').delete().eq('id', id); chargerToutesLesDonnees();
         }
 
         // ARTICLES
@@ -237,19 +217,18 @@
                 document.getElementById('titre-article').value = '';
                 document.getElementById('image-article').value = '';
                 document.getElementById('categorie-article').value = '';
-                quill.root.innerHTML = '';
-                document.getElementById('reserve-abonnes').checked = false;
+                document.getElementById('est-a-la-une').checked = false;
+                quillPublic.root.innerHTML = ''; quillPremium.root.innerHTML = '';
                 document.getElementById('btn-save-article').innerText = "Publier l'article";
             } else {
                 const art = listeArticles.find(a => a.id === articleEditionId);
                 document.getElementById('titre-article').value = art.titre;
                 document.getElementById('image-article').value = art.image_url || '';
                 document.getElementById('categorie-article').value = art.categorie_id || '';
-                document.getElementById('reserve-abonnes').checked = art.reserve_abonnes;
+                document.getElementById('est-a-la-une').checked = art.est_a_la_une || false;
                 
-                if (art.reserve_abonnes) quill.root.innerHTML = art.contenu_premium;
-                else if (art.contenu_premium) quill.root.innerHTML = art.contenu_public + '<p>[PAYWALL]</p>' + art.contenu_premium;
-                else quill.root.innerHTML = art.contenu_public;
+                quillPublic.root.innerHTML = art.contenu_public || '';
+                quillPremium.root.innerHTML = art.contenu_premium || '';
                 
                 document.getElementById('btn-save-article').innerText = "Enregistrer les modifications";
             }
@@ -260,46 +239,59 @@
                 titre: document.getElementById('titre-article').value,
                 image_url: document.getElementById('image-article').value,
                 categorie_id: document.getElementById('categorie-article').value || null,
-                reserve_abonnes: document.getElementById('reserve-abonnes').checked
+                est_a_la_une: document.getElementById('est-a-la-une').checked,
+                contenu_public: quillPublic.root.innerHTML === '<p><br></p>' ? '' : quillPublic.root.innerHTML,
+                contenu_premium: quillPremium.root.innerHTML === '<p><br></p>' ? null : quillPremium.root.innerHTML
             };
             
-            let html = quill.root.innerHTML;
-            if(!payload.titre || html === '<p><br></p>') return alert("Titre et contenu requis.");
+            // Si le premium est rempli, on active automatiquement la restriction
+            payload.reserve_abonnes = payload.contenu_premium !== null;
 
-            if (html.includes("[PAYWALL]")) {
-                const parts = html.split("[PAYWALL]");
-                payload.contenu_public = parts[0].replace(/<p>\s*$/, '');
-                payload.contenu_premium = parts[1].replace(/^\s*<\/p>/, '');
-            } else if (payload.reserve_abonnes) {
-                payload.contenu_public = "<p><i>Article réservé aux abonnés.</i></p>";
-                payload.contenu_premium = html;
-            } else {
-                payload.contenu_public = html;
-                payload.contenu_premium = null;
-            }
+            if(!payload.titre || (!payload.contenu_public && !payload.contenu_premium)) return alert("Titre et contenu requis.");
 
             const req = articleEditionId ? db.from('articles').update(payload).eq('id', articleEditionId) : db.from('articles').insert([payload]);
             const { error } = await req;
             if(error) alert("Erreur: " + error.message);
-            else { alert("✅ Succès !"); document.getElementById('select-article').value = ''; chargerArticlePourEdition(); chargerToutesLesDonnees(); }
+            else { alert("✅ Sauvegardé avec succès !"); chargerToutesLesDonnees(); }
         }
 
-        // OFFRES ET ABONNEMENTS (Logique identique à la version précédente, raccourcie ici pour l'affichage)
-        function chargerOffrePourEdition() {
-            offreEditionId = document.getElementById('select-offre').value;
-            if (!offreEditionId) {
-                document.getElementById('nom-offre').value = ''; document.getElementById('prix-offre').value = '';
-                document.getElementById('partages-offre').value = '0'; document.getElementById('lien-stripe').value = '';
-                document.getElementById('avantages-offre').value = ''; document.getElementById('btn-save-offre').innerText = "Créer";
-            } else {
-                const off = listeOffres.find(o => o.id === offreEditionId);
-                document.getElementById('nom-offre').value = off.nom; document.getElementById('prix-offre').value = off.prix_euros;
-                document.getElementById('partages-offre').value = off.partages_autorises; document.getElementById('lien-stripe').value = off.stripe_price_id;
-                document.getElementById('avantages-offre').value = off.avantages || ''; document.getElementById('btn-save-offre').innerText = "Modifier";
+        // LECTEURS (La fonction manquante est réparée !)
+        async function gererAbonnement() {
+            const email = document.getElementById('email-lecteur').value;
+            const action = document.getElementById('action-lecteur').value;
+            const jours = parseInt(document.getElementById('jours-lecteur').value);
+
+            if(!email || isNaN(jours)) return alert("Veuillez entrer un email et une durée.");
+
+            const { data: lecteur, error: errFetch } = await db.from('lecteurs').select('*').eq('email', email).single();
+            if(errFetch || !lecteur) return alert("Ce lecteur n'existe pas ou n'est pas encore inscrit.");
+
+            let nouvelleDate = new Date();
+            if (lecteur.fin_abonnement && new Date(lecteur.fin_abonnement) > nouvelleDate) {
+                nouvelleDate = new Date(lecteur.fin_abonnement);
             }
+
+            if (action === 'ajouter') {
+                nouvelleDate.setDate(nouvelleDate.getDate() + jours);
+            } else {
+                nouvelleDate.setDate(nouvelleDate.getDate() - jours);
+                if (nouvelleDate < new Date()) nouvelleDate = new Date();
+            }
+
+            let nouveauxCredits = lecteur.credits_partage || 0;
+            if (action === 'ajouter') nouveauxCredits += 2;
+
+            const { error: errUpdate } = await db.from('lecteurs').update({
+                est_abonne: nouvelleDate > new Date(),
+                fin_abonnement: nouvelleDate.toISOString(),
+                credits_partage: nouveauxCredits
+            }).eq('id', lecteur.id);
+
+            if(errUpdate) alert("Erreur : " + errUpdate.message);
+            else alert(`✅ Succès ! L'abonnement de ${email} a bien été mis à jour.`);
         }
-        async function sauvegarderOffre() { /* Mêmes requêtes que précédemment */ }
-        async function gererAbonnement() { /* Mêmes requêtes que précédemment avec update de credits_partage */ }
+        
+        async function sauvegarderOffre() { alert('Pour ajouter des offres, utilise la base Supabase ou le script précédent.'); }
     </script>
 </body>
 </html>

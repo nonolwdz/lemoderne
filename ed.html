@@ -9,20 +9,18 @@
     <style>
         :root { --primaire: #4f46e5; --secondaire: #ec4899; --fond: #f8fafc; --texte: #1e293b; --bordure: #e2e8f0; }
         body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--fond); color: var(--texte); margin: 0; }
-        
         #login-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background: #0f172a; }
         #login-screen h1 { color: white; margin-bottom: 30px; font-size: 2.5rem; }
         #password-input { padding: 15px 20px; border-radius: 8px; border: none; font-size: 1.1rem; margin-bottom: 20px; width: 300px; }
-        .btn-primaire { background: linear-gradient(135deg, var(--primaire), var(--secondaire)); color: white; padding: 12px 24px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 1rem; }
+        .btn-primaire { background: linear-gradient(135deg, var(--primaire), var(--secondaire)); color: white; padding: 12px 24px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 1rem; transition: 0.2s;}
+        .btn-primaire:hover { opacity: 0.9; }
         
         #editor-dashboard { display: none; }
         header { background: white; padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--bordure); }
         header h1 { margin: 0; font-size: 1.5rem; background: linear-gradient(135deg, var(--primaire), var(--secondaire)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        
         .tabs { display: flex; background: white; padding: 0 40px; border-bottom: 1px solid var(--bordure); }
         .tab-btn { background: none; border: none; padding: 15px 20px; font-size: 1rem; color: #64748b; cursor: pointer; border-bottom: 3px solid transparent; font-weight: 600; }
         .tab-btn.active { color: var(--primaire); border-bottom-color: var(--primaire); }
-
         .container { max-width: 1000px; margin: 40px auto; background: white; padding: 40px; border-radius: 16px; box-shadow: 0 10px 30px -10px rgba(0,0,0,0.05); }
         .section { display: none; }
         .section.active { display: block; }
@@ -30,12 +28,10 @@
         .input-group { margin-bottom: 25px; }
         .input-group label { display: block; font-weight: 600; margin-bottom: 8px; color: #334155; }
         .input-group input, .input-group select, .input-group textarea { width: 100%; padding: 14px; border: 1px solid var(--bordure); border-radius: 8px; font-size: 1rem; box-sizing: border-box; }
-        
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         
         .editor-container { height: 250px; border-radius: 0 0 8px 8px; }
         .ql-toolbar { border-radius: 8px 8px 0 0; background: #f1f5f9; border-color: var(--bordure); }
-        
         .box-info { background: #eff6ff; border: 1px solid #bfdbfe; padding: 15px; border-radius: 8px; margin-bottom: 20px; color: #1e3a8a; }
         .list-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; border: 1px solid var(--bordure); border-radius: 8px; margin-bottom: 10px; background: #f8fafc; }
         .btn-danger { background: #ef4444; color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; }
@@ -43,7 +39,6 @@
     </style>
 </head>
 <body>
-
     <div id="login-screen">
         <h1>Le Moderne <span style="font-size: 1rem; opacity: 0.8;">ÉDITEUR</span></h1>
         <input type="password" id="password-input" placeholder="Mot de passe">
@@ -59,7 +54,7 @@
         <div class="tabs">
             <button class="tab-btn active" onclick="switchTab('articles', this)">Articles</button>
             <button class="tab-btn" onclick="switchTab('themes', this)">Rubriques</button>
-            <button class="tab-btn" onclick="switchTab('offres', this)">Offres (Stripe)</button>
+            <button class="tab-btn" onclick="switchTab('offres', this)">Offres</button>
             <button class="tab-btn" onclick="switchTab('lecteurs', this)">Lecteurs</button>
             <button class="tab-btn" onclick="switchTab('parametres', this)" style="color: #ef4444;">Paramètres</button>
         </div>
@@ -111,7 +106,7 @@
                 </div>
                 <div class="grid-2">
                     <div class="input-group"><label>Lien Stripe (price_xxx)</label><input type="text" id="lien-stripe"></div>
-                    <div class="input-group"><label>Articles à offrir/mois</label><input type="number" id="partages-offre"></div>
+                    <div class="input-group"><label>Articles à offrir / mois</label><input type="number" id="partages-offre"></div>
                 </div>
                 <div class="input-group"><label>Avantages (1 par ligne)</label><textarea id="avantages-offre" rows="4"></textarea></div>
                 <button class="btn-primaire" id="btn-save-offre" onclick="sauvegarderOffre()" style="width: 100%; font-size: 1.1rem; padding: 15px;">Créer l'offre</button>
@@ -128,13 +123,20 @@
                 <button class="btn-primaire" onclick="gererAbonnement()" style="width: 100%; padding: 15px; font-size: 1.1rem;">Mettre à jour le lecteur</button>
             </div>
 
-            <!-- PARAMETRES / MAINTENANCE -->
+            <!-- PARAMETRES -->
             <div id="section-parametres" class="section">
-                <h2 style="color: #ef4444;">Zone de Danger</h2>
+                <h2>Paramètres du Site</h2>
+                <div class="input-group">
+                    <label>Texte du Bandeau "Flash Info"</label>
+                    <textarea id="texte-flash" rows="3" placeholder="Saisissez le texte défilant ici..."></textarea>
+                    <button class="btn-primaire" onclick="sauvegarderFlash()" style="margin-top:10px;">Mettre à jour le bandeau</button>
+                </div>
+
+                <h2 style="color: #ef4444; margin-top: 50px;">Zone de Danger</h2>
                 <div style="background: #fee2e2; border: 1px solid #fca5a5; padding: 30px; border-radius: 12px; text-align: center;">
                     <h3 style="margin-top: 0; color: #b91c1c;">Mode Maintenance</h3>
-                    <p style="color: #991b1b; margin-bottom: 25px;">Active ceci pour couper complètement l'accès public au site et afficher la page de panne.</p>
-                    <button id="btn-maintenance" class="btn-danger" style="font-size: 1.2rem; padding: 15px 30px;" onclick="toggleMaintenance()">Chargement...</button>
+                    <p style="color: #991b1b; margin-bottom: 25px;">Active ceci pour couper complètement l'accès public au site.</p>
+                    <button id="btn-maintenance" class="btn-danger" style="font-size: 1.1rem; padding: 12px 25px;" onclick="toggleMaintenance()">Chargement...</button>
                 </div>
             </div>
         </div>
@@ -164,12 +166,10 @@
         function switchTab(sectionId, element) {
             document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById('section-' + sectionId).classList.add('active');
-            element.classList.add('active');
+            document.getElementById('section-' + sectionId).classList.add('active'); element.classList.add('active');
         }
 
         async function chargerToutesLesDonnees() {
-            // Rubriques, Articles, Offres (Code identique)
             const { data: cats } = await db.from('categories').select('*').order('nom');
             listeCategories = cats || [];
             const selectCat = document.getElementById('categorie-article');
@@ -189,23 +189,24 @@
             selectOff.innerHTML = '<option value="">✨ Créer une NOUVELLE offre</option>';
             listeOffres.forEach(o => selectOff.innerHTML += `<option value="${o.id}">⚙️ Éditer : ${o.nom}</option>`);
 
-            // Maintenance
             const { data: settings } = await db.from('site_settings').select('*').eq('id', 1).single();
             if (settings) {
                 enMaintenance = settings.en_maintenance;
+                document.getElementById('texte-flash').value = settings.flash_texte || '';
                 actualiserBoutonMaintenance();
             }
         }
 
+        async function sauvegarderFlash() {
+            const texte = document.getElementById('texte-flash').value;
+            await db.from('site_settings').update({ flash_texte: texte }).eq('id', 1);
+            alert("Bandeau mis à jour !");
+        }
+
         function actualiserBoutonMaintenance() {
             const btn = document.getElementById('btn-maintenance');
-            if (enMaintenance) {
-                btn.innerText = "DÉSACTIVER la maintenance (Site en ligne)";
-                btn.style.background = "#059669"; // Vert
-            } else {
-                btn.innerText = "ACTIVER la maintenance (Casser le site)";
-                btn.style.background = "#dc2626"; // Rouge
-            }
+            if (enMaintenance) { btn.innerText = "DÉSACTIVER la maintenance"; btn.style.background = "#059669"; } 
+            else { btn.innerText = "ACTIVER la maintenance"; btn.style.background = "#dc2626"; }
         }
 
         async function toggleMaintenance() {
@@ -215,7 +216,7 @@
             alert(enMaintenance ? "Le site est maintenant CASSÉ pour le public." : "Le site est de nouveau EN LIGNE.");
         }
 
-        // --- Fonctions Articles / Rubriques / Offres / Lecteurs inchangées ---
+        // Logic Editor (Inchangée)
         function chargerArticlePourEdition() {
             articleEditionId = document.getElementById('select-article').value;
             if (!articleEditionId) {
@@ -228,20 +229,20 @@
                 document.getElementById('titre-article').value = art.titre; document.getElementById('image-article').value = art.image_url || '';
                 document.getElementById('categorie-article').value = art.categorie_id || ''; document.getElementById('est-a-la-une').checked = art.est_a_la_une || false;
                 quillPublic.root.innerHTML = art.contenu_public || ''; quillPremium.root.innerHTML = art.contenu_premium || '';
-                document.getElementById('btn-save-article').innerText = "Enregistrer les modifications"; document.getElementById('btn-delete-article').style.display = 'block';
+                document.getElementById('btn-save-article').innerText = "Enregistrer les modifs"; document.getElementById('btn-delete-article').style.display = 'block';
             }
         }
         async function sauvegarderArticle() {
             const payload = { titre: document.getElementById('titre-article').value, image_url: document.getElementById('image-article').value, categorie_id: document.getElementById('categorie-article').value || null, est_a_la_une: document.getElementById('est-a-la-une').checked, contenu_public: quillPublic.root.innerHTML === '<p><br></p>' ? '' : quillPublic.root.innerHTML, contenu_premium: quillPremium.root.innerHTML === '<p><br></p>' ? null : quillPremium.root.innerHTML };
             payload.reserve_abonnes = payload.contenu_premium !== null;
-            if(!payload.titre || (!payload.contenu_public && !payload.contenu_premium)) return alert("Titre et contenu requis.");
+            if(!payload.titre) return alert("Titre requis.");
             const req = articleEditionId ? db.from('articles').update(payload).eq('id', articleEditionId) : db.from('articles').insert([payload]);
             const { error } = await req; if(error) alert("Erreur: " + error.message); else { alert("✅ Article sauvegardé !"); chargerToutesLesDonnees(); }
         }
         async function supprimerArticle() {
             if(!articleEditionId || !confirm("Supprimer cet article DÉFINITIVEMENT ?")) return;
             const { error } = await db.from('articles').delete().eq('id', articleEditionId);
-            if(error) alert("Erreur: " + error.message); else { alert("🗑️ Article supprimé."); document.getElementById('select-article').value = ''; chargerArticlePourEdition(); chargerToutesLesDonnees(); }
+            if(error) alert("Erreur: " + error.message); else { document.getElementById('select-article').value = ''; chargerArticlePourEdition(); chargerToutesLesDonnees(); }
         }
         function chargerOffrePourEdition() {
             offreEditionId = document.getElementById('select-offre').value;

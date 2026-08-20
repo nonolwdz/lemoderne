@@ -73,7 +73,7 @@
         }
         .article-date { color: var(--texte-clair); font-size: 0.9rem; margin-bottom: 30px; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
         
-        /* CORRECTION DES IMAGES DE L'ÉDITEUR */
+        /* Contenu des articles */
         .article-contenu img { 
             max-width: 100% !important; 
             height: auto !important; 
@@ -109,7 +109,7 @@
         .btn-partage:hover { background-color: var(--or); color: white; border-color: var(--or); }
         .credits-info { font-size: 0.9rem; color: var(--texte-clair); }
 
-        /* Modales (Style épuré) */
+        /* Modales */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.85); z-index: 200; justify-content: center; align-items: center; backdrop-filter: blur(4px); }
         .modal-content { background: white; padding: 40px; border-radius: 16px; width: 90%; max-width: 450px; position: relative; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
         .close-btn { position: absolute; top: 20px; right: 25px; font-size: 1.5rem; cursor: pointer; color: #94a3b8; transition: 0.2s; }
@@ -174,7 +174,7 @@
         <div class="modal-content">
             <span class="close-btn" onclick="fermerModalePartage()">&times;</span>
             <h2>Offrir cet article</h2>
-            <p style="color: var(--texte-clair); margin-bottom: 20px;">Entrez l'email d'un proche pour lui débloquer cet article premium. (Il recevra un email si son compte existe).</p>
+            <p style="color: var(--texte-clair); margin-bottom: 20px;">Entrez l'email d'un proche pour lui débloquer cet article premium. Il y aura accès en se connectant avec cette adresse.</p>
             <input type="email" id="partage-email" class="input-champ" placeholder="Email de votre ami">
             <button class="btn-submit" onclick="validerPartage()">Partager l'article</button>
         </div>
@@ -191,12 +191,12 @@
         let estAbonne = false;
         let creditsPartage = 0;
         let articleEnCoursDePartage = null;
+        let articlesOfferts = []; // Pour stocker les cadeaux reçus
 
         async function verifierSession() {
             const { data: { session } } = await db.auth.getSession();
             if (session) {
                 lecteurActuel = session.user;
-                // On récupère aussi les crédits de partage
                 const { data: profil } = await db.from('lecteurs').select('est_abonne, fin_abonnement, credits_partage').eq('id', lecteurActuel.id).single();
                 
                 if (profil && profil.est_abonne && new Date(profil.fin_abonnement) > new Date()) {
@@ -206,6 +206,10 @@
                     await db.from('lecteurs').update({ est_abonne: false }).eq('id', lecteurActuel.id);
                     estAbonne = false;
                 }
+
+                // Vérifier si quelqu'un a offert des articles à cet email
+                const { data: partages } = await db.from('partages_articles').select('article_id').eq('email_destinataire', lecteurActuel.email);
+                if (partages) articlesOfferts = partages.map(p => p.article_id);
                 
                 document.getElementById('zone-boutons-header').innerHTML = `
                     <span style="color: white; margin-right: 15px; font-weight:600;">Mon compte</span>
@@ -213,7 +217,7 @@
                     <button class="btn" onclick="seDeconnecter()">Déconnexion</button>
                 `;
             } else {
-                lecteurActuel = null; estAbonne = false; creditsPartage = 0;
+                lecteurActuel = null; estAbonne = false; creditsPartage = 0; articlesOfferts = [];
                 document.getElementById('zone-boutons-header').innerHTML = `<button class="btn" onclick="ouvrirModaleAuth()">Se connecter</button><button class="btn btn-premium" onclick="afficherOffres()">S'abonner</button>`;
             }
             chargerArticles();
@@ -247,8 +251,10 @@
                 const dateFormatee = new Date(article.date_publication).toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' });
                 let htmlArticle = `<div class="article-card"><h2 class="article-titre">${article.titre}</h2><div class="article-date">Publié le ${dateFormatee}</div>`;
                 
-                // Si l'article est bloqué et que le lecteur n'est PAS abonné
-                if ((article.reserve_abonnes || article.contenu_premium) && !estAbonne) {
+                // On autorise si abonné OU si l'article est dans la liste des cadeaux reçus
+                const accesAutorise = estAbonne || articlesOfferts.includes(article.id);
+
+                if ((article.reserve_abonnes || article.contenu_premium) && !accesAutorise) {
                     htmlArticle += `
                     <div class="paywall-container">
                         <div class="article-contenu texte-estompe">${article.contenu_public}</div>
@@ -259,10 +265,13 @@
                         </div>
                     </div>`;
                 } else {
-                    // Affichage complet
-                    htmlArticle += `<div class="article-contenu">${article.contenu_public} ${article.contenu_premium ? article.contenu_premium : ''}</div>`;
+                    let badgeCadeau = '';
+                    if (articlesOfferts.includes(article.id) && !estAbonne) {
+                        badgeCadeau = `<div style="background:#f8fafc; color:#d97706; padding:15px; border-radius:8px; margin-bottom:20px; font-weight:600; text-align:center; border: 1px solid #d97706;">🎁 Cet article premium vous a été offert par un proche. Bonne lecture !</div>`;
+                    }
                     
-                    // Ajout du bouton de partage si le lecteur est un abonné
+                    htmlArticle += `${badgeCadeau}<div class="article-contenu">${article.contenu_public} ${article.contenu_premium ? article.contenu_premium : ''}</div>`;
+                    
                     if (estAbonne && (article.reserve_abonnes || article.contenu_premium)) {
                         const boutonPartage = creditsPartage > 0 
                             ? `<button class="btn-partage" onclick="ouvrirModalePartage('${article.id}')">🎁 Offrir cet article</button>` 
@@ -279,16 +288,15 @@
             });
         }
 
-        // --- GESTION DU PARTAGE ---
-        function ouvrirModalePartage(articleId) {
-            articleEnCoursDePartage = articleId;
-            document.getElementById('partage-modal').style.display = 'flex';
+        function ouvrirModalePartage(articleId) { 
+            articleEnCoursDePartage = articleId; 
+            document.getElementById('partage-modal').style.display = 'flex'; 
         }
-
-        function fermerModalePartage() {
-            document.getElementById('partage-modal').style.display = 'none';
-            document.getElementById('partage-email').value = '';
-            articleEnCoursDePartage = null;
+        
+        function fermerModalePartage() { 
+            document.getElementById('partage-modal').style.display = 'none'; 
+            document.getElementById('partage-email').value = ''; 
+            articleEnCoursDePartage = null; 
         }
 
         async function validerPartage() {
@@ -296,7 +304,6 @@
             if(!emailAmi) return alert("Veuillez saisir une adresse email.");
             if(creditsPartage <= 0) return alert("Vous n'avez plus de crédits de partage.");
 
-            // 1. Enregistrer le partage dans la base
             const { error: errInsert } = await db.from('partages_articles').insert([{
                 article_id: articleEnCoursDePartage,
                 lecteur_id: lecteurActuel.id,
@@ -305,18 +312,16 @@
 
             if (errInsert) return alert("Erreur lors du partage : " + errInsert.message);
 
-            // 2. Déduire le crédit du lecteur
             creditsPartage--;
             await db.from('lecteurs').update({ credits_partage: creditsPartage }).eq('id', lecteurActuel.id);
 
-            alert(`✅ Article envoyé à ${emailAmi} ! S'il est inscrit, un email lui sera envoyé (Simulation Resend).`);
+            alert(`✅ Article partagé ! ${emailAmi} a désormais accès à cet article en se connectant.`);
             fermerModalePartage();
-            chargerArticles(); // Recharge pour mettre à jour le texte "Il vous reste X partages"
+            chargerArticles(); 
         }
 
-        // --- OFFRES ET MODALES ---
         async function afficherOffres() {
-            if (!lecteurActuel) return alert("Veuillez créer un compte gratuit pour voir les offres.") || ouvrirModaleAuth();
+            if (!lecteurActuel) return alert("Veuillez vous créer un compte gratuit pour voir les offres.") || ouvrirModaleAuth();
             document.getElementById('offres-modal').style.display = 'flex';
             const conteneur = document.getElementById('liste-offres');
             const { data: offres, error } = await db.from('offres').select('*').order('prix_euros', { ascending: true });
@@ -343,10 +348,11 @@
         function ouvrirModaleAuth() { document.getElementById('auth-modal').style.display = 'flex'; }
         function fermerModaleAuth() { document.getElementById('auth-modal').style.display = 'none'; }
         function fermerModaleOffres() { document.getElementById('offres-modal').style.display = 'none'; }
-        function basculerModeAuth(mode) {
-            document.getElementById('modal-titre').innerText = mode === 'inscription' ? "Créer un compte" : "Connexion";
-            document.getElementById('form-login').style.display = mode === 'inscription' ? 'none' : 'block';
-            document.getElementById('form-register').style.display = mode === 'inscription' ? 'block' : 'none';
+        
+        function basculerModeAuth(mode) { 
+            document.getElementById('modal-titre').innerText = mode === 'inscription' ? "Créer un compte" : "Connexion"; 
+            document.getElementById('form-login').style.display = mode === 'inscription' ? 'none' : 'block'; 
+            document.getElementById('form-register').style.display = mode === 'inscription' ? 'block' : 'none'; 
         }
 
         verifierSession();

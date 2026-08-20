@@ -40,6 +40,7 @@
         .box-info { background: #eff6ff; border: 1px solid #bfdbfe; padding: 15px; border-radius: 8px; margin-bottom: 20px; color: #1e3a8a; }
         .list-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; border: 1px solid var(--bordure); border-radius: 8px; margin-bottom: 10px; background: #f8fafc; }
         .btn-danger { background: #ef4444; color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        .btn-danger:hover { background: #dc2626; }
     </style>
 </head>
 <body>
@@ -59,7 +60,7 @@
         <div class="tabs">
             <button class="tab-btn active" onclick="switchTab('articles', this)">Articles</button>
             <button class="tab-btn" onclick="switchTab('themes', this)">Rubriques</button>
-            <button class="tab-btn" onclick="switchTab('offres', this)">Offres</button>
+            <button class="tab-btn" onclick="switchTab('offres', this)">Offres (Stripe)</button>
             <button class="tab-btn" onclick="switchTab('lecteurs', this)">Lecteurs</button>
         </div>
 
@@ -95,7 +96,7 @@
                 </div>
 
                 <div class="box-info">
-                    <strong>Gestion du Paywall :</strong> L'article est divisé en deux parties. Si la partie Premium est remplie, le mur payant s'activera automatiquement entre les deux.
+                    <strong>Gestion du Paywall :</strong> Remplis la partie 1. Si tu ajoutes du texte dans la partie 2 (Premium), le mur payant ("FAUT PAYER") s'activera automatiquement.
                 </div>
 
                 <div class="input-group">
@@ -104,11 +105,14 @@
                 </div>
 
                 <div class="input-group">
-                    <label style="color: #be123c;">2. Partie Premium (Cachée derrière le paywall)</label>
+                    <label style="color: #be123c;">2. Partie Payante (Cachée derrière le paywall)</label>
                     <div id="quill-premium" class="editor-container"></div>
                 </div>
 
-                <button class="btn-primaire" id="btn-save-article" onclick="sauvegarderArticle()" style="width: 100%; font-size: 1.1rem; padding: 15px;">Publier l'article</button>
+                <div style="display: flex; gap: 15px; margin-top: 20px;">
+                    <button class="btn-primaire" id="btn-save-article" onclick="sauvegarderArticle()" style="flex: 1; font-size: 1.1rem; padding: 15px;">Publier l'article</button>
+                    <button class="btn-danger" id="btn-delete-article" onclick="supprimerArticle()" style="display: none; padding: 15px; border-radius: 8px; font-size: 1.1rem;">Supprimer</button>
+                </div>
             </div>
 
             <!-- THEMES -->
@@ -124,6 +128,25 @@
                 <div id="liste-themes-admin"></div>
             </div>
 
+            <!-- OFFRES (Restauration complète) -->
+            <div id="section-offres" class="section">
+                <div class="input-group" style="background: #f8fafc; padding: 20px; border-radius: 8px; border: 1px dashed var(--secondaire);">
+                    <select id="select-offre" onchange="chargerOffrePourEdition()">
+                        <option value="">✨ Créer une NOUVELLE offre</option>
+                    </select>
+                </div>
+                <div class="grid-2">
+                    <div class="input-group"><label>Nom de l'offre</label><input type="text" id="nom-offre"></div>
+                    <div class="input-group"><label>Prix (€)</label><input type="number" id="prix-offre" step="0.01"></div>
+                </div>
+                <div class="grid-2">
+                    <div class="input-group"><label>Lien Stripe (price_xxx)</label><input type="text" id="lien-stripe"></div>
+                    <div class="input-group"><label>Cadeaux autorisés/mois</label><input type="number" id="partages-offre"></div>
+                </div>
+                <div class="input-group"><label>Avantages (1 par ligne)</label><textarea id="avantages-offre" rows="4"></textarea></div>
+                <button class="btn-primaire" id="btn-save-offre" onclick="sauvegarderOffre()" style="width: 100%; font-size: 1.1rem; padding: 15px;">Créer l'offre</button>
+            </div>
+
             <!-- LECTEURS -->
             <div id="section-lecteurs" class="section">
                 <h2>Abonnements Manuels</h2>
@@ -132,22 +155,7 @@
                     <div class="input-group"><label>Action</label><select id="action-lecteur"><option value="ajouter">Ajouter des jours</option><option value="retirer">Retirer des jours</option></select></div>
                     <div class="input-group"><label>Nombre de jours</label><input type="number" id="jours-lecteur" value="30"></div>
                 </div>
-                <button class="btn-primaire" onclick="gererAbonnement()" style="width: 100%;">Mettre à jour le lecteur</button>
-            </div>
-            
-            <!-- OFFRES (Minimal) -->
-            <div id="section-offres" class="section">
-                <p><i>Module d'offres simplifié pour cette vue.</i></p>
-                <div class="grid-2">
-                    <div class="input-group"><label>Nom de l'offre</label><input type="text" id="nom-offre"></div>
-                    <div class="input-group"><label>Prix (€)</label><input type="number" id="prix-offre" step="0.01"></div>
-                </div>
-                <div class="grid-2">
-                    <div class="input-group"><label>Lien Stripe</label><input type="text" id="lien-stripe"></div>
-                    <div class="input-group"><label>Partages autorisés/mois</label><input type="number" id="partages-offre"></div>
-                </div>
-                <div class="input-group"><label>Avantages (1 par ligne)</label><textarea id="avantages-offre" rows="4"></textarea></div>
-                <button class="btn-primaire" onclick="sauvegarderOffre()" style="width: 100%;">Enregistrer l'offre</button>
+                <button class="btn-primaire" onclick="gererAbonnement()" style="width: 100%; padding: 15px; font-size: 1.1rem;">Mettre à jour le lecteur</button>
             </div>
         </div>
     </div>
@@ -158,8 +166,8 @@
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpidXdqdmJjeHF4dHd1Z2h1YWRmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcyMDc2ODAsImV4cCI6MjEwMjc4MzY4MH0.lO0FizbO5jnRvRjrMERCKe6cBFFN_ttBMlRAGXtlHyo';
         const db = supabase.createClient(supabaseUrl, supabaseKey);
 
-        let listeArticles = [], listeCategories = [];
-        let articleEditionId = null;
+        let listeArticles = [], listeCategories = [], listeOffres = [];
+        let articleEditionId = null, offreEditionId = null;
 
         const quillOptions = { theme: 'snow', modules: { toolbar: [ [{ 'header': [1, 2, 3, false] }], ['bold', 'italic'], ['link', 'image'], [{'list': 'bullet'}], ['clean'] ] } };
         var quillPublic = new Quill('#quill-public', { ...quillOptions, placeholder: 'Écrivez ici l\'introduction visible par tous...' });
@@ -181,6 +189,7 @@
         }
 
         async function chargerToutesLesDonnees() {
+            // Rubriques
             const { data: cats } = await db.from('categories').select('*').order('nom');
             listeCategories = cats || [];
             const selectCat = document.getElementById('categorie-article');
@@ -191,26 +200,22 @@
                 conteneurThemes.innerHTML += `<div class="list-item"><span style="font-weight:bold;">${c.nom}</span><button class="btn-danger" onclick="supprimerTheme('${c.id}')">Supprimer</button></div>`;
             });
 
+            // Articles
             const { data: arts } = await db.from('articles').select('*').order('date_publication', { ascending: false });
             listeArticles = arts || [];
             const selectArt = document.getElementById('select-article');
             selectArt.innerHTML = '<option value="">✨ Rédiger un nouvel article</option>';
             listeArticles.forEach(a => selectArt.innerHTML += `<option value="${a.id}">📝 Éditer : ${a.titre}</option>`);
+
+            // Offres
+            const { data: offs } = await db.from('offres').select('*').order('prix_euros');
+            listeOffres = offs || [];
+            const selectOff = document.getElementById('select-offre');
+            selectOff.innerHTML = '<option value="">✨ Créer une NOUVELLE offre</option>';
+            listeOffres.forEach(o => selectOff.innerHTML += `<option value="${o.id}">⚙️ Éditer : ${o.nom}</option>`);
         }
 
-        // THEMES
-        async function creerTheme() {
-            const nom = document.getElementById('nom-theme').value.trim();
-            if(!nom) return;
-            await db.from('categories').insert([{ nom }]);
-            document.getElementById('nom-theme').value = ''; chargerToutesLesDonnees();
-        }
-        async function supprimerTheme(id) {
-            if(!confirm("Supprimer ce thème ?")) return;
-            await db.from('categories').delete().eq('id', id); chargerToutesLesDonnees();
-        }
-
-        // ARTICLES
+        // --- ARTICLES ---
         function chargerArticlePourEdition() {
             articleEditionId = document.getElementById('select-article').value;
             if (!articleEditionId) {
@@ -220,17 +225,18 @@
                 document.getElementById('est-a-la-une').checked = false;
                 quillPublic.root.innerHTML = ''; quillPremium.root.innerHTML = '';
                 document.getElementById('btn-save-article').innerText = "Publier l'article";
+                document.getElementById('btn-delete-article').style.display = 'none';
             } else {
                 const art = listeArticles.find(a => a.id === articleEditionId);
                 document.getElementById('titre-article').value = art.titre;
                 document.getElementById('image-article').value = art.image_url || '';
                 document.getElementById('categorie-article').value = art.categorie_id || '';
                 document.getElementById('est-a-la-une').checked = art.est_a_la_une || false;
-                
                 quillPublic.root.innerHTML = art.contenu_public || '';
                 quillPremium.root.innerHTML = art.contenu_premium || '';
                 
                 document.getElementById('btn-save-article').innerText = "Enregistrer les modifications";
+                document.getElementById('btn-delete-article').style.display = 'block';
             }
         }
 
@@ -243,8 +249,6 @@
                 contenu_public: quillPublic.root.innerHTML === '<p><br></p>' ? '' : quillPublic.root.innerHTML,
                 contenu_premium: quillPremium.root.innerHTML === '<p><br></p>' ? null : quillPremium.root.innerHTML
             };
-            
-            // Si le premium est rempli, on active automatiquement la restriction
             payload.reserve_abonnes = payload.contenu_premium !== null;
 
             if(!payload.titre || (!payload.contenu_public && !payload.contenu_premium)) return alert("Titre et contenu requis.");
@@ -252,10 +256,65 @@
             const req = articleEditionId ? db.from('articles').update(payload).eq('id', articleEditionId) : db.from('articles').insert([payload]);
             const { error } = await req;
             if(error) alert("Erreur: " + error.message);
-            else { alert("✅ Sauvegardé avec succès !"); chargerToutesLesDonnees(); }
+            else { alert("✅ Article sauvegardé !"); chargerToutesLesDonnees(); }
         }
 
-        // LECTEURS (La fonction manquante est réparée !)
+        async function supprimerArticle() {
+            if(!articleEditionId) return;
+            if(!confirm("ATTENTION : Es-tu sûr de vouloir supprimer cet article DÉFINITIVEMENT ?")) return;
+            
+            const { error } = await db.from('articles').delete().eq('id', articleEditionId);
+            if(error) alert("Erreur: " + error.message);
+            else { 
+                alert("🗑️ Article supprimé."); 
+                document.getElementById('select-article').value = ''; 
+                chargerArticlePourEdition(); 
+                chargerToutesLesDonnees(); 
+            }
+        }
+
+        // --- OFFRES ---
+        function chargerOffrePourEdition() {
+            offreEditionId = document.getElementById('select-offre').value;
+            if (!offreEditionId) {
+                document.getElementById('nom-offre').value = ''; document.getElementById('prix-offre').value = '';
+                document.getElementById('partages-offre').value = '0'; document.getElementById('lien-stripe').value = '';
+                document.getElementById('avantages-offre').value = ''; document.getElementById('btn-save-offre').innerText = "Créer l'offre";
+            } else {
+                const off = listeOffres.find(o => o.id === offreEditionId);
+                document.getElementById('nom-offre').value = off.nom; document.getElementById('prix-offre').value = off.prix_euros;
+                document.getElementById('partages-offre').value = off.partages_autorises; document.getElementById('lien-stripe').value = off.stripe_price_id;
+                document.getElementById('avantages-offre').value = off.avantages || ''; document.getElementById('btn-save-offre').innerText = "Modifier l'offre";
+            }
+        }
+
+        async function sauvegarderOffre() {
+            const payload = {
+                nom: document.getElementById('nom-offre').value,
+                prix_euros: parseFloat(document.getElementById('prix-offre').value),
+                stripe_price_id: document.getElementById('lien-stripe').value,
+                partages_autorises: parseInt(document.getElementById('partages-offre').value),
+                avantages: document.getElementById('avantages-offre').value
+            };
+            if(!payload.nom || isNaN(payload.prix_euros)) return alert("Nom et prix requis.");
+
+            const req = offreEditionId ? db.from('offres').update(payload).eq('id', offreEditionId) : db.from('offres').insert([payload]);
+            const { error } = await req;
+            if(error) alert(error.message); else { alert("✅ Offre sauvegardée !"); chargerToutesLesDonnees(); }
+        }
+
+        // --- RUBRIQUES & LECTEURS ---
+        async function creerTheme() {
+            const nom = document.getElementById('nom-theme').value.trim();
+            if(!nom) return;
+            await db.from('categories').insert([{ nom }]);
+            document.getElementById('nom-theme').value = ''; chargerToutesLesDonnees();
+        }
+        async function supprimerTheme(id) {
+            if(!confirm("Supprimer ce thème ?")) return;
+            await db.from('categories').delete().eq('id', id); chargerToutesLesDonnees();
+        }
+
         async function gererAbonnement() {
             const email = document.getElementById('email-lecteur').value;
             const action = document.getElementById('action-lecteur').value;
@@ -271,9 +330,8 @@
                 nouvelleDate = new Date(lecteur.fin_abonnement);
             }
 
-            if (action === 'ajouter') {
-                nouvelleDate.setDate(nouvelleDate.getDate() + jours);
-            } else {
+            if (action === 'ajouter') nouvelleDate.setDate(nouvelleDate.getDate() + jours);
+            else {
                 nouvelleDate.setDate(nouvelleDate.getDate() - jours);
                 if (nouvelleDate < new Date()) nouvelleDate = new Date();
             }
@@ -282,16 +340,12 @@
             if (action === 'ajouter') nouveauxCredits += 2;
 
             const { error: errUpdate } = await db.from('lecteurs').update({
-                est_abonne: nouvelleDate > new Date(),
-                fin_abonnement: nouvelleDate.toISOString(),
-                credits_partage: nouveauxCredits
+                est_abonne: nouvelleDate > new Date(), fin_abonnement: nouvelleDate.toISOString(), credits_partage: nouveauxCredits
             }).eq('id', lecteur.id);
 
             if(errUpdate) alert("Erreur : " + errUpdate.message);
             else alert(`✅ Succès ! L'abonnement de ${email} a bien été mis à jour.`);
         }
-        
-        async function sauvegarderOffre() { alert('Pour ajouter des offres, utilise la base Supabase ou le script précédent.'); }
     </script>
 </body>
 </html>

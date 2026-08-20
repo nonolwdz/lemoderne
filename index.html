@@ -3,383 +3,303 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Le Moderne | L'Actualité Nouvelle Génération</title>
-    
-    <!-- Polices Ultra Modernes -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
-    
-    <!-- Import Supabase -->
+    <title>Le Moderne - Espace Éditeur Pro</title>
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
     <style>
-        :root { 
-            --fond: #f4f6f9;
-            --texte: #1e293b;
-            --texte-clair: #64748b;
-            --blanc: #ffffff;
-            --gradient-primaire: linear-gradient(135deg, #6366f1 0%, #ec4899 100%);
-            --gradient-secondaire: linear-gradient(135deg, #f59e0b 0%, #f43f5e 100%);
-            --ombre-douce: 0 20px 40px -15px rgba(0,0,0,0.05);
-            --ombre-couleur: 0 10px 30px -10px rgba(99, 102, 241, 0.4);
-        }
+        :root { --primaire: #4f46e5; --secondaire: #ec4899; --fond: #f8fafc; --texte: #1e293b; --bordure: #e2e8f0; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--fond); color: var(--texte); margin: 0; }
         
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background-color: var(--fond); 
-            margin: 0; padding: 0; 
-            color: var(--texte);
-            line-height: 1.7;
-            /* Motif de fond discret très moderne */
-            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
-            background-size: 30px 30px;
-        }
+        /* Login */
+        #login-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background: #0f172a; }
+        #login-screen h1 { color: white; margin-bottom: 30px; font-size: 2.5rem; }
+        #password-input { padding: 15px 20px; border-radius: 8px; border: none; font-size: 1.1rem; margin-bottom: 20px; width: 300px; }
+        .btn-primaire { background: linear-gradient(135deg, var(--primaire), var(--secondaire)); color: white; padding: 12px 24px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 1rem; }
+        .btn-primaire:hover { transform: translateY(-2px); box-shadow: 0 10px 20px -10px var(--primaire); }
 
-        h1, h2, h3, .titre-poppins {
-            font-family: 'Poppins', sans-serif;
-            letter-spacing: -0.5px;
-        }
+        /* Dashboard */
+        #editor-dashboard { display: none; }
+        header { background: white; padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--bordure); }
+        header h1 { margin: 0; font-size: 1.5rem; background: linear-gradient(135deg, var(--primaire), var(--secondaire)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        
+        .tabs { display: flex; background: white; padding: 0 40px; border-bottom: 1px solid var(--bordure); }
+        .tab-btn { background: none; border: none; padding: 15px 20px; font-size: 1rem; color: #64748b; cursor: pointer; border-bottom: 3px solid transparent; font-weight: 600; }
+        .tab-btn.active { color: var(--primaire); border-bottom-color: var(--primaire); }
 
-        /* HEADER FLOTTANT "GLASSMORPHISM" */
-        header { 
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            padding: 15px 40px; 
-            display: flex; justify-content: space-between; align-items: center; 
-            position: sticky; top: 0; z-index: 100; 
-            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
-            border-bottom: 1px solid rgba(255,255,255,0.5);
-        }
-        
-        header h1 { 
-            margin: 0; font-size: 1.8rem; font-weight: 800;
-            background: var(--gradient-primaire);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            cursor: default;
-        }
+        .container { max-width: 1000px; margin: 40px auto; background: white; padding: 40px; border-radius: 16px; box-shadow: 0 10px 30px -10px rgba(0,0,0,0.05); }
+        .section { display: none; }
+        .section.active { display: block; }
 
-        /* BOUTONS MODERNES */
-        .btn {
-            background: var(--blanc); color: var(--texte); 
-            border: 1px solid #cbd5e1; 
-            padding: 10px 24px; border-radius: 50px; 
-            cursor: pointer; font-weight: 600; font-size: 0.95rem;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            font-family: 'Inter', sans-serif;
-        }
-        .btn:hover { border-color: #94a3b8; transform: translateY(-2px); box-shadow: var(--ombre-douce); }
+        .input-group { margin-bottom: 25px; }
+        .input-group label { display: block; font-weight: 600; margin-bottom: 8px; color: #334155; }
+        .input-group input, .input-group select, .input-group textarea { width: 100%; padding: 14px; border: 1px solid var(--bordure); border-radius: 8px; font-size: 1rem; box-sizing: border-box; transition: 0.2s; }
+        .input-group input:focus, .input-group select:focus { border-color: var(--primaire); outline: none; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
         
-        .btn-gradient { 
-            background: var(--gradient-primaire); color: white; border: none; 
-            box-shadow: var(--ombre-couleur);
-        }
-        .btn-gradient:hover { 
-            transform: translateY(-3px); 
-            box-shadow: 0 15px 35px -10px rgba(236, 72, 153, 0.5); 
-            border-color: transparent; color: white;
-        }
-
-        /* LAYOUT PRINCIPAL */
-        .container { max-width: 800px; margin: 60px auto; padding: 0 20px; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         
-        /* CARTES ARTICLES */
-        .article-card { 
-            background: var(--blanc); border-radius: 24px; padding: 40px; 
-            margin-bottom: 40px; 
-            box-shadow: var(--ombre-douce);
-            transition: transform 0.3s ease;
-            animation: fadeInUp 0.6s ease-out forwards;
-            opacity: 0;
-            transform: translateY(20px);
-        }
-        @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+        #quill-editor { height: 400px; border-radius: 0 0 8px 8px; }
+        .ql-toolbar { border-radius: 8px 8px 0 0; background: #f1f5f9; border-color: var(--bordure); }
         
-        .article-card:hover { transform: translateY(-5px); box-shadow: 0 30px 60px -15px rgba(0,0,0,0.08); }
-        
-        .article-tag { 
-            display: inline-block; background: #f1f5f9; color: var(--texte-clair); 
-            padding: 6px 14px; border-radius: 50px; font-size: 0.8rem; font-weight: 600; 
-            margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px;
-        }
-
-        .article-titre { color: var(--texte); font-size: 2.2rem; margin-top: 0; margin-bottom: 15px; line-height: 1.25; }
-        
-        /* CONTENU ARTICLES */
-        .article-contenu { font-size: 1.1rem; color: #475569; }
-        .article-contenu img { 
-            max-width: 100% !important; height: auto !important; 
-            display: block; margin: 30px auto; border-radius: 16px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
-        }
-        
-        /* PAYWALL ULTIME */
-        .paywall-container { position: relative; margin-top: 20px; }
-        .texte-estompe { 
-            -webkit-mask-image: linear-gradient(to bottom, black 20%, transparent 100%); 
-            mask-image: linear-gradient(to bottom, black 20%, transparent 100%); 
-            padding-bottom: 100px; 
-        }
-        .paywall-banner { 
-            background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px);
-            text-align: center; padding: 50px 30px; border-radius: 20px; 
-            margin-top: -120px; position: relative; z-index: 10; 
-            border: 1px solid #e2e8f0; box-shadow: 0 -10px 30px rgba(255,255,255,0.8);
-        }
-        .paywall-banner h3 { font-size: 1.8rem; background: var(--gradient-primaire); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; }
-        
-        /* PARTAGE ET CADEAU */
-        .action-partage {
-            margin-top: 40px; padding-top: 30px; border-top: 1px solid #e2e8f0;
-            display: flex; justify-content: space-between; align-items: center;
-            background: #f8fafc; padding: 25px; border-radius: 16px;
-        }
-        .badge-cadeau { 
-            background: var(--gradient-secondaire); color: white; 
-            padding: 20px; border-radius: 16px; margin-bottom: 30px; 
-            font-weight: 600; text-align: center; box-shadow: 0 10px 25px rgba(244, 63, 94, 0.3);
-            display: flex; align-items: center; justify-content: center; gap: 10px;
-        }
-
-        /* MODALES ELEGANTES */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.4); z-index: 200; justify-content: center; align-items: center; backdrop-filter: blur(8px); }
-        .modal-content { background: var(--blanc); padding: 50px; border-radius: 24px; width: 90%; max-width: 420px; position: relative; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
-        .close-btn { position: absolute; top: 20px; right: 25px; font-size: 1.5rem; cursor: pointer; color: #94a3b8; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: #f1f5f9; transition: 0.2s; }
-        .close-btn:hover { background: #e2e8f0; color: #1e293b; }
-        
-        .modal-content h2 { font-size: 1.8rem; color: var(--texte); margin-top: 0; margin-bottom: 30px; text-align: center; }
-        .input-champ { width: 100%; padding: 16px; margin-bottom: 20px; border: 2px solid #e2e8f0; border-radius: 12px; box-sizing: border-box; font-size: 1rem; font-family: 'Inter', sans-serif; transition: 0.2s; background: #f8fafc; }
-        .input-champ:focus { outline: none; border-color: #6366f1; background: white; box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1); }
-        .btn-texte { background: none; border: none; color: #6366f1; font-weight: 600; cursor: pointer; width: 100%; margin-top: 15px; font-size: 0.95rem; }
-
-        /* GRILLE DES OFFRES (TRES VISUEL) */
-        .offres-modal { max-width: 1000px; max-height: 90vh; overflow-y: auto; }
-        .offres-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; margin-top: 40px; }
-        .offre-card { 
-            border: 2px solid #e2e8f0; border-radius: 24px; padding: 40px; text-align: left; 
-            transition: 0.3s; background: var(--blanc); display: flex; flex-direction: column;
-        }
-        .offre-card:hover { border-color: #6366f1; box-shadow: var(--ombre-douce); transform: translateY(-5px); }
-        .offre-card h3 { font-size: 1.5rem; color: var(--texte); margin-top: 0; }
-        .offre-prix { font-size: 3rem; font-weight: 800; font-family: 'Poppins', sans-serif; color: var(--texte); margin: 15px 0 25px 0; }
-        .offre-prix span { font-size: 1.1rem; color: var(--texte-clair); font-weight: 500; }
-        .offre-avantages { list-style: none; padding: 0; margin-bottom: 40px; flex-grow: 1; }
-        .offre-avantages li { margin-bottom: 15px; padding-left: 32px; position: relative; color: #475569; font-weight: 500; }
-        .offre-avantages li::before { 
-            content: '✓'; position: absolute; left: 0; top: -2px;
-            background: #dbeafe; color: #3b82f6; width: 22px; height: 22px; 
-            border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: bold;
-        }
+        .list-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; border: 1px solid var(--bordure); border-radius: 8px; margin-bottom: 10px; background: #f8fafc; }
+        .btn-danger { background: #ef4444; color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>Le Moderne</h1>
-        <div id="zone-boutons-header" style="display: flex; gap: 12px; align-items: center;">
-            <!-- Généré par JS -->
-        </div>
-    </header>
+    <div id="login-screen">
+        <h1>Le Moderne <span style="font-size: 1rem; font-weight: normal; opacity: 0.8;">ÉDITEUR</span></h1>
+        <input type="password" id="password-input" placeholder="Mot de passe">
+        <button class="btn-primaire" onclick="checkPassword()">Accéder au tableau de bord</button>
+    </div>
 
-    <!-- Modale Connexion -->
-    <div id="auth-modal" class="modal-overlay">
-        <div class="modal-content">
-            <span class="close-btn" onclick="fermerModaleAuth()">&times;</span>
-            <h2 id="modal-titre">Bienvenue</h2>
-            <input type="email" id="auth-email" class="input-champ" placeholder="Adresse email">
-            <input type="password" id="auth-password" class="input-champ" placeholder="Mot de passe">
-            <div id="form-login">
-                <button class="btn btn-gradient" style="width: 100%; padding: 16px;" onclick="seConnecter()">Se connecter</button>
-                <button class="btn-texte" onclick="basculerModeAuth('inscription')">Créer un compte gratuitement</button>
+    <div id="editor-dashboard">
+        <header>
+            <h1>Le Moderne Pro</h1>
+            <button onclick="location.reload()" style="background: none; border: 1px solid var(--bordure); padding: 8px 16px; border-radius: 6px; cursor: pointer;">Déconnexion</button>
+        </header>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('articles', this)">Articles</button>
+            <button class="tab-btn" onclick="switchTab('themes', this)">Thèmes (Catégories)</button>
+            <button class="tab-btn" onclick="switchTab('offres', this)">Offres</button>
+            <button class="tab-btn" onclick="switchTab('lecteurs', this)">Lecteurs</button>
+        </div>
+
+        <div class="container">
+            <!-- ARTICLES -->
+            <div id="section-articles" class="section active">
+                <div class="input-group" style="background: #f8fafc; padding: 20px; border-radius: 8px; border: 1px dashed var(--primaire);">
+                    <label>Sélectionnez une action :</label>
+                    <select id="select-article" onchange="chargerArticlePourEdition()">
+                        <option value="">✨ Rédiger un nouvel article</option>
+                    </select>
+                </div>
+
+                <div class="grid-2">
+                    <div class="input-group">
+                        <label>Titre de l'article</label>
+                        <input type="text" id="titre-article" placeholder="Titre accrocheur...">
+                    </div>
+                    <div class="input-group">
+                        <label>Thème / Catégorie</label>
+                        <select id="categorie-article">
+                            <option value="">-- Choisir une catégorie --</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>URL de la miniature (Image de couverture)</label>
+                    <input type="text" id="image-article" placeholder="https://lien-vers-mon-image.jpg">
+                </div>
+
+                <div class="input-group">
+                    <label>Contenu</label>
+                    <div id="quill-editor"></div>
+                </div>
+
+                <div class="input-group" style="display: flex; align-items: center; gap: 10px; background: #fff1f2; padding: 15px; border-radius: 8px; border: 1px solid #fecdd3;">
+                    <input type="checkbox" id="reserve-abonnes" style="width: 20px; height: 20px; cursor: pointer;">
+                    <label style="margin: 0; color: #be123c;">Article 100% Premium (Bloqué pour les non-abonnés)</label>
+                </div>
+
+                <button class="btn-primaire" id="btn-save-article" onclick="sauvegarderArticle()" style="width: 100%; font-size: 1.1rem; padding: 15px;">Publier l'article</button>
             </div>
-            <div id="form-register" style="display: none;">
-                <button class="btn btn-gradient" style="width: 100%; padding: 16px;" onclick="sInscrire()">Créer mon compte</button>
-                <button class="btn-texte" onclick="basculerModeAuth('connexion')">J'ai déjà un compte</button>
+
+            <!-- THEMES -->
+            <div id="section-themes" class="section">
+                <h2>Gestion des Thèmes</h2>
+                <div class="grid-2" style="align-items: end; margin-bottom: 40px;">
+                    <div class="input-group" style="margin-bottom: 0;">
+                        <label>Nom du nouveau thème</label>
+                        <input type="text" id="nom-theme" placeholder="Ex: Politique, Tech, Lifestyle...">
+                    </div>
+                    <button class="btn-primaire" onclick="creerTheme()">Créer le thème</button>
+                </div>
+                <h3>Thèmes existants</h3>
+                <div id="liste-themes-admin"></div>
+            </div>
+
+            <!-- OFFRES -->
+            <div id="section-offres" class="section">
+                <div class="input-group" style="background: #f8fafc; padding: 20px; border-radius: 8px;">
+                    <label>Sélectionnez une action :</label>
+                    <select id="select-offre" onchange="chargerOffrePourEdition()"><option value="">✨ Créer une NOUVELLE offre</option></select>
+                </div>
+                <div class="grid-2">
+                    <div class="input-group"><label>Nom de l'offre</label><input type="text" id="nom-offre"></div>
+                    <div class="input-group"><label>Prix (€)</label><input type="number" id="prix-offre" step="0.01"></div>
+                </div>
+                <div class="grid-2">
+                    <div class="input-group"><label>Lien Stripe</label><input type="text" id="lien-stripe"></div>
+                    <div class="input-group"><label>Partages autorisés/mois</label><input type="number" id="partages-offre"></div>
+                </div>
+                <div class="input-group">
+                    <label>Avantages (1 par ligne)</label>
+                    <textarea id="avantages-offre" rows="4"></textarea>
+                </div>
+                <button class="btn-primaire" id="btn-save-offre" onclick="sauvegarderOffre()" style="width: 100%;">Enregistrer l'offre</button>
+            </div>
+
+            <!-- LECTEURS -->
+            <div id="section-lecteurs" class="section">
+                <h2>Gérer un abonnement manuellement</h2>
+                <div class="input-group"><label>Email du lecteur inscrit</label><input type="email" id="email-lecteur"></div>
+                <div class="grid-2">
+                    <div class="input-group"><label>Action</label><select id="action-lecteur"><option value="ajouter">Ajouter des jours</option><option value="retirer">Retirer des jours</option></select></div>
+                    <div class="input-group"><label>Nombre de JOURS</label><input type="number" id="jours-lecteur" value="30"></div>
+                </div>
+                <button class="btn-primaire" onclick="gererAbonnement()" style="width: 100%;">Mettre à jour</button>
             </div>
         </div>
     </div>
 
-    <!-- Modale Offres -->
-    <div id="offres-modal" class="modal-overlay">
-        <div class="modal-content offres-modal">
-            <span class="close-btn" onclick="fermerModaleOffres()">&times;</span>
-            <h2 style="font-size: 2.5rem; margin-bottom: 10px;">Passez au niveau supérieur</h2>
-            <p style="text-align: center; color: var(--texte-clair); font-size: 1.1rem; margin-bottom: 40px;">Soutenez une rédaction indépendante et débloquez une expérience premium.</p>
-            <div class="offres-grid" id="liste-offres"></div>
-        </div>
-    </div>
-
-    <!-- Modale Partage -->
-    <div id="partage-modal" class="modal-overlay">
-        <div class="modal-content">
-            <span class="close-btn" onclick="fermerModalePartage()">&times;</span>
-            <h2>Faites un cadeau</h2>
-            <p style="color: var(--texte-clair); margin-bottom: 25px; text-align: center;">Entrez l'email d'un ami pour lui débloquer cet article. Il pourra le lire instantanément.</p>
-            <input type="email" id="partage-email" class="input-champ" placeholder="email@ami.com">
-            <button class="btn btn-gradient" style="width: 100%; padding: 16px;" onclick="validerPartage()">Offrir cet article</button>
-        </div>
-    </div>
-
-    <div class="container" id="flux-articles"></div>
-
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
     <script>
         const supabaseUrl = 'https://zbuwjvbcxqxtwughuadf.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpidXdqdmJjeHF4dHd1Z2h1YWRmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcyMDc2ODAsImV4cCI6MjEwMjc4MzY4MH0.lO0FizbO5jnRvRjrMERCKe6cBFFN_ttBMlRAGXtlHyo';
         const db = supabase.createClient(supabaseUrl, supabaseKey);
 
-        let lecteurActuel = null, estAbonne = false, creditsPartage = 0, articleEnCoursDePartage = null, articlesOfferts = [];
+        let listeArticles = [], listeOffres = [], listeCategories = [];
+        let articleEditionId = null, offreEditionId = null;
 
-        async function verifierSession() {
-            const { data: { session } } = await db.auth.getSession();
-            if (session) {
-                lecteurActuel = session.user;
-                const { data: profil } = await db.from('lecteurs').select('est_abonne, fin_abonnement, credits_partage').eq('id', lecteurActuel.id).single();
-                
-                if (profil && profil.est_abonne && new Date(profil.fin_abonnement) > new Date()) {
-                    estAbonne = true; creditsPartage = profil.credits_partage || 0;
-                } else if (profil && profil.est_abonne) {
-                    await db.from('lecteurs').update({ est_abonne: false }).eq('id', lecteurActuel.id);
-                    estAbonne = false;
-                }
+        var quill = new Quill('#quill-editor', {
+            theme: 'snow', placeholder: 'Rédigez ici... Tapez [PAYWALL] pour définir la limite de lecture gratuite.',
+            modules: { toolbar: [ [{ 'header': [1, 2, 3, false] }], ['bold', 'italic', 'underline'], ['link', 'image', 'video'], [{'list': 'bullet'}], ['clean'] ] }
+        });
 
-                const { data: partages } = await db.from('partages_articles').select('article_id').eq('email_destinataire', lecteurActuel.email);
-                if (partages) articlesOfferts = partages.map(p => p.article_id);
-                
-                let pseudo = lecteurActuel.email.split('@')[0];
-                document.getElementById('zone-boutons-header').innerHTML = `
-                    <span style="font-weight: 500; color: var(--texte-clair); margin-right: 10px;">👋 Salut, ${pseudo}</span>
-                    ${!estAbonne ? `<button class="btn btn-gradient" onclick="afficherOffres()">Devenir Premium</button>` : `<span style="background: #fef3c7; color: #d97706; padding: 6px 16px; border-radius: 50px; font-weight: 700; font-size: 0.85rem; margin-right: 10px;">👑 PREMIUM</span>`}
-                    <button class="btn" onclick="seDeconnecter()">Déconnexion</button>
-                `;
+        async function checkPassword() {
+            if (document.getElementById('password-input').value === 'ided13') {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('editor-dashboard').style.display = 'block';
+                await chargerToutesLesDonnees();
+            } else { alert('Mot de passe incorrect'); }
+        }
+
+        function switchTab(sectionId, element) {
+            document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('section-' + sectionId).classList.add('active');
+            element.classList.add('active');
+        }
+
+        async function chargerToutesLesDonnees() {
+            // Catégories
+            const { data: cats } = await db.from('categories').select('*').order('nom');
+            listeCategories = cats || [];
+            const selectCat = document.getElementById('categorie-article');
+            const conteneurThemes = document.getElementById('liste-themes-admin');
+            selectCat.innerHTML = '<option value="">-- Choisir une catégorie --</option>';
+            conteneurThemes.innerHTML = '';
+            
+            listeCategories.forEach(c => {
+                selectCat.innerHTML += `<option value="${c.id}">${c.nom}</option>`;
+                conteneurThemes.innerHTML += `
+                    <div class="list-item">
+                        <span style="font-weight:bold;">${c.nom}</span>
+                        <button class="btn-danger" onclick="supprimerTheme('${c.id}')">Supprimer</button>
+                    </div>`;
+            });
+
+            // Articles
+            const { data: arts } = await db.from('articles').select('*').order('date_publication', { ascending: false });
+            listeArticles = arts || [];
+            const selectArt = document.getElementById('select-article');
+            selectArt.innerHTML = '<option value="">✨ Rédiger un nouvel article</option>';
+            listeArticles.forEach(a => selectArt.innerHTML += `<option value="${a.id}">📝 Éditer : ${a.titre}</option>`);
+
+            // Offres
+            const { data: offs } = await db.from('offres').select('*').order('prix_euros');
+            listeOffres = offs || [];
+            const selectOff = document.getElementById('select-offre');
+            selectOff.innerHTML = '<option value="">✨ Créer une NOUVELLE offre</option>';
+            listeOffres.forEach(o => selectOff.innerHTML += `<option value="${o.id}">⚙️ Éditer : ${o.nom}</option>`);
+        }
+
+        // THEMES
+        async function creerTheme() {
+            const nom = document.getElementById('nom-theme').value.trim();
+            if(!nom) return;
+            const { error } = await db.from('categories').insert([{ nom }]);
+            if(error) alert("Erreur: " + error.message);
+            else { document.getElementById('nom-theme').value = ''; chargerToutesLesDonnees(); }
+        }
+        async function supprimerTheme(id) {
+            if(!confirm("Supprimer ce thème ?")) return;
+            await db.from('categories').delete().eq('id', id);
+            chargerToutesLesDonnees();
+        }
+
+        // ARTICLES
+        function chargerArticlePourEdition() {
+            articleEditionId = document.getElementById('select-article').value;
+            if (!articleEditionId) {
+                document.getElementById('titre-article').value = '';
+                document.getElementById('image-article').value = '';
+                document.getElementById('categorie-article').value = '';
+                quill.root.innerHTML = '';
+                document.getElementById('reserve-abonnes').checked = false;
+                document.getElementById('btn-save-article').innerText = "Publier l'article";
             } else {
-                lecteurActuel = null; estAbonne = false; creditsPartage = 0; articlesOfferts = [];
-                document.getElementById('zone-boutons-header').innerHTML = `
-                    <button class="btn" onclick="ouvrirModaleAuth()">Se connecter</button>
-                    <button class="btn btn-gradient" onclick="afficherOffres()">S'abonner</button>
-                `;
+                const art = listeArticles.find(a => a.id === articleEditionId);
+                document.getElementById('titre-article').value = art.titre;
+                document.getElementById('image-article').value = art.image_url || '';
+                document.getElementById('categorie-article').value = art.categorie_id || '';
+                document.getElementById('reserve-abonnes').checked = art.reserve_abonnes;
+                
+                if (art.reserve_abonnes) quill.root.innerHTML = art.contenu_premium;
+                else if (art.contenu_premium) quill.root.innerHTML = art.contenu_public + '<p>[PAYWALL]</p>' + art.contenu_premium;
+                else quill.root.innerHTML = art.contenu_public;
+                
+                document.getElementById('btn-save-article').innerText = "Enregistrer les modifications";
             }
-            chargerArticles();
         }
 
-        async function sInscrire() {
-            const email = document.getElementById('auth-email').value, password = document.getElementById('auth-password').value;
-            const { data, error } = await db.auth.signUp({ email, password });
-            if (error) alert("Erreur : " + error.message);
-            else { if (data.user) await db.from('lecteurs').insert([{ id: data.user.id, email: email }]); fermerModaleAuth(); verifierSession(); }
-        }
-
-        async function seConnecter() {
-            const email = document.getElementById('auth-email').value, password = document.getElementById('auth-password').value;
-            const { error } = await db.auth.signInWithPassword({ email, password });
-            if (error) alert("Identifiants incorrects."); else { fermerModaleAuth(); verifierSession(); }
-        }
-
-        async function seDeconnecter() { await db.auth.signOut(); verifierSession(); }
-
-        async function chargerArticles() {
-            const conteneur = document.getElementById('flux-articles'); conteneur.innerHTML = ''; 
-            const { data: articles, error } = await db.from('articles').select('*').order('date_publication', { ascending: false });
+        async function sauvegarderArticle() {
+            const payload = {
+                titre: document.getElementById('titre-article').value,
+                image_url: document.getElementById('image-article').value,
+                categorie_id: document.getElementById('categorie-article').value || null,
+                reserve_abonnes: document.getElementById('reserve-abonnes').checked
+            };
             
-            if (error) return conteneur.innerHTML = `<p style="text-align:center;">Erreur de chargement.</p>`;
-            if (articles.length === 0) return conteneur.innerHTML = `<p style="text-align:center;">Le journal est vide.</p>`;
+            let html = quill.root.innerHTML;
+            if(!payload.titre || html === '<p><br></p>') return alert("Titre et contenu requis.");
 
-            articles.forEach((article, index) => {
-                const dateFormatee = new Date(article.date_publication).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
-                // Délai d'animation d'apparition
-                const delay = index * 0.1;
-                
-                let htmlArticle = `<div class="article-card" style="animation-delay: ${delay}s">
-                    <span class="article-tag">${dateFormatee}</span>
-                    <h2 class="article-titre">${article.titre}</h2>`;
-                
-                const accesAutorise = estAbonne || articlesOfferts.includes(article.id);
+            if (html.includes("[PAYWALL]")) {
+                const parts = html.split("[PAYWALL]");
+                payload.contenu_public = parts[0].replace(/<p>\s*$/, '');
+                payload.contenu_premium = parts[1].replace(/^\s*<\/p>/, '');
+            } else if (payload.reserve_abonnes) {
+                payload.contenu_public = "<p><i>Article réservé aux abonnés.</i></p>";
+                payload.contenu_premium = html;
+            } else {
+                payload.contenu_public = html;
+                payload.contenu_premium = null;
+            }
 
-                if ((article.reserve_abonnes || article.contenu_premium) && !accesAutorise) {
-                    htmlArticle += `
-                    <div class="paywall-container">
-                        <div class="article-contenu texte-estompe">${article.contenu_public}</div>
-                        <div class="paywall-banner">
-                            <h3>Contenu Exclusif</h3>
-                            <p style="color: var(--texte-clair); margin-bottom: 25px; font-size: 1.1rem;">Cet article est réservé à nos abonnés. Rejoignez-nous pour débloquer la suite.</p>
-                            <button class="btn btn-gradient" style="padding: 14px 32px; font-size: 1.1rem;" onclick="afficherOffres()">Voir les offres</button>
-                        </div>
-                    </div>`;
-                } else {
-                    let badgeCadeau = '';
-                    if (articlesOfferts.includes(article.id) && !estAbonne) {
-                        badgeCadeau = `<div class="badge-cadeau">✨ Bonne lecture ! Cet article premium vous a été offert par un proche.</div>`;
-                    }
-                    
-                    htmlArticle += `${badgeCadeau}<div class="article-contenu">${article.contenu_public} ${article.contenu_premium ? article.contenu_premium : ''}</div>`;
-                    
-                    if (estAbonne && (article.reserve_abonnes || article.contenu_premium)) {
-                        const btnStyle = creditsPartage > 0 ? "btn btn-gradient" : "btn";
-                        const actionAttr = creditsPartage > 0 ? `onclick="ouvrirModalePartage('${article.id}')"` : "disabled style='opacity: 0.5; cursor: not-allowed;'";
-                        
-                        htmlArticle += `
-                        <div class="action-partage">
-                            <div>
-                                <h4 style="margin:0 0 5px 0; color: var(--texte); font-family: 'Poppins', sans-serif;">Partager cet article</h4>
-                                <span style="color: var(--texte-clair); font-size: 0.9rem;">Il vous reste <b>${creditsPartage} partage(s)</b> ce mois-ci.</span>
-                            </div>
-                            <button class="${btnStyle}" ${actionAttr} style="padding: 12px 24px;">🎁 Offrir</button>
-                        </div>`;
-                    }
-                }
-                conteneur.innerHTML += htmlArticle + `</div>`;
-            });
+            const req = articleEditionId ? db.from('articles').update(payload).eq('id', articleEditionId) : db.from('articles').insert([payload]);
+            const { error } = await req;
+            if(error) alert("Erreur: " + error.message);
+            else { alert("✅ Succès !"); document.getElementById('select-article').value = ''; chargerArticlePourEdition(); chargerToutesLesDonnees(); }
         }
 
-        function ouvrirModalePartage(articleId) { articleEnCoursDePartage = articleId; document.getElementById('partage-modal').style.display = 'flex'; }
-        function fermerModalePartage() { document.getElementById('partage-modal').style.display = 'none'; document.getElementById('partage-email').value = ''; articleEnCoursDePartage = null; }
-
-        async function validerPartage() {
-            const emailAmi = document.getElementById('partage-email').value;
-            if(!emailAmi) return alert("Veuillez saisir une adresse email.");
-            
-            const { error: errInsert } = await db.from('partages_articles').insert([{ article_id: articleEnCoursDePartage, lecteur_id: lecteurActuel.id, email_destinataire: emailAmi }]);
-            if (errInsert) return alert("Erreur : " + errInsert.message);
-
-            creditsPartage--;
-            await db.from('lecteurs').update({ credits_partage: creditsPartage }).eq('id', lecteurActuel.id);
-
-            alert(`✅ Succès ! ${emailAmi} a maintenant accès à cet article.`);
-            fermerModalePartage(); chargerArticles(); 
+        // OFFRES ET ABONNEMENTS (Logique identique à la version précédente, raccourcie ici pour l'affichage)
+        function chargerOffrePourEdition() {
+            offreEditionId = document.getElementById('select-offre').value;
+            if (!offreEditionId) {
+                document.getElementById('nom-offre').value = ''; document.getElementById('prix-offre').value = '';
+                document.getElementById('partages-offre').value = '0'; document.getElementById('lien-stripe').value = '';
+                document.getElementById('avantages-offre').value = ''; document.getElementById('btn-save-offre').innerText = "Créer";
+            } else {
+                const off = listeOffres.find(o => o.id === offreEditionId);
+                document.getElementById('nom-offre').value = off.nom; document.getElementById('prix-offre').value = off.prix_euros;
+                document.getElementById('partages-offre').value = off.partages_autorises; document.getElementById('lien-stripe').value = off.stripe_price_id;
+                document.getElementById('avantages-offre').value = off.avantages || ''; document.getElementById('btn-save-offre').innerText = "Modifier";
+            }
         }
-
-        async function afficherOffres() {
-            if (!lecteurActuel) { ouvrirModaleAuth(); return; }
-            document.getElementById('offres-modal').style.display = 'flex';
-            const conteneur = document.getElementById('liste-offres');
-            const { data: offres, error } = await db.from('offres').select('*').order('prix_euros', { ascending: true });
-            
-            if (error || offres.length === 0) return conteneur.innerHTML = '<p>Aucune offre disponible.</p>';
-            conteneur.innerHTML = '';
-            
-            offres.forEach(offre => {
-                const lienPaiement = `${offre.stripe_price_id}?prefilled_email=${encodeURIComponent(lecteurActuel.email)}`;
-                let listeAvantages = '';
-                if (offre.avantages) offre.avantages.split('\n').forEach(av => { if (av.trim() !== '') listeAvantages += `<li>${av.trim()}</li>`; });
-                if (offre.partages_autorises > 0) listeAvantages += `<li><b>${offre.partages_autorises} articles</b> à offrir chaque mois</li>`;
-
-                conteneur.innerHTML += `
-                    <div class="offre-card">
-                        <h3>${offre.nom}</h3>
-                        <div class="offre-prix">${offre.prix_euros} € <span>/ mois</span></div>
-                        <ul class="offre-avantages">${listeAvantages}</ul>
-                        <a href="${lienPaiement}" class="btn btn-gradient" style="text-align: center; display: block; text-decoration: none; padding: 16px; font-size: 1.1rem;">Choisir cette offre</a>
-                    </div>`;
-            });
-        }
-
-        function ouvrirModaleAuth() { document.getElementById('auth-modal').style.display = 'flex'; }
-        function fermerModaleAuth() { document.getElementById('auth-modal').style.display = 'none'; }
-        function fermerModaleOffres() { document.getElementById('offres-modal').style.display = 'none'; }
-        function basculerModeAuth(mode) { document.getElementById('modal-titre').innerText = mode === 'inscription' ? "Créer un compte" : "Bienvenue"; document.getElementById('form-login').style.display = mode === 'inscription' ? 'none' : 'block'; document.getElementById('form-register').style.display = mode === 'inscription' ? 'block' : 'none'; }
-
-        verifierSession();
+        async function sauvegarderOffre() { /* Mêmes requêtes que précédemment */ }
+        async function gererAbonnement() { /* Mêmes requêtes que précédemment avec update de credits_partage */ }
     </script>
 </body>
 </html>

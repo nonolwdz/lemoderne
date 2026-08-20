@@ -3,24 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Le Moderne - L'Actualité Élégante</title>
+    <title>Le Moderne | L'Actualité Nouvelle Génération</title>
     
-    <!-- Polices Google (Style Journal et Moderne) -->
+    <!-- Polices Ultra Modernes -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Merriweather:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
     
-    <!-- Import de Supabase -->
+    <!-- Import Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <style>
         :root { 
-            --bleu-profond: #0f172a; 
-            --bleu-clair: #1e293b; 
-            --or: #d97706; 
-            --fond: #f8fafc; 
-            --texte: #334155;
+            --fond: #f4f6f9;
+            --texte: #1e293b;
             --texte-clair: #64748b;
+            --blanc: #ffffff;
+            --gradient-primaire: linear-gradient(135deg, #6366f1 0%, #ec4899 100%);
+            --gradient-secondaire: linear-gradient(135deg, #f59e0b 0%, #f43f5e 100%);
+            --ombre-douce: 0 20px 40px -15px rgba(0,0,0,0.05);
+            --ombre-couleur: 0 10px 30px -10px rgba(99, 102, 241, 0.4);
         }
         
         body { 
@@ -28,132 +30,172 @@
             background-color: var(--fond); 
             margin: 0; padding: 0; 
             color: var(--texte);
-            line-height: 1.6;
+            line-height: 1.7;
+            /* Motif de fond discret très moderne */
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 30px 30px;
         }
 
-        /* En-tête Premium */
+        h1, h2, h3, .titre-poppins {
+            font-family: 'Poppins', sans-serif;
+            letter-spacing: -0.5px;
+        }
+
+        /* HEADER FLOTTANT "GLASSMORPHISM" */
         header { 
-            background: rgba(15, 23, 42, 0.95); 
-            backdrop-filter: blur(10px);
-            padding: 15px 50px; 
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 15px 40px; 
             display: flex; justify-content: space-between; align-items: center; 
-            border-bottom: 3px solid var(--or); 
             position: sticky; top: 0; z-index: 100; 
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+            border-bottom: 1px solid rgba(255,255,255,0.5);
         }
+        
         header h1 { 
-            font-family: 'Merriweather', serif;
-            color: var(--or); 
-            margin: 0; font-size: 2rem; letter-spacing: -0.5px; 
+            margin: 0; font-size: 1.8rem; font-weight: 800;
+            background: var(--gradient-primaire);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            cursor: default;
         }
 
-        /* Boutons */
+        /* BOUTONS MODERNES */
         .btn {
-            background: transparent; color: white; border: 1px solid var(--or); 
-            padding: 8px 16px; margin-left: 10px; border-radius: 6px; 
-            cursor: pointer; font-weight: 600; font-family: 'Inter', sans-serif;
-            transition: all 0.2s ease;
+            background: var(--blanc); color: var(--texte); 
+            border: 1px solid #cbd5e1; 
+            padding: 10px 24px; border-radius: 50px; 
+            cursor: pointer; font-weight: 600; font-size: 0.95rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: 'Inter', sans-serif;
         }
-        .btn-premium { background-color: var(--or); color: white; border: 1px solid var(--or); }
-        .btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(217, 119, 6, 0.2); }
+        .btn:hover { border-color: #94a3b8; transform: translateY(-2px); box-shadow: var(--ombre-douce); }
         
-        /* Conteneur principal */
-        .container { max-width: 720px; margin: 60px auto; padding: 0 20px; }
+        .btn-gradient { 
+            background: var(--gradient-primaire); color: white; border: none; 
+            box-shadow: var(--ombre-couleur);
+        }
+        .btn-gradient:hover { 
+            transform: translateY(-3px); 
+            box-shadow: 0 15px 35px -10px rgba(236, 72, 153, 0.5); 
+            border-color: transparent; color: white;
+        }
+
+        /* LAYOUT PRINCIPAL */
+        .container { max-width: 800px; margin: 60px auto; padding: 0 20px; }
         
-        /* Articles */
+        /* CARTES ARTICLES */
         .article-card { 
-            background: white; border-radius: 12px; padding: 40px; 
+            background: var(--blanc); border-radius: 24px; padding: 40px; 
             margin-bottom: 40px; 
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025);
-            border-top: 4px solid var(--bleu-profond);
+            box-shadow: var(--ombre-douce);
+            transition: transform 0.3s ease;
+            animation: fadeInUp 0.6s ease-out forwards;
+            opacity: 0;
+            transform: translateY(20px);
         }
-        .article-titre { 
-            font-family: 'Merriweather', serif; color: var(--bleu-profond); 
-            font-size: 2.2rem; margin-top: 0; margin-bottom: 8px; line-height: 1.3;
-        }
-        .article-date { color: var(--texte-clair); font-size: 0.9rem; margin-bottom: 30px; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+        @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
         
-        /* Contenu des articles */
+        .article-card:hover { transform: translateY(-5px); box-shadow: 0 30px 60px -15px rgba(0,0,0,0.08); }
+        
+        .article-tag { 
+            display: inline-block; background: #f1f5f9; color: var(--texte-clair); 
+            padding: 6px 14px; border-radius: 50px; font-size: 0.8rem; font-weight: 600; 
+            margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px;
+        }
+
+        .article-titre { color: var(--texte); font-size: 2.2rem; margin-top: 0; margin-bottom: 15px; line-height: 1.25; }
+        
+        /* CONTENU ARTICLES */
+        .article-contenu { font-size: 1.1rem; color: #475569; }
         .article-contenu img { 
-            max-width: 100% !important; 
-            height: auto !important; 
-            display: block; 
-            margin: 25px auto; 
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            max-width: 100% !important; height: auto !important; 
+            display: block; margin: 30px auto; border-radius: 16px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
         }
-        .article-contenu iframe { max-width: 100%; border-radius: 8px; }
-        .article-contenu { font-size: 1.15rem; color: #1e293b; line-height: 1.8; }
-        .article-contenu h1, .article-contenu h2 { font-family: 'Merriweather', serif; color: var(--bleu-profond); margin-top: 2em; }
         
-        /* Paywall */
-        .paywall-container { position: relative; }
-        .texte-estompe { -webkit-mask-image: linear-gradient(to bottom, black 20%, transparent 100%); mask-image: linear-gradient(to bottom, black 20%, transparent 100%); padding-bottom: 60px; }
+        /* PAYWALL ULTIME */
+        .paywall-container { position: relative; margin-top: 20px; }
+        .texte-estompe { 
+            -webkit-mask-image: linear-gradient(to bottom, black 20%, transparent 100%); 
+            mask-image: linear-gradient(to bottom, black 20%, transparent 100%); 
+            padding-bottom: 100px; 
+        }
         .paywall-banner { 
-            background: var(--bleu-profond); color: white; text-align: center; 
-            padding: 40px 30px; border-radius: 12px; margin-top: -60px; 
-            position: relative; z-index: 10; border: 1px solid rgba(255,255,255,0.1);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px);
+            text-align: center; padding: 50px 30px; border-radius: 20px; 
+            margin-top: -120px; position: relative; z-index: 10; 
+            border: 1px solid #e2e8f0; box-shadow: 0 -10px 30px rgba(255,255,255,0.8);
         }
-        .paywall-banner h3 { font-family: 'Merriweather', serif; color: var(--or); margin-top: 0; font-size: 1.5rem; }
+        .paywall-banner h3 { font-size: 1.8rem; background: var(--gradient-primaire); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; }
         
-        /* Section Partage */
+        /* PARTAGE ET CADEAU */
         .action-partage {
-            margin-top: 30px; padding-top: 20px; border-top: 1px solid #e2e8f0;
+            margin-top: 40px; padding-top: 30px; border-top: 1px solid #e2e8f0;
             display: flex; justify-content: space-between; align-items: center;
+            background: #f8fafc; padding: 25px; border-radius: 16px;
         }
-        .btn-partage {
-            background-color: #f1f5f9; color: var(--bleu-profond); border: 1px solid #cbd5e1;
-            padding: 8px 16px; border-radius: 20px; font-weight: 600; cursor: pointer; transition: 0.2s;
+        .badge-cadeau { 
+            background: var(--gradient-secondaire); color: white; 
+            padding: 20px; border-radius: 16px; margin-bottom: 30px; 
+            font-weight: 600; text-align: center; box-shadow: 0 10px 25px rgba(244, 63, 94, 0.3);
+            display: flex; align-items: center; justify-content: center; gap: 10px;
         }
-        .btn-partage:hover { background-color: var(--or); color: white; border-color: var(--or); }
-        .credits-info { font-size: 0.9rem; color: var(--texte-clair); }
 
-        /* Modales */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.85); z-index: 200; justify-content: center; align-items: center; backdrop-filter: blur(4px); }
-        .modal-content { background: white; padding: 40px; border-radius: 16px; width: 90%; max-width: 450px; position: relative; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
-        .close-btn { position: absolute; top: 20px; right: 25px; font-size: 1.5rem; cursor: pointer; color: #94a3b8; transition: 0.2s; }
-        .close-btn:hover { color: var(--bleu-profond); }
+        /* MODALES ELEGANTES */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.4); z-index: 200; justify-content: center; align-items: center; backdrop-filter: blur(8px); }
+        .modal-content { background: var(--blanc); padding: 50px; border-radius: 24px; width: 90%; max-width: 420px; position: relative; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
+        .close-btn { position: absolute; top: 20px; right: 25px; font-size: 1.5rem; cursor: pointer; color: #94a3b8; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: #f1f5f9; transition: 0.2s; }
+        .close-btn:hover { background: #e2e8f0; color: #1e293b; }
         
-        .modal-content h2 { font-family: 'Merriweather', serif; color: var(--bleu-profond); margin-top: 0; margin-bottom: 25px; }
-        .input-champ { width: 100%; padding: 14px; margin-bottom: 15px; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; font-size: 1rem; font-family: 'Inter', sans-serif; }
-        .input-champ:focus { outline: none; border-color: var(--or); box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.1); }
-        .btn-submit { width: 100%; background-color: var(--bleu-profond); color: white; padding: 14px; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: 600; cursor: pointer; margin-bottom: 10px; transition: 0.2s; }
-        .btn-submit:hover { background-color: var(--or); }
-        .btn-texte { background: none; border: none; color: var(--texte-clair); text-decoration: underline; cursor: pointer; width: 100%; font-size: 0.9rem; }
+        .modal-content h2 { font-size: 1.8rem; color: var(--texte); margin-top: 0; margin-bottom: 30px; text-align: center; }
+        .input-champ { width: 100%; padding: 16px; margin-bottom: 20px; border: 2px solid #e2e8f0; border-radius: 12px; box-sizing: border-box; font-size: 1rem; font-family: 'Inter', sans-serif; transition: 0.2s; background: #f8fafc; }
+        .input-champ:focus { outline: none; border-color: #6366f1; background: white; box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1); }
+        .btn-texte { background: none; border: none; color: #6366f1; font-weight: 600; cursor: pointer; width: 100%; margin-top: 15px; font-size: 0.95rem; }
 
-        /* Grille des offres */
-        .offres-modal { max-width: 900px; max-height: 90vh; overflow-y: auto; }
-        .offres-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; margin-top: 30px; }
-        .offre-card { border: 1px solid #e2e8f0; border-radius: 16px; padding: 30px; text-align: center; transition: 0.3s; background: #fff; }
-        .offre-card:hover { border-color: var(--or); box-shadow: 0 20px 25px -5px rgba(217, 119, 6, 0.1); transform: translateY(-4px); }
-        .offre-card h3 { font-family: 'Merriweather', serif; color: var(--bleu-profond); font-size: 1.4rem; margin-top: 0; }
-        .offre-prix { font-size: 2.5rem; color: var(--or); font-weight: 700; margin: 15px 0; }
-        .offre-avantages { list-style: none; padding: 0; margin-bottom: 30px; text-align: left; font-size: 0.95rem; }
-        .offre-avantages li { margin-bottom: 12px; padding-left: 28px; position: relative; color: var(--texte); }
-        .offre-avantages li::before { content: '✓'; position: absolute; left: 0; color: var(--or); font-weight: bold; font-size: 1.1rem; }
+        /* GRILLE DES OFFRES (TRES VISUEL) */
+        .offres-modal { max-width: 1000px; max-height: 90vh; overflow-y: auto; }
+        .offres-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; margin-top: 40px; }
+        .offre-card { 
+            border: 2px solid #e2e8f0; border-radius: 24px; padding: 40px; text-align: left; 
+            transition: 0.3s; background: var(--blanc); display: flex; flex-direction: column;
+        }
+        .offre-card:hover { border-color: #6366f1; box-shadow: var(--ombre-douce); transform: translateY(-5px); }
+        .offre-card h3 { font-size: 1.5rem; color: var(--texte); margin-top: 0; }
+        .offre-prix { font-size: 3rem; font-weight: 800; font-family: 'Poppins', sans-serif; color: var(--texte); margin: 15px 0 25px 0; }
+        .offre-prix span { font-size: 1.1rem; color: var(--texte-clair); font-weight: 500; }
+        .offre-avantages { list-style: none; padding: 0; margin-bottom: 40px; flex-grow: 1; }
+        .offre-avantages li { margin-bottom: 15px; padding-left: 32px; position: relative; color: #475569; font-weight: 500; }
+        .offre-avantages li::before { 
+            content: '✓'; position: absolute; left: 0; top: -2px;
+            background: #dbeafe; color: #3b82f6; width: 22px; height: 22px; 
+            border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: bold;
+        }
     </style>
 </head>
 <body>
 
     <header>
         <h1>Le Moderne</h1>
-        <div id="zone-boutons-header"></div>
+        <div id="zone-boutons-header" style="display: flex; gap: 12px; align-items: center;">
+            <!-- Généré par JS -->
+        </div>
     </header>
 
-    <!-- Modale Connexion / Inscription -->
+    <!-- Modale Connexion -->
     <div id="auth-modal" class="modal-overlay">
         <div class="modal-content">
             <span class="close-btn" onclick="fermerModaleAuth()">&times;</span>
-            <h2 id="modal-titre">Connexion</h2>
-            <input type="email" id="auth-email" class="input-champ" placeholder="Votre adresse email">
-            <input type="password" id="auth-password" class="input-champ" placeholder="Mot de passe (6 car. min)">
+            <h2 id="modal-titre">Bienvenue</h2>
+            <input type="email" id="auth-email" class="input-champ" placeholder="Adresse email">
+            <input type="password" id="auth-password" class="input-champ" placeholder="Mot de passe">
             <div id="form-login">
-                <button class="btn-submit" onclick="seConnecter()">Me connecter</button>
-                <button class="btn-texte" onclick="basculerModeAuth('inscription')">Je n'ai pas de compte</button>
+                <button class="btn btn-gradient" style="width: 100%; padding: 16px;" onclick="seConnecter()">Se connecter</button>
+                <button class="btn-texte" onclick="basculerModeAuth('inscription')">Créer un compte gratuitement</button>
             </div>
             <div id="form-register" style="display: none;">
-                <button class="btn-submit" onclick="sInscrire()">Créer mon compte</button>
+                <button class="btn btn-gradient" style="width: 100%; padding: 16px;" onclick="sInscrire()">Créer mon compte</button>
                 <button class="btn-texte" onclick="basculerModeAuth('connexion')">J'ai déjà un compte</button>
             </div>
         </div>
@@ -163,8 +205,8 @@
     <div id="offres-modal" class="modal-overlay">
         <div class="modal-content offres-modal">
             <span class="close-btn" onclick="fermerModaleOffres()">&times;</span>
-            <h2 style="text-align: center; font-size: 2.2rem;">Rejoignez Le Moderne</h2>
-            <p style="text-align: center; color: var(--texte-clair); margin-bottom: 40px;">Soutenez l'indépendance de la presse et débloquez votre confort de lecture.</p>
+            <h2 style="font-size: 2.5rem; margin-bottom: 10px;">Passez au niveau supérieur</h2>
+            <p style="text-align: center; color: var(--texte-clair); font-size: 1.1rem; margin-bottom: 40px;">Soutenez une rédaction indépendante et débloquez une expérience premium.</p>
             <div class="offres-grid" id="liste-offres"></div>
         </div>
     </div>
@@ -173,10 +215,10 @@
     <div id="partage-modal" class="modal-overlay">
         <div class="modal-content">
             <span class="close-btn" onclick="fermerModalePartage()">&times;</span>
-            <h2>Offrir cet article</h2>
-            <p style="color: var(--texte-clair); margin-bottom: 20px;">Entrez l'email d'un proche pour lui débloquer cet article premium. Il y aura accès en se connectant avec cette adresse.</p>
-            <input type="email" id="partage-email" class="input-champ" placeholder="Email de votre ami">
-            <button class="btn-submit" onclick="validerPartage()">Partager l'article</button>
+            <h2>Faites un cadeau</h2>
+            <p style="color: var(--texte-clair); margin-bottom: 25px; text-align: center;">Entrez l'email d'un ami pour lui débloquer cet article. Il pourra le lire instantanément.</p>
+            <input type="email" id="partage-email" class="input-champ" placeholder="email@ami.com">
+            <button class="btn btn-gradient" style="width: 100%; padding: 16px;" onclick="validerPartage()">Offrir cet article</button>
         </div>
     </div>
 
@@ -187,11 +229,7 @@
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpidXdqdmJjeHF4dHd1Z2h1YWRmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcyMDc2ODAsImV4cCI6MjEwMjc4MzY4MH0.lO0FizbO5jnRvRjrMERCKe6cBFFN_ttBMlRAGXtlHyo';
         const db = supabase.createClient(supabaseUrl, supabaseKey);
 
-        let lecteurActuel = null;
-        let estAbonne = false;
-        let creditsPartage = 0;
-        let articleEnCoursDePartage = null;
-        let articlesOfferts = []; // Pour stocker les cadeaux reçus
+        let lecteurActuel = null, estAbonne = false, creditsPartage = 0, articleEnCoursDePartage = null, articlesOfferts = [];
 
         async function verifierSession() {
             const { data: { session } } = await db.auth.getSession();
@@ -200,25 +238,27 @@
                 const { data: profil } = await db.from('lecteurs').select('est_abonne, fin_abonnement, credits_partage').eq('id', lecteurActuel.id).single();
                 
                 if (profil && profil.est_abonne && new Date(profil.fin_abonnement) > new Date()) {
-                    estAbonne = true;
-                    creditsPartage = profil.credits_partage || 0;
+                    estAbonne = true; creditsPartage = profil.credits_partage || 0;
                 } else if (profil && profil.est_abonne) {
                     await db.from('lecteurs').update({ est_abonne: false }).eq('id', lecteurActuel.id);
                     estAbonne = false;
                 }
 
-                // Vérifier si quelqu'un a offert des articles à cet email
                 const { data: partages } = await db.from('partages_articles').select('article_id').eq('email_destinataire', lecteurActuel.email);
                 if (partages) articlesOfferts = partages.map(p => p.article_id);
                 
+                let pseudo = lecteurActuel.email.split('@')[0];
                 document.getElementById('zone-boutons-header').innerHTML = `
-                    <span style="color: white; margin-right: 15px; font-weight:600;">Mon compte</span>
-                    ${!estAbonne ? `<button class="btn btn-premium" onclick="afficherOffres()">S'abonner</button>` : `<span style="color: var(--or); font-weight: 600; margin-right: 15px;">Édition Premium</span>`}
+                    <span style="font-weight: 500; color: var(--texte-clair); margin-right: 10px;">👋 Salut, ${pseudo}</span>
+                    ${!estAbonne ? `<button class="btn btn-gradient" onclick="afficherOffres()">Devenir Premium</button>` : `<span style="background: #fef3c7; color: #d97706; padding: 6px 16px; border-radius: 50px; font-weight: 700; font-size: 0.85rem; margin-right: 10px;">👑 PREMIUM</span>`}
                     <button class="btn" onclick="seDeconnecter()">Déconnexion</button>
                 `;
             } else {
                 lecteurActuel = null; estAbonne = false; creditsPartage = 0; articlesOfferts = [];
-                document.getElementById('zone-boutons-header').innerHTML = `<button class="btn" onclick="ouvrirModaleAuth()">Se connecter</button><button class="btn btn-premium" onclick="afficherOffres()">S'abonner</button>`;
+                document.getElementById('zone-boutons-header').innerHTML = `
+                    <button class="btn" onclick="ouvrirModaleAuth()">Se connecter</button>
+                    <button class="btn btn-gradient" onclick="afficherOffres()">S'abonner</button>
+                `;
             }
             chargerArticles();
         }
@@ -227,31 +267,33 @@
             const email = document.getElementById('auth-email').value, password = document.getElementById('auth-password').value;
             const { data, error } = await db.auth.signUp({ email, password });
             if (error) alert("Erreur : " + error.message);
-            else { 
-                if (data.user) await db.from('lecteurs').insert([{ id: data.user.id, email: email }]); 
-                alert("✅ Compte créé avec succès !"); fermerModaleAuth(); verifierSession(); 
-            }
+            else { if (data.user) await db.from('lecteurs').insert([{ id: data.user.id, email: email }]); fermerModaleAuth(); verifierSession(); }
         }
 
         async function seConnecter() {
             const email = document.getElementById('auth-email').value, password = document.getElementById('auth-password').value;
             const { error } = await db.auth.signInWithPassword({ email, password });
-            if (error) alert("Erreur de connexion."); else { fermerModaleAuth(); verifierSession(); }
+            if (error) alert("Identifiants incorrects."); else { fermerModaleAuth(); verifierSession(); }
         }
 
         async function seDeconnecter() { await db.auth.signOut(); verifierSession(); }
 
         async function chargerArticles() {
-            const { data: articles, error } = await db.from('articles').select('*').order('date_publication', { ascending: false });
             const conteneur = document.getElementById('flux-articles'); conteneur.innerHTML = ''; 
-            if (error) return conteneur.innerHTML = `<p>Erreur de chargement des articles.</p>`;
-            if (articles.length === 0) return conteneur.innerHTML = `<p style="text-align:center;">Le journal est vide pour le moment.</p>`;
+            const { data: articles, error } = await db.from('articles').select('*').order('date_publication', { ascending: false });
+            
+            if (error) return conteneur.innerHTML = `<p style="text-align:center;">Erreur de chargement.</p>`;
+            if (articles.length === 0) return conteneur.innerHTML = `<p style="text-align:center;">Le journal est vide.</p>`;
 
-            articles.forEach(article => {
-                const dateFormatee = new Date(article.date_publication).toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' });
-                let htmlArticle = `<div class="article-card"><h2 class="article-titre">${article.titre}</h2><div class="article-date">Publié le ${dateFormatee}</div>`;
+            articles.forEach((article, index) => {
+                const dateFormatee = new Date(article.date_publication).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+                // Délai d'animation d'apparition
+                const delay = index * 0.1;
                 
-                // On autorise si abonné OU si l'article est dans la liste des cadeaux reçus
+                let htmlArticle = `<div class="article-card" style="animation-delay: ${delay}s">
+                    <span class="article-tag">${dateFormatee}</span>
+                    <h2 class="article-titre">${article.titre}</h2>`;
+                
                 const accesAutorise = estAbonne || articlesOfferts.includes(article.id);
 
                 if ((article.reserve_abonnes || article.contenu_premium) && !accesAutorise) {
@@ -259,28 +301,30 @@
                     <div class="paywall-container">
                         <div class="article-contenu texte-estompe">${article.contenu_public}</div>
                         <div class="paywall-banner">
-                            <h3>Cet article est réservé aux abonnés</h3>
-                            <p style="color: #cbd5e1; margin-bottom: 20px;">Rejoignez nos lecteurs pour lire la suite.</p>
-                            <button class="btn btn-premium" style="padding: 12px 30px; font-size:1.1rem;" onclick="afficherOffres()">Découvrir nos offres</button>
+                            <h3>Contenu Exclusif</h3>
+                            <p style="color: var(--texte-clair); margin-bottom: 25px; font-size: 1.1rem;">Cet article est réservé à nos abonnés. Rejoignez-nous pour débloquer la suite.</p>
+                            <button class="btn btn-gradient" style="padding: 14px 32px; font-size: 1.1rem;" onclick="afficherOffres()">Voir les offres</button>
                         </div>
                     </div>`;
                 } else {
                     let badgeCadeau = '';
                     if (articlesOfferts.includes(article.id) && !estAbonne) {
-                        badgeCadeau = `<div style="background:#f8fafc; color:#d97706; padding:15px; border-radius:8px; margin-bottom:20px; font-weight:600; text-align:center; border: 1px solid #d97706;">🎁 Cet article premium vous a été offert par un proche. Bonne lecture !</div>`;
+                        badgeCadeau = `<div class="badge-cadeau">✨ Bonne lecture ! Cet article premium vous a été offert par un proche.</div>`;
                     }
                     
                     htmlArticle += `${badgeCadeau}<div class="article-contenu">${article.contenu_public} ${article.contenu_premium ? article.contenu_premium : ''}</div>`;
                     
                     if (estAbonne && (article.reserve_abonnes || article.contenu_premium)) {
-                        const boutonPartage = creditsPartage > 0 
-                            ? `<button class="btn-partage" onclick="ouvrirModalePartage('${article.id}')">🎁 Offrir cet article</button>` 
-                            : `<button class="btn-partage" style="opacity: 0.5; cursor: not-allowed;" disabled>🎁 Quota de partages atteint</button>`;
+                        const btnStyle = creditsPartage > 0 ? "btn btn-gradient" : "btn";
+                        const actionAttr = creditsPartage > 0 ? `onclick="ouvrirModalePartage('${article.id}')"` : "disabled style='opacity: 0.5; cursor: not-allowed;'";
                         
                         htmlArticle += `
                         <div class="action-partage">
-                            <span class="credits-info">Il vous reste <b>${creditsPartage} partage(s)</b> ce mois-ci.</span>
-                            ${boutonPartage}
+                            <div>
+                                <h4 style="margin:0 0 5px 0; color: var(--texte); font-family: 'Poppins', sans-serif;">Partager cet article</h4>
+                                <span style="color: var(--texte-clair); font-size: 0.9rem;">Il vous reste <b>${creditsPartage} partage(s)</b> ce mois-ci.</span>
+                            </div>
+                            <button class="${btnStyle}" ${actionAttr} style="padding: 12px 24px;">🎁 Offrir</button>
                         </div>`;
                     }
                 }
@@ -288,59 +332,44 @@
             });
         }
 
-        function ouvrirModalePartage(articleId) { 
-            articleEnCoursDePartage = articleId; 
-            document.getElementById('partage-modal').style.display = 'flex'; 
-        }
-        
-        function fermerModalePartage() { 
-            document.getElementById('partage-modal').style.display = 'none'; 
-            document.getElementById('partage-email').value = ''; 
-            articleEnCoursDePartage = null; 
-        }
+        function ouvrirModalePartage(articleId) { articleEnCoursDePartage = articleId; document.getElementById('partage-modal').style.display = 'flex'; }
+        function fermerModalePartage() { document.getElementById('partage-modal').style.display = 'none'; document.getElementById('partage-email').value = ''; articleEnCoursDePartage = null; }
 
         async function validerPartage() {
             const emailAmi = document.getElementById('partage-email').value;
             if(!emailAmi) return alert("Veuillez saisir une adresse email.");
-            if(creditsPartage <= 0) return alert("Vous n'avez plus de crédits de partage.");
-
-            const { error: errInsert } = await db.from('partages_articles').insert([{
-                article_id: articleEnCoursDePartage,
-                lecteur_id: lecteurActuel.id,
-                email_destinataire: emailAmi
-            }]);
-
-            if (errInsert) return alert("Erreur lors du partage : " + errInsert.message);
+            
+            const { error: errInsert } = await db.from('partages_articles').insert([{ article_id: articleEnCoursDePartage, lecteur_id: lecteurActuel.id, email_destinataire: emailAmi }]);
+            if (errInsert) return alert("Erreur : " + errInsert.message);
 
             creditsPartage--;
             await db.from('lecteurs').update({ credits_partage: creditsPartage }).eq('id', lecteurActuel.id);
 
-            alert(`✅ Article partagé ! ${emailAmi} a désormais accès à cet article en se connectant.`);
-            fermerModalePartage();
-            chargerArticles(); 
+            alert(`✅ Succès ! ${emailAmi} a maintenant accès à cet article.`);
+            fermerModalePartage(); chargerArticles(); 
         }
 
         async function afficherOffres() {
-            if (!lecteurActuel) return alert("Veuillez vous créer un compte gratuit pour voir les offres.") || ouvrirModaleAuth();
+            if (!lecteurActuel) { ouvrirModaleAuth(); return; }
             document.getElementById('offres-modal').style.display = 'flex';
             const conteneur = document.getElementById('liste-offres');
             const { data: offres, error } = await db.from('offres').select('*').order('prix_euros', { ascending: true });
             
-            if (error || offres.length === 0) return conteneur.innerHTML = '<p style="text-align:center;">Aucune offre disponible actuellement.</p>';
+            if (error || offres.length === 0) return conteneur.innerHTML = '<p>Aucune offre disponible.</p>';
             conteneur.innerHTML = '';
             
             offres.forEach(offre => {
                 const lienPaiement = `${offre.stripe_price_id}?prefilled_email=${encodeURIComponent(lecteurActuel.email)}`;
                 let listeAvantages = '';
                 if (offre.avantages) offre.avantages.split('\n').forEach(av => { if (av.trim() !== '') listeAvantages += `<li>${av.trim()}</li>`; });
-                if (offre.partages_autorises > 0) listeAvantages += `<li><b>${offre.partages_autorises} articles</b> à offrir par mois</li>`;
+                if (offre.partages_autorises > 0) listeAvantages += `<li><b>${offre.partages_autorises} articles</b> à offrir chaque mois</li>`;
 
                 conteneur.innerHTML += `
                     <div class="offre-card">
                         <h3>${offre.nom}</h3>
-                        <div class="offre-prix">${offre.prix_euros} €<span style="font-size: 1rem; color: #64748b;">/mois</span></div>
+                        <div class="offre-prix">${offre.prix_euros} € <span>/ mois</span></div>
                         <ul class="offre-avantages">${listeAvantages}</ul>
-                        <a href="${lienPaiement}" class="btn-submit" style="display:inline-block; text-decoration:none; box-sizing:border-box;">Choisir cette offre</a>
+                        <a href="${lienPaiement}" class="btn btn-gradient" style="text-align: center; display: block; text-decoration: none; padding: 16px; font-size: 1.1rem;">Choisir cette offre</a>
                     </div>`;
             });
         }
@@ -348,12 +377,7 @@
         function ouvrirModaleAuth() { document.getElementById('auth-modal').style.display = 'flex'; }
         function fermerModaleAuth() { document.getElementById('auth-modal').style.display = 'none'; }
         function fermerModaleOffres() { document.getElementById('offres-modal').style.display = 'none'; }
-        
-        function basculerModeAuth(mode) { 
-            document.getElementById('modal-titre').innerText = mode === 'inscription' ? "Créer un compte" : "Connexion"; 
-            document.getElementById('form-login').style.display = mode === 'inscription' ? 'none' : 'block'; 
-            document.getElementById('form-register').style.display = mode === 'inscription' ? 'block' : 'none'; 
-        }
+        function basculerModeAuth(mode) { document.getElementById('modal-titre').innerText = mode === 'inscription' ? "Créer un compte" : "Bienvenue"; document.getElementById('form-login').style.display = mode === 'inscription' ? 'none' : 'block'; document.getElementById('form-register').style.display = mode === 'inscription' ? 'block' : 'none'; }
 
         verifierSession();
     </script>

@@ -10,6 +10,7 @@ exports.handler = async (event) => {
 
     const supabaseAdmin = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
 
+    // 1. GESTION DES NOUVEAUX PAIEMENTS ET RENOUVELLEMENTS
     if (stripeEvent.type === 'checkout.session.completed' || stripeEvent.type === 'invoice.paid') {
         let emailClient, priceOriginalCentimes = 0;
         
@@ -37,8 +38,26 @@ exports.handler = async (event) => {
             credits_partage: partagesDefinis,
             offre_nom: nomOffre,
             offre_prix: prixEurosStripe,
-            abonnement_offert: false
+            abonnement_offert: false,
+            annulation_programmee: false // Remet à zéro si le client se réabonne
         }).eq('email', emailClient);
     }
+    
+    // 2. GESTION DES ANNULATIONS DANS LE PORTAIL STRIPE
+    if (stripeEvent.type === 'customer.subscription.updated' || stripeEvent.type === 'customer.subscription.deleted') {
+        const subscription = stripeEvent.data.object;
+        const customer = await stripe.customers.retrieve(subscription.customer);
+        const emailClient = customer.email;
+        
+        // cancel_at_period_end est true quand il clique sur "Annuler"
+        const estAnnule = subscription.cancel_at_period_end || subscription.status === 'canceled';
+
+        if (emailClient) {
+            await supabaseAdmin.from('lecteurs').update({
+                annulation_programmee: estAnnule
+            }).eq('email', emailClient);
+        }
+    }
+
     return { statusCode: 200, body: 'Webhook traité avec succès !' };
 };

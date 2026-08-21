@@ -11,7 +11,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <style>
-        /* RESET ET FIX SAFARI */
         *, *::before, *::after { box-sizing: border-box; }
 
         :root { 
@@ -76,23 +75,29 @@
         .btn-danger { background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; }
         body.dark-mode .btn-danger { background: rgba(220, 38, 38, 0.1); border-color: #dc2626; }
 
-        /* BOUTON FLOTTANT CONTACT */
+        /* BOUTON FLOTTANT CONTACT - EXPANDABLE */
         .btn-contact-float {
             position: fixed; bottom: 25px; left: 25px;
             background: var(--texte); color: var(--fond);
-            border: none; border-radius: 50px; padding: 12px 24px;
-            font-size: 1rem; font-weight: 600; box-shadow: var(--shadow-hover);
-            cursor: pointer; z-index: 9000; transition: var(--transition);
-            display: flex; align-items: center; gap: 8px; font-family: 'Inter', sans-serif;
+            border: none; border-radius: 50px; height: 50px; width: auto;
+            font-size: 1.1rem; font-weight: 600; box-shadow: var(--shadow-hover);
+            cursor: pointer; z-index: 9000; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex; align-items: center; justify-content: center; padding: 0 20px;
+            overflow: hidden; white-space: nowrap; gap: 8px; font-family: 'Inter', sans-serif;
         }
-        .btn-contact-float:hover { transform: translateY(-3px); background: var(--accent); color: white; }
+        .btn-contact-float:hover { background: var(--accent); color: white; transform: translateY(-3px); }
+        .btn-contact-float span.text { opacity: 1; transition: opacity 0.2s; }
+        
+        /* C'est ce mode "collapsé" qui sera actif pendant la lecture d'un article */
+        .btn-contact-float.is-collapsed { width: 50px; padding: 0; gap: 0; }
+        .btn-contact-float.is-collapsed span.text { display: none; opacity: 0; }
+        .btn-contact-float.is-collapsed:hover { width: 180px; padding: 0 20px; gap: 8px; justify-content: flex-start; }
+        .btn-contact-float.is-collapsed:hover span.text { display: inline; opacity: 1; }
 
-        /* MESSAGE BIENVENUE */
         #message-bienvenue { max-width: 1200px; margin: 60px auto 30px auto; padding: 0 5%; display: none; text-align: center; animation: fadeIn 0.5s ease; }
         #message-bienvenue h2 { font-size: 3rem; margin: 0; color: var(--accent); line-height: 1.2; padding-top: 10px; }
         #message-bienvenue p { margin-top: 15px; color: var(--texte-clair); font-size: 1.15rem; }
 
-        /* VUE GRILLE */
         #vue-grille { max-width: 1200px; margin: 0 auto 40px auto; padding: 0 5%; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px; flex-grow: 1; width: 100%; }
         
         .card { background: var(--fond-card); border-radius: 16px; overflow: hidden; box-shadow: var(--shadow); cursor: pointer; transition: var(--transition); display: flex; flex-direction: column; border: 1px solid var(--bordure); width: 100%; transform: translateZ(0); }
@@ -138,10 +143,12 @@
             .card:first-child .card-content { width: 100%; padding: 25px; }
             .card:first-child .card-titre { font-size: 1.5rem; }
 
-            .btn-contact-float { bottom: 15px; left: 15px; padding: 10px 16px; font-size: 0.9rem; }
+            /* Sur mobile on force le mode compact par défaut pour gagner de la place */
+            .btn-contact-float { width: 50px; padding: 0; gap: 0; bottom: 15px; left: 15px;}
+            .btn-contact-float span.text { display: none; opacity: 0; }
+            .btn-contact-float:hover { width: 50px; }
         }
 
-        /* VUE ARTICLE */
         #vue-article { display: none; max-width: 720px; margin: 0 auto; padding: 40px 5%; flex-grow: 1; }
         .btn-retour { display: inline-flex; align-items: center; color: var(--texte-clair); text-decoration: none; font-weight: 600; cursor: pointer; margin-bottom: 30px; border: none; background: none; font-size: 1rem; padding: 0; }
         .btn-retour:hover { color: var(--accent); }
@@ -207,7 +214,9 @@
     <div id="toast-container"></div>
     
     <!-- BOUTON FLOTTANT DE CONTACT -->
-    <button class="btn-contact-float" onclick="ouvrirContact()">💬 Nous contacter</button>
+    <button id="btn-contact-float" class="btn-contact-float" onclick="ouvrirContact()">
+        💬 <span class="text">Nous contacter</span>
+    </button>
 
     <div id="maintenance-screen">
         <h1 class="titre-serif">le site il est cassé.</h1>
@@ -318,7 +327,28 @@
         </div>
     </div>
 
-    <!-- MODALE CONTACT (LA NOUVELLE VRAIE PAGE) -->
+    <!-- MODALE LECTURE REPONSE (NOUVEAU) -->
+    <div id="reponse-modal" class="modal-overlay">
+        <div class="modal-content">
+            <span class="close-btn" onclick="fermerModales()">&times;</span>
+            <h2 class="titre-serif" style="margin-top:0; color:var(--accent);">Miracle ! 🕊️</h2>
+            <p style="color: var(--texte-clair); font-size: 0.95rem; margin-bottom:20px;">Le stagiaire a pris sur son temps de pause pour vous répondre :</p>
+            
+            <div style="background: rgba(99, 102, 241, 0.05); border-left: 3px solid var(--accent); padding: 15px; margin-bottom: 20px; border-radius: 0 8px 8px 0;">
+                <span style="font-size:0.8rem; color:var(--texte-clair); text-transform:uppercase; font-weight:bold;">Vous aviez dit :</span>
+                <p id="reponse-msg-original" style="margin: 5px 0 0 0; font-style:italic; color:var(--texte);"></p>
+            </div>
+
+            <div style="background: var(--fond); border: 1px solid var(--bordure); padding: 15px; border-radius: 8px;">
+                <span style="font-size:0.8rem; color:var(--premium); text-transform:uppercase; font-weight:bold;">Notre réponse ultra pro :</span>
+                <p id="reponse-msg-texte" style="margin: 5px 0 0 0; font-weight:500; color:var(--texte);"></p>
+            </div>
+            
+            <button class="btn btn-primaire" style="width: 100%; margin-top:20px; padding: 14px;" onclick="fermerModales()">Fermer (et retourner à ma vie sans intérêt)</button>
+        </div>
+    </div>
+
+    <!-- MODALE CONTACT -->
     <div id="contact-modal" class="modal-overlay">
         <div class="modal-content">
             <span class="close-btn" onclick="fermerModales()">&times;</span>
@@ -450,6 +480,10 @@
                     ${!estAbonne ? `<button class="btn btn-primaire" style="background:var(--premium); padding:6px 14px; font-size: 0.85rem;" onclick="ouvrirOffres()">S'abonner</button>` : `<span class="badge-inclus" style="font-size:0.8rem; padding:8px 14px; margin:0; cursor:default;">${badgeNom} 🔓</span>`}
                     <button class="btn btn-outline" style="padding:6px 14px; border:none; text-decoration:underline; font-size: 0.85rem;" onclick="seDeconnecter()">Quitter</button>
                 `;
+
+                // VERIFICATION DES MESSAGES NON LUS
+                verifierReponsesContact();
+
             } else {
                 lecteurActuel = null; profilLecteur = null; estAbonne = false; creditsPartage = 0; articlesOfferts = [];
                 document.getElementById('message-bienvenue').style.display = 'none';
@@ -462,6 +496,20 @@
                     <button class="btn btn-outline" style="flex:1;" onclick="ouvrirAuth()">Connexion</button>
                     <button class="btn btn-primaire" style="background:var(--premium); flex:1;" onclick="ouvrirAuth()">S'abonner</button>
                 `;
+            }
+        }
+
+        async function verifierReponsesContact() {
+            if(!lecteurActuel) return;
+            const { data: msgs } = await db.from('messages_contact').select('*').eq('email', lecteurActuel.email).not('reponse', 'is', null).eq('lu_par_lecteur', false);
+            
+            if(msgs && msgs.length > 0) {
+                const msg = msgs[0];
+                document.getElementById('reponse-msg-original').innerText = msg.message;
+                document.getElementById('reponse-msg-texte').innerText = msg.reponse;
+                document.getElementById('reponse-modal').style.display = 'flex';
+                
+                await db.from('messages_contact').update({ lu_par_lecteur: true }).eq('id', msg.id);
             }
         }
 
@@ -480,6 +528,10 @@
             document.getElementById('progress-bar').style.display = 'none';
             document.getElementById('vue-article').style.display = 'none'; 
             document.getElementById('vue-grille').style.display = 'grid';
+            
+            // Le bouton contact s'agrandit
+            document.getElementById('btn-contact-float').classList.remove('is-collapsed');
+
             if(lecteurActuel) document.getElementById('message-bienvenue').style.display = 'block';
             filtrerArticles(null, document.querySelector('.nav-link')); 
         }
@@ -489,6 +541,7 @@
                 document.getElementById('vue-article').style.display = 'none';
                 document.getElementById('vue-grille').style.display = 'grid';
                 document.getElementById('progress-bar').style.display = 'none';
+                document.getElementById('btn-contact-float').classList.remove('is-collapsed');
                 if(lecteurActuel) document.getElementById('message-bienvenue').style.display = 'block';
             }
 
@@ -536,6 +589,10 @@
             document.getElementById('message-bienvenue').style.display = 'none';
             document.getElementById('vue-article').style.display = 'block';
             document.getElementById('progress-bar').style.display = 'block';
+            
+            // Le bouton contact se réduit en icône pour ne pas gêner
+            document.getElementById('btn-contact-float').classList.add('is-collapsed');
+
             window.scrollTo({ top: 0, behavior: 'smooth' });
 
             const conteneur = document.getElementById('conteneur-article-complet');

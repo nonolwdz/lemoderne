@@ -35,6 +35,8 @@
         .logo span { color: var(--accent); }
         .tagline { font-family: 'Caveat', cursive; color: var(--premium); font-size: 1.2rem; transform: rotate(-3deg); margin-top: -2px; margin-left: 20px; }
         
+        #zone-boutons-header { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+
         /* FLASH INFO */
         .flash-info { background: #1e293b; color: #f1f5f9; padding: 10px 5%; font-size: 0.9rem; font-weight: 500; display: flex; align-items: center; overflow: hidden; white-space: nowrap; border-bottom: 1px solid #334155; }
         .flash-badge { background: #ef4444; color: white; padding: 3px 10px; border-radius: 4px; margin-right: 20px; font-weight: 800; font-size: 0.8rem; letter-spacing: 1px; z-index: 2; position: relative; }
@@ -56,8 +58,9 @@
         .btn-danger:hover { background: #fca5a5; color: #991b1b; }
 
         /* MESSAGE BIENVENUE */
-        #message-bienvenue { max-width: 1200px; margin: 30px auto 0 auto; padding: 0 5%; display: none; }
-        #message-bienvenue h2 { font-size: 2.2rem; margin: 0; color: var(--texte); }
+        #message-bienvenue { max-width: 1200px; margin: 40px auto 0 auto; padding: 0 5%; display: none; animation: fadeIn 0.5s ease; }
+        #message-bienvenue h2 { font-size: 2.5rem; margin: 0; color: var(--accent); }
+        #message-bienvenue p { margin-top: 5px; color: var(--texte-clair); font-size: 1.1rem; }
 
         /* VUE GRILLE */
         #vue-grille { max-width: 1200px; margin: 30px auto 40px auto; padding: 0 5%; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 30px; flex-grow: 1; animation: fadeIn 0.4s ease;}
@@ -67,19 +70,11 @@
         .card-img { width: 100%; height: 200px; object-fit: cover; background: #e2e8f0; }
         .card-content { padding: 25px; flex-grow: 1; display: flex; flex-direction: column; justify-content: center; }
         
-        /* OPTIMISATION ARTICLE À LA UNE */
+        /* OPTIMISATION ARTICLE À LA UNE (DESKTOP) */
         .card:first-child { grid-column: 1 / -1; display: flex; flex-direction: row; gap: 0; }
         .card:first-child .card-img { width: 50%; height: auto; min-height: 350px; border-radius: 16px 0 0 16px; }
         .card:first-child .card-content { width: 50%; padding: 40px; }
         .card:first-child .card-titre { font-size: 2.2rem; }
-
-        /* Version Mobile pour À la une */
-        @media (max-width: 768px) { 
-            .card:first-child { flex-direction: column; } 
-            .card:first-child .card-img { width: 100%; min-height: 220px; border-radius: 16px 16px 0 0; }
-            .card:first-child .card-content { width: 100%; padding: 25px; box-sizing: border-box; }
-            .card:first-child .card-titre { font-size: 1.6rem; }
-        }
         
         .card-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .card-categorie { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: var(--accent); letter-spacing: 0.5px; }
@@ -91,6 +86,35 @@
         .card-titre { font-size: 1.4rem; margin: 0 0 15px 0; line-height: 1.3; color: var(--texte); }
         .card-date { font-size: 0.85rem; color: var(--texte-clair); margin-top: auto; }
 
+        /* =========================================
+           CORRECTIONS SPECIALES POUR SMARTPHONES 
+           ========================================= */
+        @media (max-width: 768px) { 
+            /* Header plus compact */
+            header { padding: 12px 5%; flex-direction: column; align-items: flex-start; gap: 12px; }
+            .logo-container { flex-direction: row; align-items: baseline; gap: 10px; }
+            .logo { font-size: 1.6rem; }
+            .tagline { font-size: 1rem; margin: 0; }
+            
+            /* Boutons étirés et alignés */
+            #zone-boutons-header { width: 100%; justify-content: space-between; }
+            #zone-boutons-header .btn { flex: 1; text-align: center; padding: 8px; font-size: 0.85rem; margin: 0 2px; }
+            
+            /* Message de bienvenue recentré */
+            #message-bienvenue h2 { font-size: 2rem; text-align: center; }
+            #message-bienvenue p { font-size: 1rem; text-align: center; }
+
+            /* Fix de l'image géante à la une */
+            .card:first-child { flex-direction: column; } 
+            .card:first-child .card-img { width: 100%; height: 220px !important; min-height: 220px !important; border-radius: 16px 16px 0 0; }
+            .card:first-child .card-content { width: 100%; padding: 20px; box-sizing: border-box; }
+            .card:first-child .card-titre { font-size: 1.5rem; }
+
+            /* Flash info plus discret */
+            .flash-info { padding: 6px 5%; font-size: 0.8rem; }
+            .flash-badge { padding: 2px 6px; font-size: 0.7rem; margin-right: 10px; }
+        }
+
         /* VUE ARTICLE */
         #vue-article { display: none; max-width: 720px; margin: 0 auto; padding: 40px 5%; flex-grow: 1; animation: fadeIn 0.3s ease;}
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -98,7 +122,9 @@
         .btn-retour { display: inline-flex; align-items: center; color: var(--texte-clair); text-decoration: none; font-weight: 600; cursor: pointer; margin-bottom: 30px; border: none; background: none; font-size: 1rem; padding: 0; transition: var(--transition); }
         .btn-retour:hover { color: var(--accent); transform: translateX(-5px); }
         
-        .art-header-img { width: 100%; height: 450px; object-fit: cover; border-radius: 20px; margin-bottom: 30px; box-shadow: var(--shadow); }
+        .art-header-img { width: 100%; height: 400px; object-fit: cover; border-radius: 20px; margin-bottom: 30px; box-shadow: var(--shadow); }
+        @media (max-width: 768px) { .art-header-img { height: 250px; } .art-titre { font-size: 2.2rem !important; } }
+
         .art-titre { font-size: 3.2rem; line-height: 1.1; margin-bottom: 25px; color: var(--texte); }
         .art-meta { display: flex; gap: 15px; color: var(--texte-clair); margin-bottom: 40px; font-size: 0.95rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 20px; }
         .art-contenu { font-size: 1.15rem; color: #334155; line-height: 1.8; }
@@ -119,10 +145,13 @@
         #maintenance-screen { display: none; height: 100vh; width: 100vw; background: #0f172a; color: white; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px; box-sizing: border-box; }
         #maintenance-screen h1 { font-size: 4rem; margin-bottom: 10px; color: #f43f5e; }
         #maintenance-screen p { font-size: 1.2rem; color: #94a3b8; max-width: 600px; line-height: 1.6; }
+        @media (max-width: 768px) { #maintenance-screen h1 { font-size: 2.5rem; } }
 
         /* MODALES */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.4); z-index: 200; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
         .modal-content { background: var(--blanc); padding: 40px; border-radius: 24px; width: 90%; max-width: 420px; position: relative; box-shadow: var(--shadow-hover); max-height: 90vh; overflow-y: auto;}
+        @media (max-width: 768px) { .modal-content { padding: 25px; } }
+        
         .close-btn { position: absolute; top: 15px; right: 20px; font-size: 1.8rem; cursor: pointer; color: var(--texte-clair); transition: var(--transition); }
         .close-btn:hover { color: var(--premium); transform: rotate(90deg); }
         .input-champ { width: 100%; padding: 14px 15px; border: 1px solid #cbd5e1; border-radius: 8px; margin-bottom: 15px; box-sizing: border-box; font-family: inherit; font-size: 1rem; transition: var(--transition); background: var(--fond); }
@@ -151,9 +180,7 @@
                 <div class="logo">Le<span>Moderne</span></div>
                 <div class="tagline">on avait pas d'inspi.</div>
             </div>
-            
-            <!-- BOUTONS HEADER -->
-            <div id="zone-boutons-header" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;"></div>
+            <div id="zone-boutons-header"></div>
         </header>
 
         <div class="flash-info">
@@ -230,7 +257,6 @@
                 <li><span style="color:var(--texte-clair);">Cadeaux restants</span> <b id="profil-cadeaux">0</b></li>
             </ul>
 
-            <!-- Boutons dynamiques selon statut -->
             <div id="actions-abonne" style="display:none;">
                 <button class="btn btn-primaire" style="width: 100%; margin-bottom: 10px;" onclick="fermerModales(); ouvrirOffres()">Changer d'offre (Upgrade)</button>
                 <button class="btn btn-outline" style="width: 100%; margin-bottom: 20px;" onclick="annulerAbonnement()">Annuler mon abonnement</button>
@@ -247,7 +273,7 @@
 
     <!-- MODALE OFFRES -->
     <div id="offres-modal" class="modal-overlay">
-        <div class="modal-content" style="max-width: 900px; max-height: 90vh; overflow-y: auto;">
+        <div class="modal-content" style="max-width: 900px;">
             <span class="close-btn" onclick="fermerModales()">&times;</span>
             <h2 class="titre-serif" style="font-size: 2rem; text-align: center;">Passez à la caisse.</h2>
             <p style="text-align: center; color: var(--texte-clair); font-size: 1rem; margin-bottom: 30px;">Soutenez notre "média" et débloquez les articles où on a vraiment fait un effort.</p>
@@ -308,21 +334,24 @@
                 let nomAffichage = profilLecteur?.prenom ? profilLecteur.prenom : lecteurActuel.email.split('@')[0];
                 
                 // AFFICHAGE DU MESSAGE DE BIENVENUE EN HAUT
-                document.getElementById('message-bienvenue').innerHTML = `<h2 class="titre-serif">Salut ${nomAffichage} ! 👋</h2>`;
+                document.getElementById('message-bienvenue').innerHTML = `
+                    <h2 class="titre-serif">Salut ${nomAffichage} ! 👋</h2>
+                    <p>Prêt à lire des articles sans intérêt aujourd'hui ?</p>
+                `;
                 document.getElementById('message-bienvenue').style.display = 'block';
 
                 document.getElementById('zone-boutons-header').innerHTML = `
-                    <button class="btn btn-outline" style="padding:6px 14px; border-radius:8px;" onclick="ouvrirCompte()">Mon profil</button>
-                    ${!estAbonne ? `<button class="btn btn-primaire" style="background:var(--premium)" onclick="ouvrirOffres()">S'abonner</button>` : `<span style="color:var(--vip); font-weight:800; font-size:0.8rem; background:var(--vip-bg); padding:6px 12px; border-radius:50px;">PIGEON PREMIUM</span>`}
-                    <button class="btn btn-outline" style="padding:6px 12px; border:none; text-decoration:underline;" onclick="seDeconnecter()">Déconnexion</button>
+                    <button class="btn btn-outline" style="padding:6px 12px; border-radius:8px; font-size: 0.85rem;" onclick="ouvrirCompte()">Profil</button>
+                    ${!estAbonne ? `<button class="btn btn-primaire" style="background:var(--premium); padding:6px 12px; font-size: 0.85rem;" onclick="ouvrirOffres()">S'abonner</button>` : `<span style="color:var(--vip); font-weight:800; font-size:0.75rem; background:var(--vip-bg); padding:6px 10px; border-radius:50px; border:1px solid #fcd34d;">PIGEON 🕊️</span>`}
+                    <button class="btn btn-outline" style="padding:6px 10px; border:none; text-decoration:underline; font-size: 0.85rem;" onclick="seDeconnecter()">Quitter</button>
                 `;
             } else {
                 lecteurActuel = null; profilLecteur = null; estAbonne = false; creditsPartage = 0; articlesOfferts = [];
                 document.getElementById('message-bienvenue').style.display = 'none';
                 
                 document.getElementById('zone-boutons-header').innerHTML = `
-                    <button class="btn btn-outline" onclick="ouvrirAuth()">Connexion</button>
-                    <button class="btn btn-primaire" style="background:var(--premium)" onclick="ouvrirAuth()">S'abonner</button>
+                    <button class="btn btn-outline" style="flex:1;" onclick="ouvrirAuth()">Connexion</button>
+                    <button class="btn btn-primaire" style="background:var(--premium); flex:1;" onclick="ouvrirAuth()">S'abonner</button>
                 `;
             }
         }

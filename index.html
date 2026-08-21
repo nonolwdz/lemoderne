@@ -11,26 +11,46 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <style>
-        /* INTERDICTION DE DÉBORDER */
+        /* RESET ET VARIABLES */
         *, *::before, *::after { box-sizing: border-box; }
 
         :root { 
-            --fond: #f8fafc; --texte: #0f172a; --texte-clair: #64748b; 
-            --accent: #6366f1; --premium: #f43f5e; --blanc: #ffffff;
+            /* MODE CLAIR (DÉFAUT) */
+            --fond: #f8fafc; --fond-card: #ffffff; --fond-modal: #ffffff;
+            --texte: #0f172a; --texte-clair: #64748b; 
+            --accent: #6366f1; --premium: #f43f5e;
             --vip: #059669; --vip-bg: #d1fae5; 
+            --bordure: #e2e8f0;
+            --header-bg: rgba(255, 255, 255, 0.98);
             --shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
             --shadow-hover: 0 20px 30px rgba(0, 0, 0, 0.08);
-            --transition: all 0.25s ease;
+            --transition: all 0.3s ease;
+        }
+
+        /* MODE SOMBRE */
+        body.dark-mode {
+            --fond: #0f172a; --fond-card: #1e293b; --fond-modal: #1e293b;
+            --texte: #f8fafc; --texte-clair: #94a3b8;
+            --accent: #818cf8; --premium: #fb7185;
+            --vip: #34d399; --vip-bg: rgba(5, 150, 105, 0.2);
+            --bordure: #334155;
+            --header-bg: rgba(15, 23, 42, 0.95);
+            --shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            --shadow-hover: 0 20px 30px rgba(0, 0, 0, 0.5);
         }
         
-        body { font-family: 'Inter', sans-serif; background: var(--fond); color: var(--texte); margin: 0; padding: 0; line-height: 1.7; overflow-x: hidden; display: flex; flex-direction: column; min-height: 100vh; }
-        h1, h2, h3, .titre-serif { font-family: 'Playfair Display', serif; }
+        body { font-family: 'Inter', sans-serif; background: var(--fond); color: var(--texte); margin: 0; padding: 0; line-height: 1.7; overflow-x: hidden; display: flex; flex-direction: column; min-height: 100vh; transition: background-color 0.3s ease, color 0.3s ease; }
+        h1, h2, h3, .titre-serif { font-family: 'Playfair Display', serif; color: var(--texte); }
+
+        /* BARRE DE PROGRESSION DE LECTURE */
+        #progress-bar { position: fixed; top: 0; left: 0; height: 4px; background: linear-gradient(90deg, var(--accent), var(--premium)); width: 0%; z-index: 9999; transition: width 0.1s ease-out; display: none; }
 
         /* HEADER */
         header { 
-            background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(12px);
+            background: var(--header-bg); backdrop-filter: blur(12px);
             padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; 
-            position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #e2e8f0;
+            position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--bordure);
+            transition: var(--transition);
         }
         .logo-container { display: flex; flex-direction: column; cursor: pointer; }
         .logo { font-size: 1.8rem; font-weight: 800; color: var(--texte); text-decoration: none; line-height: 1; }
@@ -39,45 +59,50 @@
         
         #zone-boutons-header { display: flex; gap: 10px; align-items: center; }
 
+        /* BOUTON MODE SOMBRE */
+        .btn-theme { background: var(--fond-card); border: 1px solid var(--bordure); color: var(--texte); border-radius: 50%; width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 1.2rem; transition: var(--transition); }
+        .btn-theme:hover { background: var(--bordure); }
+
         /* FLASH INFO */
-        .flash-info { background: #1e293b; color: #f1f5f9; padding: 10px 5%; font-size: 0.9rem; font-weight: 500; display: flex; align-items: center; overflow: hidden; white-space: nowrap; border-bottom: 1px solid #334155; }
-        .flash-badge { background: #ef4444; color: white; padding: 3px 10px; border-radius: 4px; margin-right: 20px; font-weight: 800; font-size: 0.8rem; letter-spacing: 1px; z-index: 2; position: relative; flex-shrink: 0; }
+        .flash-info { background: var(--accent); color: #ffffff; padding: 10px 5%; font-size: 0.9rem; font-weight: 500; display: flex; align-items: center; overflow: hidden; white-space: nowrap; transform: translateZ(0); }
+        .flash-badge { background: #ffffff; color: var(--accent); padding: 3px 10px; border-radius: 4px; margin-right: 20px; font-weight: 800; font-size: 0.8rem; letter-spacing: 1px; z-index: 2; position: relative; flex-shrink: 0; }
         .flash-text { animation: defilement 40s linear infinite; display: inline-block; }
         @keyframes defilement { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
 
         /* NAVIGATION THEMES */
-        nav { display: flex; gap: 15px; overflow-x: auto; padding: 15px 5%; background: var(--blanc); border-bottom: 1px solid #e2e8f0; scrollbar-width: none; }
+        nav { display: flex; gap: 15px; overflow-x: auto; padding: 15px 5%; background: var(--fond); border-bottom: 1px solid var(--bordure); scrollbar-width: none; }
         nav::-webkit-scrollbar { display: none; }
         .nav-link { color: var(--texte-clair); text-decoration: none; font-weight: 600; font-size: 0.95rem; padding: 6px 14px; border-radius: 50px; cursor: pointer; transition: var(--transition); white-space: nowrap; border: 1px solid transparent; }
-        .nav-link:hover, .nav-link.active { color: var(--accent); background: #eff6ff; border-color: #c7d2fe; }
+        .nav-link:hover, .nav-link.active { color: var(--accent); background: rgba(99, 102, 241, 0.1); border-color: var(--accent); }
 
         /* BOUTONS */
         .btn { padding: 10px 22px; border-radius: 50px; font-weight: 600; font-size: 0.95rem; cursor: pointer; transition: var(--transition); border: none; font-family: 'Inter'; display: inline-flex; align-items: center; justify-content: center; text-decoration: none;}
-        .btn-outline { background: transparent; color: var(--texte); border: 1px solid #cbd5e1; }
-        .btn-outline:hover { border-color: var(--texte); background: var(--texte); color: var(--blanc); }
+        .btn-outline { background: transparent; color: var(--texte); border: 1px solid var(--bordure); }
+        .btn-outline:hover { border-color: var(--texte); background: var(--texte); color: var(--fond); }
         .btn-primaire { background: var(--accent); color: white; box-shadow: 0 4px 14px rgba(99, 102, 241, 0.3); }
         .btn-primaire:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4); }
         .btn-danger { background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; }
+        body.dark-mode .btn-danger { background: rgba(220, 38, 38, 0.1); border-color: #dc2626; }
 
         /* MESSAGE BIENVENUE */
-        #message-bienvenue { max-width: 1200px; margin: 40px auto 0 auto; padding: 0 5%; display: none; text-align: left; }
+        #message-bienvenue { max-width: 1200px; margin: 40px auto 0 auto; padding: 0 5%; display: none; text-align: left; animation: fadeIn 0.5s ease; }
         #message-bienvenue h2 { font-size: 2.5rem; margin: 0; color: var(--accent); }
         #message-bienvenue p { margin-top: 5px; color: var(--texte-clair); font-size: 1.1rem; }
 
-        /* VUE GRILLE (BASE) */
+        /* VUE GRILLE */
         #vue-grille { max-width: 1200px; margin: 30px auto 40px auto; padding: 0 5%; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px; flex-grow: 1; width: 100%; }
         
-        .card { background: var(--blanc); border-radius: 16px; overflow: hidden; box-shadow: var(--shadow); cursor: pointer; transition: var(--transition); display: flex; flex-direction: column; border: 1px solid #f1f5f9; width: 100%; }
-        .card:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); border-color: #e2e8f0; }
-        .card-img { width: 100%; height: 220px; object-fit: cover; background: #e2e8f0; display: block; }
+        .card { background: var(--fond-card); border-radius: 16px; overflow: hidden; box-shadow: var(--shadow); cursor: pointer; transition: var(--transition); display: flex; flex-direction: column; border: 1px solid var(--bordure); width: 100%; transform: translateZ(0); }
+        .card:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); border-color: var(--accent); }
+        .card-img { width: 100%; height: 220px; object-fit: cover; background: var(--bordure); display: block; }
         .card-content { padding: 25px; flex-grow: 1; display: flex; flex-direction: column; justify-content: center; width: 100%; }
         
         .card-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
         .card-categorie { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: var(--accent); letter-spacing: 0.5px; }
         
         /* BADGES */
-        .badge-fautpayer { background: #ffe4e6; color: #e11d48; font-size: 0.75rem; padding: 4px 10px; border-radius: 50px; font-weight: bold; border: 1px solid #fda4af; white-space: nowrap; flex-shrink: 0; }
-        .badge-inclus { background: #d1fae5; color: #059669; font-size: 0.75rem; padding: 4px 10px; border-radius: 50px; font-weight: bold; border: 1px solid #6ee7b7; white-space: nowrap; flex-shrink: 0; }
+        .badge-fautpayer { background: rgba(225, 29, 72, 0.1); color: var(--premium); font-size: 0.75rem; padding: 4px 10px; border-radius: 50px; font-weight: bold; border: 1px solid rgba(225, 29, 72, 0.3); white-space: nowrap; flex-shrink: 0; }
+        .badge-inclus { background: var(--vip-bg); color: var(--vip); font-size: 0.75rem; padding: 4px 10px; border-radius: 50px; font-weight: bold; border: 1px solid var(--vip); white-space: nowrap; flex-shrink: 0; }
         
         .card-titre { font-size: 1.4rem; margin: 0 0 15px 0; line-height: 1.3; color: var(--texte); word-wrap: break-word; }
         .card-date { font-size: 0.85rem; color: var(--texte-clair); margin-top: auto; }
@@ -89,14 +114,6 @@
             .logo { font-size: 1.8rem; }
             .tagline { font-size: 1.2rem; margin-top: -2px; margin-left: 20px; }
             
-            #zone-boutons-header { display: flex; gap: 10px; }
-            .btn { padding: 10px 22px; font-size: 0.95rem; }
-            
-            .flash-info { padding: 10px 5%; font-size: 0.9rem; }
-            .flash-badge { padding: 3px 10px; margin-right: 20px; }
-            nav { gap: 15px; padding: 15px 5%; }
-            .nav-link { font-size: 0.95rem; padding: 6px 14px; }
-
             .card:first-child { grid-column: 1 / -1; flex-direction: row; }
             .card:first-child .card-img { width: 50%; height: 100%; min-height: 380px; border-radius: 16px 0 0 16px; }
             .card:first-child .card-content { width: 50%; padding: 40px; }
@@ -114,29 +131,24 @@
             
             #message-bienvenue { margin-top: 20px; text-align: left; }
             #message-bienvenue h2 { font-size: 1.8rem; }
-            #message-bienvenue p { font-size: 1rem; }
-
-            .flash-info { padding: 8px 5%; font-size: 0.8rem; }
-
+            
             .card:first-child { grid-column: auto; flex-direction: column; } 
             .card:first-child .card-img { width: 100%; height: 220px; min-height: 220px; border-radius: 16px 16px 0 0; }
             .card:first-child .card-content { width: 100%; padding: 25px; }
             .card:first-child .card-titre { font-size: 1.5rem; }
         }
 
-        /* VUE ARTICLE - FIX DU BUG SAFARI : UNE IMAGE PROPRE */
+        /* VUE ARTICLE */
         #vue-article { display: none; max-width: 720px; margin: 0 auto; padding: 40px 5%; flex-grow: 1; }
-        
         .btn-retour { display: inline-flex; align-items: center; color: var(--texte-clair); text-decoration: none; font-weight: 600; cursor: pointer; margin-bottom: 30px; border: none; background: none; font-size: 1rem; padding: 0; }
         .btn-retour:hover { color: var(--accent); }
         
-        /* La boite magique qui empêche Safari de baver */
         .safari-img-wrapper { width: 100%; height: 400px; margin-bottom: 30px; border-radius: 20px; overflow: hidden; isolation: isolate; -webkit-mask-image: -webkit-radial-gradient(white, black); box-shadow: var(--shadow); }
         .art-header-img { width: 100%; height: 100%; object-fit: cover; display: block; margin: 0; }
         
-        .art-titre { font-size: 3rem; line-height: 1.1; margin-bottom: 25px; color: var(--texte); }
-        .art-meta { display: flex; gap: 15px; color: var(--texte-clair); margin-bottom: 40px; font-size: 0.95rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 20px; flex-wrap: wrap;}
-        .art-contenu { font-size: 1.15rem; color: #334155; line-height: 1.8; }
+        .art-titre { font-size: 3rem; line-height: 1.1; margin-bottom: 15px; color: var(--texte); }
+        .art-meta { display: flex; gap: 15px; justify-content: space-between; color: var(--texte-clair); margin-bottom: 40px; font-size: 0.95rem; border-bottom: 1px solid var(--bordure); padding-bottom: 20px; flex-wrap: wrap;}
+        .art-contenu { font-size: 1.15rem; color: var(--texte); line-height: 1.8; }
         .art-contenu img { max-width: 100%; border-radius: 12px; margin: 30px 0; }
 
         @media (max-width: 768px) { 
@@ -145,47 +157,63 @@
             .art-contenu { font-size: 1.05rem; }
         }
 
-        .paywall-box { background: linear-gradient(to bottom, rgba(248,250,252,0), rgba(248,250,252,1) 20%); padding-top: 80px; margin-top: -60px; position: relative; text-align: center; padding-bottom: 50px; }
-        .paywall-card { background: var(--blanc); border: 1px solid #e2e8f0; border-radius: 20px; padding: 40px; box-shadow: var(--shadow-hover); max-width: 500px; margin: 0 auto; position: relative; z-index: 10; }
-        .cadeau-banner { background: #fdf2f8; border: 1px dashed #fbcfe8; color: #be185d; padding: 20px; border-radius: 12px; margin-bottom: 40px; font-weight: 600; display: flex; align-items: center; gap: 15px; justify-content: center; text-align: center; line-height: 1.4;}
-        .share-box { background: var(--blanc); border: 1px solid #e2e8f0; padding: 25px 30px; border-radius: 16px; margin-top: 50px; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow); flex-wrap: wrap; gap: 15px;}
+        .paywall-box { background: linear-gradient(to bottom, transparent, var(--fond) 20%); padding-top: 80px; margin-top: -60px; position: relative; text-align: center; padding-bottom: 50px; }
+        .paywall-card { background: var(--fond-card); border: 1px solid var(--bordure); border-radius: 20px; padding: 40px; box-shadow: var(--shadow-hover); max-width: 500px; margin: 0 auto; position: relative; z-index: 10; }
+        .cadeau-banner { background: rgba(225, 29, 72, 0.05); border: 1px dashed var(--premium); color: var(--premium); padding: 20px; border-radius: 12px; margin-bottom: 40px; font-weight: 600; display: flex; align-items: center; gap: 15px; justify-content: center; text-align: center; line-height: 1.4;}
+        .share-box { background: var(--fond-card); border: 1px solid var(--bordure); padding: 25px 30px; border-radius: 16px; margin-top: 50px; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow); flex-wrap: wrap; gap: 15px;}
 
         /* FOOTER */
-        footer { background: var(--blanc); border-top: 1px solid #e2e8f0; padding: 40px 5%; text-align: center; color: var(--texte-clair); font-size: 0.9rem; margin-top: auto; }
+        footer { background: var(--fond-card); border-top: 1px solid var(--bordure); padding: 40px 5%; text-align: center; color: var(--texte-clair); font-size: 0.9rem; margin-top: auto; }
         .footer-links { display: flex; justify-content: center; gap: 20px; margin-bottom: 20px; flex-wrap: wrap; }
         .footer-links a { color: var(--texte-clair); text-decoration: none; transition: 0.2s; }
         .footer-links a:hover { color: var(--accent); }
 
         /* MAINTENANCE */
-        #maintenance-screen { display: none; height: 100vh; width: 100vw; background: #0f172a; color: white; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px; box-sizing: border-box; }
+        #maintenance-screen { display: none; height: 100vh; width: 100vw; background: #0f172a; color: white; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px; }
         #maintenance-screen h1 { font-size: 4rem; margin-bottom: 10px; color: #f43f5e; }
-        #maintenance-screen p { font-size: 1.2rem; color: #94a3b8; max-width: 600px; line-height: 1.6; }
-        @media (max-width: 768px) { #maintenance-screen h1 { font-size: 2.5rem; } }
 
-        /* MODALES */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.4); z-index: 200; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
-        .modal-content { background: var(--blanc); padding: 40px; border-radius: 24px; width: 90%; max-width: 420px; position: relative; box-shadow: var(--shadow-hover); max-height: 90vh; overflow-y: auto;}
+        /* MODALES ET TOASTS (Remplacement des popups moches) */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); z-index: 200; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+        .modal-content { background: var(--fond-modal); padding: 40px; border-radius: 24px; width: 90%; max-width: 450px; position: relative; box-shadow: var(--shadow-hover); max-height: 90vh; overflow-y: auto;}
         @media (max-width: 768px) { .modal-content { padding: 25px; } }
         
         .close-btn { position: absolute; top: 15px; right: 20px; font-size: 1.8rem; cursor: pointer; color: var(--texte-clair); transition: var(--transition); }
         .close-btn:hover { color: var(--premium); transform: rotate(90deg); }
-        .input-champ { width: 100%; padding: 14px 15px; border: 1px solid #cbd5e1; border-radius: 8px; margin-bottom: 15px; box-sizing: border-box; font-family: inherit; font-size: 1rem; transition: var(--transition); background: var(--fond); }
-        .input-champ:focus { outline: none; border-color: var(--accent); background: var(--blanc); box-shadow: 0 0 0 3px rgba(99,102,241,0.1); }
+        .input-champ { width: 100%; padding: 14px 15px; border: 1px solid var(--bordure); border-radius: 8px; margin-bottom: 15px; font-family: inherit; font-size: 1rem; transition: var(--transition); background: var(--fond); color: var(--texte); }
+        .input-champ:focus { outline: none; border-color: var(--accent); background: var(--fond-card); box-shadow: 0 0 0 3px rgba(99,102,241,0.1); }
         
         .offres-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-top: 20px; }
-        .offre-card { border: 2px solid #e2e8f0; border-radius: 16px; padding: 30px; display: flex; flex-direction: column; transition: 0.2s; background: var(--blanc); }
+        .offre-card { border: 2px solid var(--bordure); border-radius: 16px; padding: 30px; display: flex; flex-direction: column; transition: 0.2s; background: var(--fond-card); }
         .offre-card:hover { border-color: var(--premium); box-shadow: var(--shadow-hover); transform: translateY(-3px); }
 
-        .account-list { list-style: none; padding: 0; margin: 20px 0; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; }
-        .account-list li { border-bottom: 1px solid #e2e8f0; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; font-size: 0.95rem;}
-        .account-list li:last-child { border-bottom: none; }
+        /* ESPACE COMPTE PRO */
+        .account-details { background: rgba(99, 102, 241, 0.05); border: 1px solid rgba(99, 102, 241, 0.2); border-radius: 12px; padding: 20px; margin-bottom: 25px; }
+        .account-item { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 0.95rem; }
+        .account-item:last-child { margin-bottom: 0; }
+        .account-label { color: var(--texte-clair); }
+        .account-value { font-weight: 600; color: var(--texte); text-align: right; }
+
+        /* TOAST NOTIFICATION */
+        #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
+        .toast { background: var(--fond-card); color: var(--texte); padding: 15px 20px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 12px; font-weight: 500; font-size: 0.95rem; animation: slideInUp 0.3s forwards, fadeOut 0.3s forwards 4s; border-left: 5px solid var(--accent); }
+        .toast.error { border-left-color: var(--premium); }
+        .toast.success { border-left-color: var(--vip); }
+        @keyframes slideInUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes fadeOut { to { opacity: 0; visibility: hidden; } }
+
     </style>
 </head>
 <body>
 
+    <!-- BARRE DE LECTURE -->
+    <div id="progress-bar"></div>
+
+    <!-- TOASTS -->
+    <div id="toast-container"></div>
+
     <div id="maintenance-screen">
         <h1 class="titre-serif">le site il est cassé.</h1>
-        <p>Le stagiaire a trébuché sur le câble du serveur en fuyant ses responsabilités. On attend que son boss (qui dort) se réveille pour rebrancher la prise. Promis, on revient vite. Bisous.</p>
+        <p>Le stagiaire a trébuché sur le câble du serveur en fuyant ses responsabilités. On attend que son boss se réveille pour rebrancher la prise. Promis, on revient vite. Bisous.</p>
     </div>
 
     <div id="app-container" style="display: none; flex-direction: column; min-height: 100vh;">
@@ -252,32 +280,43 @@
         </div>
     </div>
     
-    <!-- MODALE MON COMPTE -->
+    <!-- MODALE MON COMPTE (PRO) -->
     <div id="compte-modal" class="modal-overlay">
         <div class="modal-content">
             <span class="close-btn" onclick="fermerModales()">&times;</span>
-            <h2 class="titre-serif" style="margin-top:0;">Mon Profil</h2>
+            <h2 class="titre-serif" style="margin-top:0;">Espace Client</h2>
             
             <div style="display:flex; gap:10px; margin-bottom: 20px;">
                 <input type="text" id="profil-prenom" class="input-champ" style="margin:0;" placeholder="Votre prénom">
                 <button class="btn btn-primaire" onclick="modifierPrenom()">Enregistrer</button>
             </div>
 
-            <ul class="account-list">
-                <li><span style="color:var(--texte-clair);">Statut</span> <b id="profil-statut">Gratuit</b></li>
-                <li><span style="color:var(--texte-clair);">Cadeaux restants</span> <b id="profil-cadeaux">0</b></li>
-            </ul>
+            <div class="account-details">
+                <div class="account-item">
+                    <span class="account-label">Statut</span>
+                    <span class="account-value" id="profil-statut" style="color:var(--vip);">Abonné Premium</span>
+                </div>
+                <div class="account-item" id="ligne-date-fin">
+                    <span class="account-label">Renouvellement le</span>
+                    <span class="account-value" id="profil-date-fin">--/--/----</span>
+                </div>
+                <div class="account-item">
+                    <span class="account-label">Cadeaux restants</span>
+                    <span class="account-value"><span id="profil-cadeaux">0</span> article(s)</span>
+                </div>
+            </div>
 
             <div id="actions-abonne" style="display:none;">
-                <button class="btn btn-primaire" style="width: 100%; margin-bottom: 10px;" onclick="fermerModales(); ouvrirOffres()">Changer d'offre (Upgrade)</button>
-                <button class="btn btn-outline" style="width: 100%; margin-bottom: 20px;" onclick="annulerAbonnement()">Annuler mon abonnement</button>
-            </div>
-            <div id="actions-non-abonne" style="display:none;">
-                <button class="btn btn-primaire" style="width: 100%; margin-bottom: 20px; background:var(--premium);" onclick="fermerModales(); ouvrirOffres()">Donner mon argent (S'abonner)</button>
+                <!-- LIEN DU PORTAIL CLIENT STRIPE (À REMPLACER PAR TON VRAI LIEN STRIPE) -->
+                <a href="https://billing.stripe.com/p/login/TEST" target="_blank" class="btn btn-outline" style="width: 100%; margin-bottom: 20px; text-decoration:none;">Gérer / Résilier mon abonnement</a>
             </div>
             
-            <div style="border-top: 1px solid #e2e8f0; padding-top: 20px; text-align: center;">
-                <button class="btn btn-danger" onclick="supprimerCompte()">Supprimer mon compte</button>
+            <div id="actions-non-abonne" style="display:none;">
+                <button class="btn btn-primaire" style="width: 100%; margin-bottom: 20px; background:var(--premium);" onclick="fermerModales(); ouvrirOffres()">Découvrir nos offres (S'abonner)</button>
+            </div>
+            
+            <div style="border-top: 1px solid var(--bordure); padding-top: 20px; text-align: center;">
+                <button class="btn btn-danger" style="font-size: 0.85rem; padding: 6px 12px; background: transparent; border: none; text-decoration: underline;" onclick="supprimerCompte()">Supprimer mon compte</button>
             </div>
         </div>
     </div>
@@ -296,7 +335,7 @@
     <div id="partage-modal" class="modal-overlay">
         <div class="modal-content">
             <span class="close-btn" onclick="fermerModales()">&times;</span>
-            <h2 class="titre-serif" style="margin-top:0;">Cadeau !</h2>
+            <h2 class="titre-serif" style="margin-top:0;">Faire un cadeau</h2>
             <p style="color: var(--texte-clair); font-size: 0.95rem;">Entrez l'email d'un proche pour lui ouvrir l'accès à cet article instantanément.</p>
             <input type="email" id="partage-email" class="input-champ" placeholder="son-email@ami.com">
             <button class="btn btn-primaire" style="width: 100%; padding: 14px;" onclick="validerPartage()">Transférer l'accès</button>
@@ -311,7 +350,40 @@
         let lecteurActuel = null, profilLecteur = null, estAbonne = false, creditsPartage = 0, articlesOfferts = [];
         let tousLesArticles = [], toutesLesCategories = [], articleActifId = null;
 
+        // SYSTEME DE NOTIFICATIONS (Toasts)
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = type === 'success' ? `✅ ${message}` : `⚠️ ${message}`;
+            container.appendChild(toast);
+            setTimeout(() => { toast.remove(); }, 4500);
+        }
+
+        // SYSTEME DARK MODE
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('theme_moderne', isDark ? 'dark' : 'light');
+            document.getElementById('btn-theme-toggle').innerText = isDark ? '☀️' : '🌙';
+        }
+
+        // BARRE DE PROGRESSION LECTURE
+        window.onscroll = function() {
+            if(document.getElementById('vue-article').style.display === 'block') {
+                let winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+                let height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                let scrolled = (winScroll / height) * 100;
+                document.getElementById('progress-bar').style.width = scrolled + "%";
+            }
+        };
+
         async function initialiserSite() {
+            // Restore Theme
+            if(localStorage.getItem('theme_moderne') === 'dark') {
+                document.body.classList.add('dark-mode');
+            }
+
             const { data: settings } = await db.from('site_settings').select('en_maintenance, flash_texte').eq('id', 1).single();
             if (settings && settings.en_maintenance) {
                 document.getElementById('maintenance-screen').style.display = 'flex'; return;
@@ -327,6 +399,8 @@
 
         async function verifierSession() {
             const { data: { session } } = await db.auth.getSession();
+            const btnTheme = `<button class="btn-theme" id="btn-theme-toggle" onclick="toggleTheme()">${document.body.classList.contains('dark-mode') ? '☀️' : '🌙'}</button>`;
+
             if (session) {
                 lecteurActuel = session.user;
                 const { data: profil } = await db.from('lecteurs').select('*').eq('id', lecteurActuel.id).single();
@@ -350,8 +424,9 @@
                 `;
 
                 document.getElementById('zone-boutons-header').innerHTML = `
-                    <button class="btn btn-outline" style="padding:6px 14px; border-radius:8px; font-size: 0.85rem;" onclick="ouvrirCompte()">Profil</button>
-                    ${!estAbonne ? `<button class="btn btn-primaire" style="background:var(--premium); padding:6px 14px; font-size: 0.85rem;" onclick="ouvrirOffres()">S'abonner</button>` : `<span class="badge-inclus" style="font-size:0.8rem; padding:8px 14px; margin:0; cursor:default;">PREMIUM 🔓</span>`}
+                    ${btnTheme}
+                    <button class="btn btn-outline" style="padding:6px 14px; border-radius:8px; font-size: 0.85rem;" onclick="ouvrirCompte()">Espace Client</button>
+                    ${!estAbonne ? `<button class="btn btn-primaire" style="background:var(--premium); padding:6px 14px; font-size: 0.85rem;" onclick="ouvrirOffres()">S'abonner</button>` : `<span class="badge-inclus" style="font-size:0.8rem; padding:8px 14px; margin:0; cursor:default;">ABONNÉ 👑</span>`}
                     <button class="btn btn-outline" style="padding:6px 14px; border:none; text-decoration:underline; font-size: 0.85rem;" onclick="seDeconnecter()">Quitter</button>
                 `;
             } else {
@@ -359,6 +434,7 @@
                 document.getElementById('message-bienvenue').style.display = 'none';
                 
                 document.getElementById('zone-boutons-header').innerHTML = `
+                    ${btnTheme}
                     <button class="btn btn-outline" style="flex:1;" onclick="ouvrirAuth()">Connexion</button>
                     <button class="btn btn-primaire" style="background:var(--premium); flex:1;" onclick="ouvrirAuth()">S'abonner</button>
                 `;
@@ -377,7 +453,9 @@
         }
 
         function afficherGrille() {
-            document.getElementById('vue-article').style.display = 'none'; document.getElementById('vue-grille').style.display = 'grid';
+            document.getElementById('progress-bar').style.display = 'none';
+            document.getElementById('vue-article').style.display = 'none'; 
+            document.getElementById('vue-grille').style.display = 'grid';
             if(lecteurActuel) document.getElementById('message-bienvenue').style.display = 'block';
             filtrerArticles(null, document.querySelector('.nav-link')); 
         }
@@ -386,6 +464,7 @@
             if (document.getElementById('vue-article').style.display === 'block') {
                 document.getElementById('vue-article').style.display = 'none';
                 document.getElementById('vue-grille').style.display = 'grid';
+                document.getElementById('progress-bar').style.display = 'none';
                 if(lecteurActuel) document.getElementById('message-bienvenue').style.display = 'block';
             }
 
@@ -401,7 +480,7 @@
             articlesFiltres.forEach(art => {
                 const catNom = toutesLesCategories.find(c => c.id === art.categorie_id)?.nom || 'Dépêche';
                 const date = new Date(art.date_publication).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
-                const imgStr = art.image_url ? `<img src="${art.image_url}" class="card-img" alt="cover">` : `<div class="card-img" style="background: linear-gradient(135deg, #e2e8f0, #cbd5e1);"></div>`;
+                const imgStr = art.image_url ? `<img src="${art.image_url}" class="card-img" alt="cover">` : `<div class="card-img" style="background: linear-gradient(135deg, var(--bordure), var(--fond-card));"></div>`;
                 
                 let badge = '';
                 if (art.reserve_abonnes) {
@@ -429,18 +508,24 @@
             document.getElementById('vue-grille').style.display = 'none'; 
             document.getElementById('message-bienvenue').style.display = 'none';
             document.getElementById('vue-article').style.display = 'block';
+            document.getElementById('progress-bar').style.display = 'block';
             window.scrollTo({ top: 0, behavior: 'smooth' });
 
             const conteneur = document.getElementById('conteneur-article-complet');
-            
-            // LA BOÎTE MAGIQUE QUI EMPÊCHE SAFARI DE BAVER
             const imgStr = art.image_url ? `<div class="safari-img-wrapper"><img src="${art.image_url}" class="art-header-img" alt="cover"></div>` : '';
             
+            // Calcul du temps de lecture (Mots / 200 mots par minute)
+            const motsTotaux = (art.contenu_public + (art.contenu_premium || '')).split(' ').length;
+            const tempsLecture = Math.max(1, Math.ceil(motsTotaux / 200));
+
             let html = `
                 ${imgStr}
                 <div style="color:var(--accent); font-weight:700; text-transform:uppercase; font-size:0.9rem; margin-bottom:15px;">${catNom}</div>
                 <h1 class="art-titre">${art.titre}</h1>
-                <div class="art-meta"><span>Rédigé par le stagiaire le ${date}</span></div>
+                <div class="art-meta">
+                    <span>Rédigé par le stagiaire le ${date}</span>
+                    <span style="color:var(--accent);">⏱️ Env. ${tempsLecture} min de lecture (si vous lisez vite)</span>
+                </div>
             `;
 
             const accesAutorise = estAbonne || articlesOfferts.includes(id) || !art.reserve_abonnes;
@@ -452,7 +537,7 @@
                     <div class="paywall-card">
                         <h3 class="titre-serif" style="font-size:2rem; margin:0 0 10px 0; color:var(--texte);">Le meilleur reste à venir.</h3>
                         <p style="color:var(--texte-clair); margin-bottom:25px; font-size:1.05rem;">C'est ici qu'on arrête de travailler gratuitement. Abonnez-vous pour lire la suite de cet article.</p>
-                        <button class="btn btn-primaire" style="background:var(--premium); width:100%; padding:15px; font-size:1.1rem;" onclick="ouvrirOffres()">Voir combien ça coûte</button>
+                        <button class="btn btn-primaire" style="background:var(--premium); width:100%; padding:15px; font-size:1.1rem;" onclick="ouvrirOffres()">Voir nos offres</button>
                     </div>
                 </div>`;
             } else {
@@ -465,10 +550,10 @@
                     html += `
                     <div class="share-box">
                         <div>
-                            <h4 style="margin:0 0 8px 0; font-size:1.2rem;">Faites profiter un proche</h4>
+                            <h4 style="margin:0 0 8px 0; font-size:1.2rem; color:var(--texte);">Faites profiter un proche</h4>
                             <div style="font-size:0.95rem; color:var(--texte-clair);">Vous avez encore <b>${creditsPartage} articles à offrir</b> ce mois-ci.</div>
                         </div>
-                        <button class="${btnStyle}" style="padding:12px 25px; font-size:1.1rem;" ${actStr}>🎁 Partager</button>
+                        <button class="${btnStyle}" style="padding:12px 25px; font-size:1.1rem;" ${actStr}>🎁 Offrir</button>
                     </div>`;
                 }
             }
@@ -477,14 +562,17 @@
 
         function ouvrirCompte() {
             document.getElementById('profil-prenom').value = profilLecteur?.prenom || '';
-            document.getElementById('profil-statut').innerText = estAbonne ? "PREMIUM 🔓" : "Gratuit";
+            document.getElementById('profil-statut').innerText = estAbonne ? "Abonnement Premium" : "Compte Gratuit";
             document.getElementById('profil-statut').style.color = estAbonne ? "var(--vip)" : "var(--texte-clair)";
             document.getElementById('profil-cadeaux').innerText = creditsPartage;
             
             if (estAbonne) {
+                document.getElementById('ligne-date-fin').style.display = 'flex';
+                document.getElementById('profil-date-fin').innerText = new Date(profilLecteur.fin_abonnement).toLocaleDateString('fr-FR');
                 document.getElementById('actions-abonne').style.display = 'block';
                 document.getElementById('actions-non-abonne').style.display = 'none';
             } else {
+                document.getElementById('ligne-date-fin').style.display = 'none';
                 document.getElementById('actions-abonne').style.display = 'none';
                 document.getElementById('actions-non-abonne').style.display = 'block';
             }
@@ -494,13 +582,9 @@
 
         async function modifierPrenom() {
             const prenom = document.getElementById('profil-prenom').value.trim();
-            if(!prenom) return;
+            if(!prenom) return showToast("Veuillez saisir un prénom.", "error");
             await db.from('lecteurs').update({ prenom }).eq('id', lecteurActuel.id);
-            alert("Prénom mis à jour !"); verifierSession();
-        }
-
-        function annulerAbonnement() {
-            alert("Pour résilier, veuillez envoyer un fax au 08 36 65 65 65 entre 3h et 4h du matin un dimanche.\n\n(Plus sérieusement, l'annulation se fait depuis le mail de confirmation Stripe que vous avez reçu, ou criez très fort).");
+            showToast("Prénom mis à jour !"); verifierSession();
         }
 
         async function supprimerCompte() {
@@ -521,15 +605,15 @@
             offres.forEach(o => {
                 const lien = `${o.stripe_price_id}?prefilled_email=${encodeURIComponent(lecteurActuel.email)}`;
                 let av = '';
-                if(o.avantages) o.avantages.split('\n').forEach(a => { if(a.trim()) av += `<li style="margin-bottom:12px; font-size:0.95rem;">✓ ${a}</li>`; });
-                if(o.partages_autorises > 0) av += `<li style="margin-bottom:12px; font-size:0.95rem;">✓ <b>${o.partages_autorises} articles à offrir</b> / mois</li>`;
+                if(o.avantages) o.avantages.split('\n').forEach(a => { if(a.trim()) av += `<li style="margin-bottom:12px; font-size:0.95rem; color:var(--texte);">✓ ${a}</li>`; });
+                if(o.partages_autorises > 0) av += `<li style="margin-bottom:12px; font-size:0.95rem; color:var(--texte);">✓ <b>${o.partages_autorises} articles à offrir</b> / mois</li>`;
                 
                 conteneur.innerHTML += `
                     <div class="offre-card">
                         <h3 class="titre-serif" style="margin-top:0;">${o.nom}</h3>
                         <div style="font-size:2.5rem; font-weight:800; color:var(--premium); margin:10px 0;">${o.prix_euros}€ <span style="font-size:1rem; color:var(--texte-clair); font-weight:500;">/mois</span></div>
                         <ul style="list-style:none; padding:0; margin-bottom:30px; flex-grow:1;">${av}</ul>
-                        <a href="${lien}" class="btn btn-primaire" style="text-align:center; text-decoration:none; padding:15px; font-size:1.05rem;">Donner mon argent</a>
+                        <a href="${lien}" class="btn btn-primaire" style="text-align:center; text-decoration:none; padding:15px; font-size:1.05rem;">S'abonner maintenant</a>
                     </div>`;
             });
         }
@@ -538,20 +622,22 @@
             const email = document.getElementById('reg-email').value, password = document.getElementById('reg-password').value;
             const prenom = document.getElementById('reg-prenom').value.trim();
             const { data, error } = await db.auth.signUp({ email, password });
-            if (error) alert(error.message); else { if (data.user) await db.from('lecteurs').insert([{ id: data.user.id, email, prenom }]); fermerModales(); initialiserSite(); }
+            if (error) showToast(error.message, "error"); 
+            else { if (data.user) await db.from('lecteurs').insert([{ id: data.user.id, email, prenom }]); fermerModales(); initialiserSite(); showToast("Bienvenue dans l'élite !"); }
         }
         async function seConnecter() {
             const email = document.getElementById('login-email').value, password = document.getElementById('login-password').value;
             const { error } = await db.auth.signInWithPassword({ email, password });
-            if (error) alert("Oops, accès refusé. Vous avez fait une faute de frappe."); else { fermerModales(); initialiserSite(); }
+            if (error) showToast("Oops, erreur de frappe ou mauvais mot de passe.", "error"); 
+            else { fermerModales(); initialiserSite(); showToast("Heureux de vous revoir."); }
         }
         async function seDeconnecter() { await db.auth.signOut(); window.location.reload(); }
 
         async function validerPartage() {
-            const emailAmi = document.getElementById('partage-email').value; if(!emailAmi) return;
+            const emailAmi = document.getElementById('partage-email').value; if(!emailAmi) return showToast("Il manque l'email.", "error");
             const { error } = await db.from('partages_articles').insert([{ article_id: articleActifId, lecteur_id: lecteurActuel.id, email_destinataire: emailAmi }]);
-            if (error) alert(error.message);
-            else { creditsPartage--; await db.from('lecteurs').update({ credits_partage: creditsPartage }).eq('id', lecteurActuel.id); alert("Cadeau envoyé avec succès ! Vous êtes quelqu'un de bien."); fermerModales(); ouvrirArticle(articleActifId); }
+            if (error) showToast(error.message, "error");
+            else { creditsPartage--; await db.from('lecteurs').update({ credits_partage: creditsPartage }).eq('id', lecteurActuel.id); showToast("Cadeau envoyé ! Vous êtes quelqu'un de bien."); fermerModales(); ouvrirArticle(articleActifId); }
         }
 
         function ouvrirAuth() { document.getElementById('auth-modal').style.display = 'flex'; }

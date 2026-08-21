@@ -5,53 +5,39 @@ exports.handler = async (event) => {
     const sig = event.headers['stripe-signature'];
     let stripeEvent;
 
-    try {
-        stripeEvent = stripe.webhooks.constructEvent(event.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
-    } catch (err) {
-        return { statusCode: 400, body: `Webhook Error: ${err.message}` };
-    }
+    try { stripeEvent = stripe.webhooks.constructEvent(event.body, sig, process.env.STRIPE_WEBHOOK_SECRET); } 
+    catch (err) { return { statusCode: 400, body: `Webhook Error: ${err.message}` }; }
 
     const supabaseAdmin = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
 
     if (stripeEvent.type === 'checkout.session.completed' || stripeEvent.type === 'invoice.paid') {
+        let emailClient; let priceOriginalCentimes = 0;
         
-        let emailClient;
-        let priceOriginalCentimes = 0;
-        
-        // 1. Récupération des infos selon l'événement (Nouvel achat ou Renouvellement)
         if (stripeEvent.type === 'checkout.session.completed') {
-            const session = stripeEvent.data.object;
-            emailClient = session.customer_details.email;
+            const session = stripeEvent.data.object; emailClient = session.customer_details.email;
             const sessionWithLineItems = await stripe.checkout.sessions.retrieve(session.id, { expand: ['line_items'] });
-            // On récupère le prix original (avant application du code promo à 100%)
             priceOriginalCentimes = sessionWithLineItems.line_items.data[0].price.unit_amount;
-        } 
-        else if (stripeEvent.type === 'invoice.paid') {
-            const invoice = stripeEvent.data.object;
-            emailClient = invoice.customer_email;
+        } else {
+            const invoice = stripeEvent.data.object; emailClient = invoice.customer_email;
             priceOriginalCentimes = invoice.lines.data[0].price.unit_amount;
         }
 
-        // 2. Conversion du prix Stripe (en centimes) vers des Euros (ex: 999 devient 9.99)
         const prixEurosStripe = priceOriginalCentimes / 100;
-
-        // 3. On cherche l'offre dans Supabase qui correspond exactement à ce prix
         const { data: offres } = await supabaseAdmin.from('offres').select('*');
         const offreTrouvee = offres.find(o => parseFloat(o.prix_euros) === prixEurosStripe);
         
-        // Si on trouve l'offre, on attribue ses partages. Sinon, on sécurise avec 1 partage minimum.
-        const partagesDefinis = offreTrouvee ? (offreTrouvee.partages_autorises || 0) : 1;
+        const partagesDefinis = offreTrouvee ? (offreTrouvee.partages_autorises || 0) : 0;
 
-        let nouvelleDate = new Date();
-        nouvelleDate.setDate(nouvelleDate.getDate() + 31);
+        let nouvelleDate = new Date(); nouvelleDate.setDate(nouvelleDate.getDate() + 31);
 
-        // 4. Mise à jour finale du lecteur
         await supabaseAdmin.from('lecteurs').update({
             est_abonne: true,
             fin_abonnement: nouvelleDate.toISOString(),
-            credits_partage: partagesDefinis
+            credits_partage: partagesDefinis,
+            formule_nom: offreTrouvee ? offreTrouvee.nom : 'Abonnement Premium',
+            formule_prix: offreTrouvee ? offreTrouvee.prix_euros : 0,
+            est_cadeau: false // Ce n'est pas un cadeau, le lecteur a vraiment payé !
         }).eq('email', emailClient);
     }
-
-    return { statusCode: 200, body: 'Webhook traité avec succès, crédits attribués !' };
+    return { statusCode: 200, body: 'Webhook traité avec succès !' };
 };

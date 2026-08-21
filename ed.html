@@ -51,8 +51,8 @@
         <div class="tabs">
             <button class="tab-btn active" onclick="switchTab('articles', this)">Articles</button>
             <button class="tab-btn" onclick="switchTab('themes', this)">Rubriques</button>
-            <button class="tab-btn" onclick="switchTab('offres', this)">Offres (Stripe)</button>
-            <button class="tab-btn" onclick="switchTab('lecteurs', this)">Lecteurs</button>
+            <button class="tab-btn" onclick="switchTab('offres', this)">Offres</button>
+            <button class="tab-btn" onclick="switchTab('lecteurs', this)">Lecteurs / Cadeaux</button>
             <button class="tab-btn" onclick="switchTab('parametres', this)" style="color: #ef4444;">Paramètres</button>
         </div>
 
@@ -98,7 +98,7 @@
                     <select id="select-offre" onchange="chargerOffrePourEdition()"><option value="">✨ Créer une NOUVELLE offre</option></select>
                 </div>
                 <div class="grid-2">
-                    <div class="input-group"><label>Nom de l'offre</label><input type="text" id="nom-offre"></div>
+                    <div class="input-group"><label>Nom de l'offre (Ex: Premium, Plus)</label><input type="text" id="nom-offre"></div>
                     <div class="input-group"><label>Prix (€)</label><input type="number" id="prix-offre" step="0.01"></div>
                 </div>
                 <div class="grid-2">
@@ -109,48 +109,29 @@
                 <button class="btn-primaire" id="btn-save-offre" onclick="sauvegarderOffre()" style="width: 100%; font-size: 1.1rem; padding: 15px;">Créer l'offre</button>
             </div>
 
-            <!-- LECTEURS (RENOUVELÉ) -->
+            <!-- LECTEURS -->
             <div id="section-lecteurs" class="section">
-                <h2>Gérer / Offrir un Abonnement</h2>
+                <h2>Abonnements Manuels & Cadeaux</h2>
                 <div class="input-group"><label>Email du lecteur inscrit</label><input type="email" id="email-lecteur"></div>
-                
+                <div class="input-group">
+                    <label>Quelle offre lui attribuer ?</label>
+                    <select id="offre-attribuee"><option value="">-- Conserver l'offre actuelle --</option></select>
+                </div>
                 <div class="grid-2">
-                    <div class="input-group">
-                        <label>Formule à attribuer / offrir</label>
-                        <select id="formule-lecteur">
-                            <option value="">-- Conserver la formule actuelle --</option>
-                        </select>
-                    </div>
-                    <div class="input-group">
-                        <label>Action sur la durée</label>
-                        <div style="display:flex; gap:10px;">
-                            <select id="action-lecteur" style="width: 50%;"><option value="ajouter">Ajouter</option><option value="retirer">Retirer</option></select>
-                            <input type="number" id="jours-lecteur" value="30" style="width: 50%;">
-                        </div>
-                    </div>
+                    <div class="input-group"><label>Action</label><select id="action-lecteur"><option value="ajouter">Ajouter des jours</option><option value="retirer">Retirer des jours</option></select></div>
+                    <div class="input-group"><label>Nombre de jours</label><input type="number" id="jours-lecteur" value="30"></div>
                 </div>
-
-                <div class="input-group" style="display: flex; align-items: center; gap: 10px; background: #fdf2f8; padding: 15px; border-radius: 8px; border: 1px solid #fbcfe8;">
-                    <input type="checkbox" id="est-cadeau-lecteur" style="width: 20px; height: 20px; cursor: pointer;">
-                    <label style="margin: 0; color: #be185d;">🎁 Marquer comme "Cadeau" (Affichera une remise de 100% sur son compte)</label>
-                </div>
-
-                <button class="btn-primaire" onclick="gererAbonnement()" style="width: 100%; padding: 15px; font-size: 1.1rem;">Appliquer la modification</button>
+                <div class="box-info">En ajoutant des jours avec une offre sélectionnée, celle-ci s'affichera comme <b>"0€ (Offert)"</b> dans son espace client.</div>
+                <button class="btn-primaire" onclick="gererAbonnement()" style="width: 100%; padding: 15px; font-size: 1.1rem;">Mettre à jour le lecteur</button>
             </div>
 
             <!-- PARAMETRES -->
             <div id="section-parametres" class="section">
                 <h2>Paramètres du Site</h2>
-                <div class="input-group">
-                    <label>Texte du Bandeau "Flash Info"</label>
-                    <textarea id="texte-flash" rows="3" placeholder="Saisissez le texte défilant ici..."></textarea>
-                    <button class="btn-primaire" onclick="sauvegarderFlash()" style="margin-top:10px;">Mettre à jour le bandeau</button>
-                </div>
-
+                <div class="input-group"><label>Texte du Bandeau "Flash Info"</label><textarea id="texte-flash" rows="3"></textarea><button class="btn-primaire" onclick="sauvegarderFlash()" style="margin-top:10px;">Mettre à jour le bandeau</button></div>
                 <h2 style="color: #ef4444; margin-top: 50px;">Zone de Danger</h2>
                 <div style="background: #fee2e2; border: 1px solid #fca5a5; padding: 30px; border-radius: 12px; text-align: center;">
                     <h3 style="margin-top: 0; color: #b91c1c;">Mode Maintenance</h3>
-                    <p style="color: #991b1b; margin-bottom: 25px;">Active ceci pour couper complètement l'accès public au site.</p>
                     <button id="btn-maintenance" class="btn-danger" style="font-size: 1.1rem; padding: 12px 25px;" onclick="toggleMaintenance()">Chargement...</button>
                 </div>
             </div>
@@ -201,13 +182,12 @@
             const { data: offs } = await db.from('offres').select('*').order('prix_euros');
             listeOffres = offs || [];
             const selectOff = document.getElementById('select-offre');
-            const selectFormuleLecteur = document.getElementById('formule-lecteur');
+            const selectOffreLecteur = document.getElementById('offre-attribuee');
             selectOff.innerHTML = '<option value="">✨ Créer une NOUVELLE offre</option>';
-            selectFormuleLecteur.innerHTML = '<option value="">-- Conserver la formule actuelle --</option>';
-            
-            listeOffres.forEach(o => {
+            selectOffreLecteur.innerHTML = '<option value="">-- Conserver l\'offre actuelle --</option>';
+            listeOffres.forEach(o => { 
                 selectOff.innerHTML += `<option value="${o.id}">⚙️ Éditer : ${o.nom}</option>`;
-                selectFormuleLecteur.innerHTML += `<option value="${o.id}">${o.nom} (${o.prix_euros}€)</option>`;
+                selectOffreLecteur.innerHTML += `<option value="${o.id}">${o.nom} (${o.prix_euros}€)</option>`;
             });
 
             const { data: settings } = await db.from('site_settings').select('*').eq('id', 1).single();
@@ -218,67 +198,26 @@
             }
         }
 
-        async function sauvegarderFlash() {
-            const texte = document.getElementById('texte-flash').value;
-            await db.from('site_settings').update({ flash_texte: texte }).eq('id', 1);
-            alert("Bandeau mis à jour !");
-        }
-
-        function actualiserBoutonMaintenance() {
-            const btn = document.getElementById('btn-maintenance');
-            if (enMaintenance) { btn.innerText = "DÉSACTIVER la maintenance"; btn.style.background = "#059669"; } 
-            else { btn.innerText = "ACTIVER la maintenance"; btn.style.background = "#dc2626"; }
-        }
-
-        async function toggleMaintenance() {
-            enMaintenance = !enMaintenance;
-            await db.from('site_settings').update({ en_maintenance: enMaintenance }).eq('id', 1);
-            actualiserBoutonMaintenance();
-            alert(enMaintenance ? "Le site est maintenant CASSÉ pour le public." : "Le site est de nouveau EN LIGNE.");
-        }
+        async function sauvegarderFlash() { const texte = document.getElementById('texte-flash').value; await db.from('site_settings').update({ flash_texte: texte }).eq('id', 1); alert("Bandeau mis à jour !"); }
+        function actualiserBoutonMaintenance() { const btn = document.getElementById('btn-maintenance'); if (enMaintenance) { btn.innerText = "DÉSACTIVER la maintenance"; btn.style.background = "#059669"; } else { btn.innerText = "ACTIVER la maintenance"; btn.style.background = "#dc2626"; } }
+        async function toggleMaintenance() { enMaintenance = !enMaintenance; await db.from('site_settings').update({ en_maintenance: enMaintenance }).eq('id', 1); actualiserBoutonMaintenance(); alert(enMaintenance ? "Le site est maintenant CASSÉ pour le public." : "Le site est de nouveau EN LIGNE."); }
 
         function chargerArticlePourEdition() {
             articleEditionId = document.getElementById('select-article').value;
             if (!articleEditionId) {
-                document.getElementById('titre-article').value = ''; document.getElementById('image-article').value = '';
-                document.getElementById('categorie-article').value = ''; document.getElementById('est-a-la-une').checked = false;
-                quillPublic.root.innerHTML = ''; quillPremium.root.innerHTML = '';
-                document.getElementById('btn-save-article').innerText = "Publier l'article"; document.getElementById('btn-delete-article').style.display = 'none';
+                document.getElementById('titre-article').value = ''; document.getElementById('image-article').value = ''; document.getElementById('categorie-article').value = ''; document.getElementById('est-a-la-une').checked = false; quillPublic.root.innerHTML = ''; quillPremium.root.innerHTML = ''; document.getElementById('btn-save-article').innerText = "Publier l'article"; document.getElementById('btn-delete-article').style.display = 'none';
             } else {
-                const art = listeArticles.find(a => a.id === articleEditionId);
-                document.getElementById('titre-article').value = art.titre; document.getElementById('image-article').value = art.image_url || '';
-                document.getElementById('categorie-article').value = art.categorie_id || ''; document.getElementById('est-a-la-une').checked = art.est_a_la_une || false;
-                quillPublic.root.innerHTML = art.contenu_public || ''; quillPremium.root.innerHTML = art.contenu_premium || '';
-                document.getElementById('btn-save-article').innerText = "Enregistrer les modifs"; document.getElementById('btn-delete-article').style.display = 'block';
+                const art = listeArticles.find(a => a.id === articleEditionId); document.getElementById('titre-article').value = art.titre; document.getElementById('image-article').value = art.image_url || ''; document.getElementById('categorie-article').value = art.categorie_id || ''; document.getElementById('est-a-la-une').checked = art.est_a_la_une || false; quillPublic.root.innerHTML = art.contenu_public || ''; quillPremium.root.innerHTML = art.contenu_premium || ''; document.getElementById('btn-save-article').innerText = "Enregistrer les modifs"; document.getElementById('btn-delete-article').style.display = 'block';
             }
         }
-        async function sauvegarderArticle() {
-            const payload = { titre: document.getElementById('titre-article').value, image_url: document.getElementById('image-article').value, categorie_id: document.getElementById('categorie-article').value || null, est_a_la_une: document.getElementById('est-a-la-une').checked, contenu_public: quillPublic.root.innerHTML === '<p><br></p>' ? '' : quillPublic.root.innerHTML, contenu_premium: quillPremium.root.innerHTML === '<p><br></p>' ? null : quillPremium.root.innerHTML };
-            payload.reserve_abonnes = payload.contenu_premium !== null;
-            if(!payload.titre) return alert("Titre requis.");
-            const req = articleEditionId ? db.from('articles').update(payload).eq('id', articleEditionId) : db.from('articles').insert([payload]);
-            const { error } = await req; if(error) alert("Erreur: " + error.message); else { alert("✅ Article sauvegardé !"); chargerToutesLesDonnees(); }
-        }
-        async function supprimerArticle() {
-            if(!articleEditionId || !confirm("Supprimer cet article DÉFINITIVEMENT ?")) return;
-            const { error } = await db.from('articles').delete().eq('id', articleEditionId);
-            if(error) alert("Erreur: " + error.message); else { document.getElementById('select-article').value = ''; chargerArticlePourEdition(); chargerToutesLesDonnees(); }
-        }
+        async function sauvegarderArticle() { const payload = { titre: document.getElementById('titre-article').value, image_url: document.getElementById('image-article').value, categorie_id: document.getElementById('categorie-article').value || null, est_a_la_une: document.getElementById('est-a-la-une').checked, contenu_public: quillPublic.root.innerHTML === '<p><br></p>' ? '' : quillPublic.root.innerHTML, contenu_premium: quillPremium.root.innerHTML === '<p><br></p>' ? null : quillPremium.root.innerHTML }; payload.reserve_abonnes = payload.contenu_premium !== null; if(!payload.titre) return alert("Titre requis."); const req = articleEditionId ? db.from('articles').update(payload).eq('id', articleEditionId) : db.from('articles').insert([payload]); const { error } = await req; if(error) alert("Erreur: " + error.message); else { alert("✅ Article sauvegardé !"); chargerToutesLesDonnees(); } }
+        async function supprimerArticle() { if(!articleEditionId || !confirm("Supprimer cet article DÉFINITIVEMENT ?")) return; const { error } = await db.from('articles').delete().eq('id', articleEditionId); if(error) alert("Erreur: " + error.message); else { document.getElementById('select-article').value = ''; chargerArticlePourEdition(); chargerToutesLesDonnees(); } }
         function chargerOffrePourEdition() {
             offreEditionId = document.getElementById('select-offre').value;
-            if (!offreEditionId) {
-                document.getElementById('nom-offre').value = ''; document.getElementById('prix-offre').value = ''; document.getElementById('partages-offre').value = '0'; document.getElementById('lien-stripe').value = ''; document.getElementById('avantages-offre').value = ''; document.getElementById('btn-save-offre').innerText = "Créer l'offre";
-            } else {
-                const off = listeOffres.find(o => o.id === offreEditionId);
-                document.getElementById('nom-offre').value = off.nom; document.getElementById('prix-offre').value = off.prix_euros; document.getElementById('partages-offre').value = off.partages_autorises; document.getElementById('lien-stripe').value = off.stripe_price_id; document.getElementById('avantages-offre').value = off.avantages || ''; document.getElementById('btn-save-offre').innerText = "Modifier l'offre";
-            }
+            if (!offreEditionId) { document.getElementById('nom-offre').value = ''; document.getElementById('prix-offre').value = ''; document.getElementById('partages-offre').value = '0'; document.getElementById('lien-stripe').value = ''; document.getElementById('avantages-offre').value = ''; document.getElementById('btn-save-offre').innerText = "Créer l'offre"; } 
+            else { const off = listeOffres.find(o => o.id === offreEditionId); document.getElementById('nom-offre').value = off.nom; document.getElementById('prix-offre').value = off.prix_euros; document.getElementById('partages-offre').value = off.partages_autorises; document.getElementById('lien-stripe').value = off.stripe_price_id; document.getElementById('avantages-offre').value = off.avantages || ''; document.getElementById('btn-save-offre').innerText = "Modifier l'offre"; }
         }
-        async function sauvegarderOffre() {
-            const payload = { nom: document.getElementById('nom-offre').value, prix_euros: parseFloat(document.getElementById('prix-offre').value), stripe_price_id: document.getElementById('lien-stripe').value, partages_autorises: parseInt(document.getElementById('partages-offre').value), avantages: document.getElementById('avantages-offre').value };
-            if(!payload.nom || isNaN(payload.prix_euros)) return alert("Nom et prix requis.");
-            const req = offreEditionId ? db.from('offres').update(payload).eq('id', offreEditionId) : db.from('offres').insert([payload]);
-            const { error } = await req; if(error) alert(error.message); else { alert("✅ Offre sauvegardée !"); chargerToutesLesDonnees(); }
-        }
+        async function sauvegarderOffre() { const payload = { nom: document.getElementById('nom-offre').value, prix_euros: parseFloat(document.getElementById('prix-offre').value), stripe_price_id: document.getElementById('lien-stripe').value, partages_autorises: parseInt(document.getElementById('partages-offre').value), avantages: document.getElementById('avantages-offre').value }; if(!payload.nom || isNaN(payload.prix_euros)) return alert("Nom et prix requis."); const req = offreEditionId ? db.from('offres').update(payload).eq('id', offreEditionId) : db.from('offres').insert([payload]); const { error } = await req; if(error) alert(error.message); else { alert("✅ Offre sauvegardée !"); chargerToutesLesDonnees(); } }
         async function creerTheme() { const nom = document.getElementById('nom-theme').value.trim(); if(!nom) return; await db.from('categories').insert([{ nom }]); document.getElementById('nom-theme').value = ''; chargerToutesLesDonnees(); }
         async function supprimerTheme(id) { if(!confirm("Supprimer ce thème ?")) return; await db.from('categories').delete().eq('id', id); chargerToutesLesDonnees(); }
         
@@ -286,46 +225,31 @@
             const email = document.getElementById('email-lecteur').value; 
             const action = document.getElementById('action-lecteur').value; 
             const jours = parseInt(document.getElementById('jours-lecteur').value);
-            const formuleId = document.getElementById('formule-lecteur').value;
-            const estCadeau = document.getElementById('est-cadeau-lecteur').checked;
+            const offreId = document.getElementById('offre-attribuee').value;
 
             if(!email || isNaN(jours)) return alert("Veuillez entrer un email et une durée.");
-            
             const { data: lecteur, error: errFetch } = await db.from('lecteurs').select('*').eq('email', email).single();
-            if(errFetch || !lecteur) return alert("Ce lecteur n'existe pas ou n'est pas encore inscrit.");
+            if(errFetch || !lecteur) return alert("Ce lecteur n'existe pas.");
             
-            let nouvelleDate = new Date(); 
-            if (lecteur.fin_abonnement && new Date(lecteur.fin_abonnement) > nouvelleDate) {
-                nouvelleDate = new Date(lecteur.fin_abonnement);
-            }
+            let nouvelleDate = new Date(); if (lecteur.fin_abonnement && new Date(lecteur.fin_abonnement) > nouvelleDate) nouvelleDate = new Date(lecteur.fin_abonnement);
+            if (action === 'ajouter') nouvelleDate.setDate(nouvelleDate.getDate() + jours); else { nouvelleDate.setDate(nouvelleDate.getDate() - jours); if (nouvelleDate < new Date()) nouvelleDate = new Date(); }
             
-            if (action === 'ajouter') nouvelleDate.setDate(nouvelleDate.getDate() + jours); 
-            else { 
-                nouvelleDate.setDate(nouvelleDate.getDate() - jours); 
-                if (nouvelleDate < new Date()) nouvelleDate = new Date(); 
-            }
+            let payload = { est_abonne: nouvelleDate > new Date(), fin_abonnement: nouvelleDate.toISOString() };
             
-            let payload = {
-                est_abonne: nouvelleDate > new Date(),
-                fin_abonnement: nouvelleDate.toISOString(),
-                credits_partage: lecteur.credits_partage || 0
-            };
-
-            if (formuleId) {
-                const off = listeOffres.find(o => o.id === formuleId);
+            // Si on ajoute manuellement une offre précise, on enregistre le nom, le prix et on active le mode "Cadeau/Offert"
+            if (action === 'ajouter' && offreId) {
+                const off = listeOffres.find(o => o.id === offreId);
                 if (off) {
-                    payload.formule_nom = off.nom;
-                    payload.formule_prix = off.prix_euros;
-                    payload.est_cadeau = estCadeau;
-                    if (action === 'ajouter') {
-                        payload.credits_partage += (off.partages_autorises || 0); // Donne les crédits de la formule choisie
-                    }
+                    payload.offre_nom = off.nom;
+                    payload.offre_prix = off.prix_euros;
+                    payload.abonnement_offert = true;
+                    // Optionnel : on peut recharger ses crédits de partages à la valeur de l'offre
+                    payload.credits_partage = off.partages_autorises || 0;
                 }
             }
-            
+
             const { error: errUpdate } = await db.from('lecteurs').update(payload).eq('id', lecteur.id);
-            if(errUpdate) alert("Erreur : " + errUpdate.message); 
-            else alert(`✅ Succès ! L'abonnement de ${email} a bien été mis à jour.`);
+            if(errUpdate) alert("Erreur : " + errUpdate.message); else alert(`✅ Succès ! L'abonnement de ${email} a été mis à jour.`);
         }
     </script>
 </body>

@@ -17,8 +17,8 @@
         #editor-dashboard { display: none; }
         header { background: white; padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--bordure); }
         header h1 { margin: 0; font-size: 1.5rem; background: linear-gradient(135deg, var(--primaire), var(--secondaire)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .tabs { display: flex; background: white; padding: 0 40px; border-bottom: 1px solid var(--bordure); }
-        .tab-btn { background: none; border: none; padding: 15px 20px; font-size: 1rem; color: #64748b; cursor: pointer; border-bottom: 3px solid transparent; font-weight: 600; }
+        .tabs { display: flex; background: white; padding: 0 40px; border-bottom: 1px solid var(--bordure); overflow-x: auto; }
+        .tab-btn { background: none; border: none; padding: 15px 20px; font-size: 1rem; color: #64748b; cursor: pointer; border-bottom: 3px solid transparent; font-weight: 600; white-space: nowrap; }
         .tab-btn.active { color: var(--primaire); border-bottom-color: var(--primaire); }
         .container { max-width: 1000px; margin: 40px auto; background: white; padding: 40px; border-radius: 16px; box-shadow: 0 10px 30px -10px rgba(0,0,0,0.05); }
         .section { display: none; }
@@ -53,6 +53,7 @@
             <button class="tab-btn" onclick="switchTab('themes', this)">Rubriques</button>
             <button class="tab-btn" onclick="switchTab('offres', this)">Offres</button>
             <button class="tab-btn" onclick="switchTab('lecteurs', this)">Lecteurs / Cadeaux</button>
+            <button class="tab-btn" onclick="switchTab('messages', this)">Messages 📥</button>
             <button class="tab-btn" onclick="switchTab('parametres', this)" style="color: #ef4444;">Paramètres</button>
         </div>
 
@@ -125,6 +126,13 @@
                 <button class="btn-primaire" onclick="gererAbonnement()" style="width: 100%; padding: 15px; font-size: 1.1rem;">Mettre à jour le lecteur</button>
             </div>
 
+            <!-- MESSAGES (NOUVEAU) -->
+            <div id="section-messages" class="section">
+                <h2>Boîte de réception</h2>
+                <p style="color: #64748b; margin-top: -10px; margin-bottom: 25px;">Voici les messages envoyés par vos lecteurs depuis la page de contact.</p>
+                <div id="liste-messages"></div>
+            </div>
+
             <!-- PARAMETRES -->
             <div id="section-parametres" class="section">
                 <h2>Paramètres du Site</h2>
@@ -166,6 +174,7 @@
         }
 
         async function chargerToutesLesDonnees() {
+            // Rubriques
             const { data: cats } = await db.from('categories').select('*').order('nom');
             listeCategories = cats || [];
             const selectCat = document.getElementById('categorie-article');
@@ -173,12 +182,14 @@
             selectCat.innerHTML = '<option value="">-- Choisir --</option>'; conteneurThemes.innerHTML = '';
             listeCategories.forEach(c => { selectCat.innerHTML += `<option value="${c.id}">${c.nom}</option>`; conteneurThemes.innerHTML += `<div class="list-item"><b>${c.nom}</b><button class="btn-danger" onclick="supprimerTheme('${c.id}')">Supprimer</button></div>`; });
 
+            // Articles
             const { data: arts } = await db.from('articles').select('*').order('date_publication', { ascending: false });
             listeArticles = arts || [];
             const selectArt = document.getElementById('select-article');
             selectArt.innerHTML = '<option value="">✨ Rédiger un nouvel article</option>';
             listeArticles.forEach(a => selectArt.innerHTML += `<option value="${a.id}">📝 Éditer : ${a.titre}</option>`);
 
+            // Offres
             const { data: offs } = await db.from('offres').select('*').order('prix_euros');
             listeOffres = offs || [];
             const selectOff = document.getElementById('select-offre');
@@ -190,13 +201,47 @@
                 selectOffreLecteur.innerHTML += `<option value="${o.id}">${o.nom} (${o.prix_euros}€)</option>`;
             });
 
+            // Paramètres
             const { data: settings } = await db.from('site_settings').select('*').eq('id', 1).single();
             if (settings) { enMaintenance = settings.en_maintenance; document.getElementById('texte-flash').value = settings.flash_texte || ''; actualiserBoutonMaintenance(); }
+            
+            // Messages Contact
+            chargerMessages();
         }
 
+        // --- GESTION DES MESSAGES ---
+        async function chargerMessages() {
+            const { data: msgs } = await db.from('messages_contact').select('*').order('date_envoi', { ascending: false });
+            const conteneur = document.getElementById('liste-messages');
+            conteneur.innerHTML = '';
+            if(!msgs || msgs.length === 0) {
+                conteneur.innerHTML = '<p style="color: #64748b; font-style: italic;">Votre boîte est vide. Personne ne vous écrit.</p>';
+                return;
+            }
+            msgs.forEach(m => {
+                const date = new Date(m.date_envoi).toLocaleString('fr-FR', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
+                conteneur.innerHTML += `
+                    <div class="list-item" style="flex-direction:column; align-items:flex-start; gap:10px; background: white; border: 1px solid #cbd5e1; padding: 20px;">
+                        <div style="display:flex; justify-content:space-between; width:100%; border-bottom:1px solid #e2e8f0; padding-bottom:10px;">
+                            <strong style="color: var(--primaire);">${m.email}</strong>
+                            <span style="color:#64748b; font-size:0.85rem;">${date}</span>
+                        </div>
+                        <p style="margin:10px 0; white-space:pre-wrap; color: #334155; line-height: 1.6;">${m.message}</p>
+                        <button class="btn-danger" style="align-self:flex-end; padding:8px 12px; font-size:0.85rem;" onclick="supprimerMessage(${m.id})">Supprimer ce message</button>
+                    </div>`;
+            });
+        }
+
+        async function supprimerMessage(id) {
+            if(!confirm("Supprimer définitivement ce message ?")) return;
+            await db.from('messages_contact').delete().eq('id', id);
+            chargerMessages();
+        }
+
+        // --- AUTRES FONCTIONS (Articles, Offres, etc.) ---
         async function sauvegarderFlash() { const texte = document.getElementById('texte-flash').value; await db.from('site_settings').update({ flash_texte: texte }).eq('id', 1); alert("Bandeau mis à jour !"); }
         function actualiserBoutonMaintenance() { const btn = document.getElementById('btn-maintenance'); if (enMaintenance) { btn.innerText = "DÉSACTIVER la maintenance"; btn.style.background = "#059669"; } else { btn.innerText = "ACTIVER la maintenance"; btn.style.background = "#dc2626"; } }
-        async function toggleMaintenance() { enMaintenance = !enMaintenance; await db.from('site_settings').update({ en_maintenance: enMaintenance }).eq('id', 1); actualiserBoutonMaintenance(); alert(enMaintenance ? "Le site est maintenant CASSÉ pour le public." : "Le site est de nouveau EN LIGNE."); }
+        async function toggleMaintenance() { enMaintenance = !enMaintenance; await db.from('site_settings').update({ en_maintenance: enMaintenance }).eq('id', 1); actualiserBoutonMaintenance(); alert(enMaintenance ? "Le site est CASSÉ pour le public." : "Le site est de nouveau EN LIGNE."); }
 
         function chargerArticlePourEdition() {
             articleEditionId = document.getElementById('select-article').value;
@@ -232,14 +277,10 @@
             
             let payload = { est_abonne: nouvelleDate > new Date(), fin_abonnement: nouvelleDate.toISOString() };
             
-            // Si on a sélectionné une offre spécifique dans le menu déroulant
             if (action === 'ajouter' && offreId !== "") {
                 const off = listeOffres.find(o => o.id.toString() === offreId.toString());
                 if (off) {
-                    payload.offre_nom = off.nom;
-                    payload.offre_prix = off.prix_euros;
-                    payload.abonnement_offert = true; // Marqué comme cadeau (Prix barré 0€)
-                    payload.credits_partage = off.partages_autorises || 0; // Il reçoit ses crédits !
+                    payload.offre_nom = off.nom; payload.offre_prix = off.prix_euros; payload.abonnement_offert = true; payload.credits_partage = off.partages_autorises || 0;
                 }
             }
 

@@ -11,11 +11,11 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <style>
-        /* RESET ET VARIABLES */
+        /* RESET ET FIX SAFARI */
         *, *::before, *::after { box-sizing: border-box; }
 
         :root { 
-            /* MODE CLAIR (DÉFAUT) */
+            /* MODE CLAIR */
             --fond: #f8fafc; --fond-card: #ffffff; --fond-modal: #ffffff;
             --texte: #0f172a; --texte-clair: #64748b; 
             --accent: #6366f1; --premium: #f43f5e;
@@ -27,7 +27,7 @@
             --transition: all 0.3s ease;
         }
 
-        /* MODE SOMBRE */
+        /* MODE SOMBRE (Exclusivité Premium) */
         body.dark-mode {
             --fond: #0f172a; --fond-card: #1e293b; --fond-modal: #1e293b;
             --texte: #f8fafc; --texte-clair: #94a3b8;
@@ -42,7 +42,7 @@
         body { font-family: 'Inter', sans-serif; background: var(--fond); color: var(--texte); margin: 0; padding: 0; line-height: 1.7; overflow-x: hidden; display: flex; flex-direction: column; min-height: 100vh; transition: background-color 0.3s ease, color 0.3s ease; }
         h1, h2, h3, .titre-serif { font-family: 'Playfair Display', serif; color: var(--texte); }
 
-        /* BARRE DE PROGRESSION DE LECTURE */
+        /* BARRE DE LECTURE */
         #progress-bar { position: fixed; top: 0; left: 0; height: 4px; background: linear-gradient(90deg, var(--accent), var(--premium)); width: 0%; z-index: 9999; transition: width 0.1s ease-out; display: none; }
 
         /* HEADER */
@@ -59,7 +59,6 @@
         
         #zone-boutons-header { display: flex; gap: 10px; align-items: center; }
 
-        /* BOUTON MODE SOMBRE */
         .btn-theme { background: var(--fond-card); border: 1px solid var(--bordure); color: var(--texte); border-radius: 50%; width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 1.2rem; transition: var(--transition); }
         .btn-theme:hover { background: var(--bordure); }
 
@@ -100,7 +99,6 @@
         .card-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
         .card-categorie { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: var(--accent); letter-spacing: 0.5px; }
         
-        /* BADGES */
         .badge-fautpayer { background: rgba(225, 29, 72, 0.1); color: var(--premium); font-size: 0.75rem; padding: 4px 10px; border-radius: 50px; font-weight: bold; border: 1px solid rgba(225, 29, 72, 0.3); white-space: nowrap; flex-shrink: 0; }
         .badge-inclus { background: var(--vip-bg); color: var(--vip); font-size: 0.75rem; padding: 4px 10px; border-radius: 50px; font-weight: bold; border: 1px solid var(--vip); white-space: nowrap; flex-shrink: 0; }
         
@@ -138,7 +136,7 @@
             .card:first-child .card-titre { font-size: 1.5rem; }
         }
 
-        /* VUE ARTICLE */
+        /* VUE ARTICLE - BOITE MAGIQUE SAFARI */
         #vue-article { display: none; max-width: 720px; margin: 0 auto; padding: 40px 5%; flex-grow: 1; }
         .btn-retour { display: inline-flex; align-items: center; color: var(--texte-clair); text-decoration: none; font-weight: 600; cursor: pointer; margin-bottom: 30px; border: none; background: none; font-size: 1rem; padding: 0; }
         .btn-retour:hover { color: var(--accent); }
@@ -188,7 +186,7 @@
 
         /* ESPACE COMPTE PRO */
         .account-details { background: rgba(99, 102, 241, 0.05); border: 1px solid rgba(99, 102, 241, 0.2); border-radius: 12px; padding: 20px; margin-bottom: 25px; }
-        .account-item { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 0.95rem; }
+        .account-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 0.95rem; }
         .account-item:last-child { margin-bottom: 0; }
         .account-label { color: var(--texte-clair); }
         .account-value { font-weight: 600; color: var(--texte); text-align: right; }
@@ -200,7 +198,6 @@
         .toast.success { border-left-color: var(--vip); }
         @keyframes slideInUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         @keyframes fadeOut { to { opacity: 0; visibility: hidden; } }
-
     </style>
 </head>
 <body>
@@ -293,8 +290,8 @@
 
             <div class="account-details">
                 <div class="account-item">
-                    <span class="account-label">Statut</span>
-                    <span class="account-value" id="profil-statut" style="color:var(--vip);">Abonné Premium</span>
+                    <span class="account-label">Offre actuelle</span>
+                    <span class="account-value" id="profil-statut" style="color:var(--vip);">Abonnement Premium</span>
                 </div>
                 <div class="account-item" id="ligne-date-fin">
                     <span class="account-label">Renouvellement le</span>
@@ -359,10 +356,10 @@
         }
 
         function toggleTheme() {
-            // VERIFICATION : MODE SOMBRE RESERVE A L'OFFRE PREMIUM
+            // VERIFICATION : MODE SOMBRE RESERVE A L'OFFRE PREMIUM (Mot clé: premium)
             if (!estAbonne || !profilLecteur?.offre_nom?.toLowerCase().includes('premium')) {
                 showToast("Le mode sombre est une exclusivité de l'offre Premium.", "error");
-                ouvrirOffres();
+                setTimeout(ouvrirOffres, 1000);
                 return;
             }
             
@@ -382,6 +379,8 @@
         };
 
         async function initialiserSite() {
+            if(localStorage.getItem('theme_moderne') === 'dark') document.body.classList.add('dark-mode');
+
             const { data: settings } = await db.from('site_settings').select('en_maintenance, flash_texte').eq('id', 1).single();
             if (settings && settings.en_maintenance) {
                 document.getElementById('maintenance-screen').style.display = 'flex'; return;
@@ -397,7 +396,7 @@
 
         async function verifierSession() {
             const { data: { session } } = await db.auth.getSession();
-            let wantsDark = localStorage.getItem('theme_moderne') === 'dark';
+            let wantsDark = document.body.classList.contains('dark-mode');
 
             if (session) {
                 lecteurActuel = session.user;
@@ -413,9 +412,7 @@
 
                 // SECU DARK MODE : On le désactive si l'utilisateur n'a plus l'offre Premium
                 const isPremium = profil && profil.est_abonne && profil.offre_nom && profil.offre_nom.toLowerCase().includes('premium');
-                if (wantsDark && isPremium) {
-                    document.body.classList.add('dark-mode');
-                } else {
+                if (!isPremium && wantsDark) {
                     document.body.classList.remove('dark-mode');
                     localStorage.setItem('theme_moderne', 'light');
                     wantsDark = false;
@@ -425,6 +422,7 @@
                 if (partages) articlesOfferts = partages.map(p => p.article_id);
                 
                 let nomAffichage = profilLecteur?.prenom ? profilLecteur.prenom : lecteurActuel.email.split('@')[0];
+                let badgeNom = (profilLecteur && profilLecteur.offre_nom) ? profilLecteur.offre_nom.toUpperCase() : "ABONNÉ";
                 
                 document.getElementById('message-bienvenue').innerHTML = `
                     <h2 class="titre-serif">Salut ${nomAffichage} ! 👋</h2>
@@ -436,7 +434,7 @@
                 document.getElementById('zone-boutons-header').innerHTML = `
                     ${btnTheme}
                     <button class="btn btn-outline" style="padding:6px 14px; border-radius:8px; font-size: 0.85rem;" onclick="ouvrirCompte()">Espace Client</button>
-                    ${!estAbonne ? `<button class="btn btn-primaire" style="background:var(--premium); padding:6px 14px; font-size: 0.85rem;" onclick="ouvrirOffres()">S'abonner</button>` : `<span class="badge-inclus" style="font-size:0.8rem; padding:8px 14px; margin:0; cursor:default;">ABONNÉ 🔓</span>`}
+                    ${!estAbonne ? `<button class="btn btn-primaire" style="background:var(--premium); padding:6px 14px; font-size: 0.85rem;" onclick="ouvrirOffres()">S'abonner</button>` : `<span class="badge-inclus" style="font-size:0.8rem; padding:8px 14px; margin:0; cursor:default;">${badgeNom} 🔓</span>`}
                     <button class="btn btn-outline" style="padding:6px 14px; border:none; text-decoration:underline; font-size: 0.85rem;" onclick="seDeconnecter()">Quitter</button>
                 `;
             } else {
@@ -497,8 +495,12 @@
                 
                 let badge = '';
                 if (art.reserve_abonnes) {
-                    if (estAbonne || articlesOfferts.includes(art.id)) { badge = `<span class="badge-inclus">PREMIUM 🔓</span>`; } 
-                    else { badge = `<span class="badge-fautpayer">PREMIUM 🔒</span>`; }
+                    if (estAbonne || articlesOfferts.includes(art.id)) { 
+                        let nomOffreDisplay = (profilLecteur && profilLecteur.offre_nom) ? profilLecteur.offre_nom.toUpperCase() : "PREMIUM";
+                        badge = `<span class="badge-inclus">${nomOffreDisplay} 🔓</span>`; 
+                    } else { 
+                        badge = `<span class="badge-fautpayer">PREMIUM 🔒</span>`; 
+                    }
                 }
 
                 conteneur.innerHTML += `
@@ -553,7 +555,7 @@
                     </div>
                 </div>`;
             } else {
-                if (articlesOfferts.includes(id) && !estAbonne) html += `<div class="cadeau-banner">✨ Un de nos lecteurs a payé pour vous offrir l'accès à cet article !</div>`;
+                if (articlesOfferts.includes(id) && !estAbonne) html += `<div class="cadeau-banner">✨ Un de nos abonnés a payé pour vous offrir l'accès à cet article !</div>`;
                 html += `<div class="art-contenu">${art.contenu_public || ''} ${art.contenu_premium || ''}</div>`;
                 
                 if (estAbonne && art.reserve_abonnes) {
@@ -580,13 +582,14 @@
                 let nomAbo = profilLecteur.offre_nom || "Abonnement Premium";
                 let detailsPrix = "";
                 
-                // Si l'abonnement a été offert manuellement via l'éditeur
-                if (profilLecteur.abonnement_offert && profilLecteur.offre_prix) {
-                    detailsPrix = `<br><span style="font-size:0.85rem; color:var(--texte-clair);"><s style="opacity:0.6;">${profilLecteur.offre_prix}€</s> <b style="color:var(--vip);">0€ (Offert)</b></span>`;
+                if (profilLecteur.abonnement_offert && profilLecteur.offre_prix !== null && profilLecteur.offre_prix !== undefined) {
+                    detailsPrix = `<br><span style="font-size:0.85rem; color:var(--texte-clair);"><s style="opacity:0.6;">${profilLecteur.offre_prix}€</s> <b style="color:var(--vip);">0€ / mois (Offert)</b></span>`;
+                } else if (profilLecteur.offre_prix !== null && profilLecteur.offre_prix !== undefined) {
+                    detailsPrix = `<br><span style="font-size:0.85rem; color:var(--texte-clair);">${profilLecteur.offre_prix}€ / mois</span>`;
                 }
                 
-                document.getElementById('profil-statut').innerHTML = `${nomAbo} ${detailsPrix}`;
-                document.getElementById('profil-statut').style.color = "var(--vip)";
+                document.getElementById('profil-statut').innerHTML = `<span style="font-weight:700;">${nomAbo}</span>${detailsPrix}`;
+                document.getElementById('profil-statut').style.color = "var(--texte)";
 
                 document.getElementById('ligne-date-fin').style.display = 'flex';
                 document.getElementById('profil-date-fin').innerText = new Date(profilLecteur.fin_abonnement).toLocaleDateString('fr-FR');

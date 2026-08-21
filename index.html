@@ -11,7 +11,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <style>
-        /* INTERDICTION DE DÉBORDER ET FIX SAFARI */
+        /* FIX SAFARI : Anti-débordement global */
         *, *::before, *::after { box-sizing: border-box; }
 
         :root { 
@@ -40,7 +40,7 @@
         #zone-boutons-header { display: flex; gap: 10px; align-items: center; }
 
         /* FLASH INFO */
-        .flash-info { background: #1e293b; color: #f1f5f9; padding: 10px 5%; font-size: 0.9rem; font-weight: 500; display: flex; align-items: center; overflow: hidden; white-space: nowrap; border-bottom: 1px solid #334155; }
+        .flash-info { background: #1e293b; color: #f1f5f9; padding: 10px 5%; font-size: 0.9rem; font-weight: 500; display: flex; align-items: center; overflow: hidden; white-space: nowrap; border-bottom: 1px solid #334155; transform: translateZ(0); }
         .flash-badge { background: #ef4444; color: white; padding: 3px 10px; border-radius: 4px; margin-right: 20px; font-weight: 800; font-size: 0.8rem; letter-spacing: 1px; z-index: 2; position: relative; flex-shrink: 0; }
         .flash-text { animation: defilement 40s linear infinite; display: inline-block; }
         @keyframes defilement { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
@@ -60,14 +60,14 @@
         .btn-danger { background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; }
 
         /* MESSAGE BIENVENUE */
-        #message-bienvenue { max-width: 1200px; margin: 40px auto 0 auto; padding: 0 5%; display: none; text-align: left; animation: fadeIn 0.5s ease; }
+        #message-bienvenue { max-width: 1200px; margin: 40px auto 0 auto; padding: 0 5%; display: none; text-align: left; }
         #message-bienvenue h2 { font-size: 2.5rem; margin: 0; color: var(--accent); }
         #message-bienvenue p { margin-top: 5px; color: var(--texte-clair); font-size: 1.1rem; }
 
         /* VUE GRILLE (BASE) */
         #vue-grille { max-width: 1200px; margin: 30px auto 40px auto; padding: 0 5%; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px; flex-grow: 1; width: 100%; }
         
-        .card { background: var(--blanc); border-radius: 16px; overflow: hidden; box-shadow: var(--shadow); cursor: pointer; transition: var(--transition); display: flex; flex-direction: column; border: 1px solid #f1f5f9; width: 100%; }
+        .card { background: var(--blanc); border-radius: 16px; overflow: hidden; box-shadow: var(--shadow); cursor: pointer; transition: var(--transition); display: flex; flex-direction: column; border: 1px solid #f1f5f9; width: 100%; transform: translateZ(0); }
         .card:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); border-color: #e2e8f0; }
         .card-img { width: 100%; height: 220px; object-fit: cover; background: #e2e8f0; display: block; }
         .card-content { padding: 25px; flex-grow: 1; display: flex; flex-direction: column; justify-content: center; width: 100%; }
@@ -75,7 +75,6 @@
         .card-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
         .card-categorie { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: var(--accent); letter-spacing: 0.5px; }
         
-        /* NOUVEAUX BADGES */
         .badge-fautpayer { background: #fee2e2; color: #e11d48; font-size: 0.75rem; padding: 4px 10px; border-radius: 50px; font-weight: bold; border: 1px solid #fecdd3; white-space: nowrap; flex-shrink: 0; }
         .badge-inclus { background: #d1fae5; color: #059669; font-size: 0.75rem; padding: 4px 10px; border-radius: 50px; font-weight: bold; border: 1px solid #6ee7b7; white-space: nowrap; flex-shrink: 0; }
         
@@ -124,17 +123,18 @@
             .card:first-child .card-titre { font-size: 1.5rem; }
         }
 
-        /* VUE ARTICLE */
-        #vue-article { display: none; max-width: 720px; margin: 0 auto; padding: 40px 5%; flex-grow: 1; animation: fadeIn 0.3s ease;}
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        /* VUE ARTICLE - CORRECTION BUG SAFARI (translateZ) */
+        #vue-article { display: none; max-width: 720px; margin: 0 auto; padding: 40px 5%; flex-grow: 1; transform: translateZ(0); }
         
         .btn-retour { display: inline-flex; align-items: center; color: var(--texte-clair); text-decoration: none; font-weight: 600; cursor: pointer; margin-bottom: 30px; border: none; background: none; font-size: 1rem; padding: 0; }
         .btn-retour:hover { color: var(--accent); }
-        .art-header-img { width: 100%; height: 400px; object-fit: cover; border-radius: 20px; margin-bottom: 30px; box-shadow: var(--shadow); }
+        
+        /* Retrait du box-shadow sur l'image pour éviter la bave Safari */
+        .art-header-img { width: 100%; height: 400px; object-fit: cover; border-radius: 20px; margin-bottom: 30px; display: block; transform: translateZ(0); }
         .art-titre { font-size: 3rem; line-height: 1.1; margin-bottom: 25px; color: var(--texte); }
-        .art-meta { display: flex; gap: 15px; color: var(--texte-clair); margin-bottom: 40px; font-size: 0.95rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 20px; border-top: none; border-left: none; border-right: none;}
+        .art-meta { display: flex; gap: 15px; color: var(--texte-clair); margin-bottom: 40px; font-size: 0.95rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 20px; flex-wrap: wrap;}
         .art-contenu { font-size: 1.15rem; color: #334155; line-height: 1.8; }
-        .art-contenu img { max-width: 100%; border-radius: 12px; margin: 30px 0; box-shadow: var(--shadow); }
+        .art-contenu img { max-width: 100%; border-radius: 12px; margin: 30px 0; }
 
         @media (max-width: 768px) { 
             .art-header-img { height: 250px; } 
@@ -155,8 +155,9 @@
 
         /* MAINTENANCE */
         #maintenance-screen { display: none; height: 100vh; width: 100vw; background: #0f172a; color: white; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px; box-sizing: border-box; }
-        #maintenance-screen h1 { font-size: 3rem; margin-bottom: 10px; color: #f43f5e; }
-        #maintenance-screen p { font-size: 1.1rem; color: #94a3b8; max-width: 600px; line-height: 1.6; }
+        #maintenance-screen h1 { font-size: 4rem; margin-bottom: 10px; color: #f43f5e; }
+        #maintenance-screen p { font-size: 1.2rem; color: #94a3b8; max-width: 600px; line-height: 1.6; }
+        @media (max-width: 768px) { #maintenance-screen h1 { font-size: 2.5rem; } }
 
         /* MODALES */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.4); z-index: 200; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
@@ -165,11 +166,11 @@
         
         .close-btn { position: absolute; top: 15px; right: 20px; font-size: 1.8rem; cursor: pointer; color: var(--texte-clair); transition: var(--transition); }
         .close-btn:hover { color: var(--premium); transform: rotate(90deg); }
-        .input-champ { width: 100%; padding: 14px 15px; border: 1px solid #cbd5e1; border-radius: 8px; margin-bottom: 15px; font-family: inherit; font-size: 1rem; transition: var(--transition); background: var(--fond); }
+        .input-champ { width: 100%; padding: 14px 15px; border: 1px solid #cbd5e1; border-radius: 8px; margin-bottom: 15px; box-sizing: border-box; font-family: inherit; font-size: 1rem; transition: var(--transition); background: var(--fond); }
         .input-champ:focus { outline: none; border-color: var(--accent); background: var(--blanc); box-shadow: 0 0 0 3px rgba(99,102,241,0.1); }
         
-        .offres-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-top: 20px; }
-        .offre-card { border: 2px solid #e2e8f0; border-radius: 16px; padding: 25px; display: flex; flex-direction: column; transition: 0.2s; background: var(--blanc); }
+        .offres-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-top: 20px; }
+        .offre-card { border: 2px solid #e2e8f0; border-radius: 16px; padding: 30px; display: flex; flex-direction: column; transition: 0.2s; background: var(--blanc); }
         .offre-card:hover { border-color: var(--premium); box-shadow: var(--shadow-hover); transform: translateY(-3px); }
 
         .account-list { list-style: none; padding: 0; margin: 20px 0; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; }
@@ -265,7 +266,7 @@
             </ul>
 
             <div id="actions-abonne" style="display:none;">
-                <button class="btn btn-primaire" style="width: 100%; margin-bottom: 10px;" onclick="fermerModales(); ouvrirOffres()">Changer d'offre</button>
+                <button class="btn btn-primaire" style="width: 100%; margin-bottom: 10px;" onclick="fermerModales(); ouvrirOffres()">Changer d'offre (Upgrade)</button>
                 <button class="btn btn-outline" style="width: 100%; margin-bottom: 20px;" onclick="annulerAbonnement()">Annuler mon abonnement</button>
             </div>
             <div id="actions-non-abonne" style="display:none;">
@@ -347,7 +348,7 @@
 
                 document.getElementById('zone-boutons-header').innerHTML = `
                     <button class="btn btn-outline" style="padding:6px 14px; border-radius:8px; font-size: 0.85rem;" onclick="ouvrirCompte()">Profil</button>
-                    ${!estAbonne ? `<button class="btn btn-primaire" style="background:var(--premium); padding:6px 14px; font-size: 0.85rem;" onclick="ouvrirOffres()">S'abonner</button>` : `<span class="badge-inclus" style="font-size:0.8rem; padding:8px 14px; margin:0; cursor:default;">ABONNÉ 🔓</span>`}
+                    ${!estAbonne ? `<button class="btn btn-primaire" style="background:var(--premium); padding:6px 14px; font-size: 0.85rem;" onclick="ouvrirOffres()">S'abonner</button>` : `<span class="badge-inclus" style="font-size:0.8rem; padding:8px 14px; margin:0; cursor:default;">PREMIUM 🔓</span>`}
                     <button class="btn btn-outline" style="padding:6px 14px; border:none; text-decoration:underline; font-size: 0.85rem;" onclick="seDeconnecter()">Quitter</button>
                 `;
             } else {
@@ -379,7 +380,7 @@
         }
 
         function filtrerArticles(catId, elementNav = null) {
-            // Fix navigation quand on lit un article : ça nous ramène à la grille
+            // Fix navigation quand on lit un article
             if (document.getElementById('vue-article').style.display === 'block') {
                 document.getElementById('vue-article').style.display = 'none';
                 document.getElementById('vue-grille').style.display = 'grid';

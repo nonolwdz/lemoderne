@@ -9,13 +9,11 @@
     <style>
         :root { --primaire: #4f46e5; --secondaire: #ec4899; --fond: #f8fafc; --texte: #1e293b; --bordure: #e2e8f0; }
         body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--fond); color: var(--texte); margin: 0; }
-        
         #login-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background: #0f172a; }
         #login-screen h1 { color: white; margin-bottom: 30px; font-size: 2.5rem; }
         #password-input { padding: 15px 20px; border-radius: 8px; border: none; font-size: 1.1rem; margin-bottom: 20px; width: 300px; }
         .btn-primaire { background: linear-gradient(135deg, var(--primaire), var(--secondaire)); color: white; padding: 12px 24px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 1rem; transition: 0.2s;}
         .btn-primaire:hover { opacity: 0.9; }
-        
         #editor-dashboard { display: none; }
         header { background: white; padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--bordure); }
         header h1 { margin: 0; font-size: 1.5rem; background: linear-gradient(135deg, var(--primaire), var(--secondaire)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
@@ -25,12 +23,10 @@
         .container { max-width: 1000px; margin: 40px auto; background: white; padding: 40px; border-radius: 16px; box-shadow: 0 10px 30px -10px rgba(0,0,0,0.05); }
         .section { display: none; }
         .section.active { display: block; }
-
         .input-group { margin-bottom: 25px; }
         .input-group label { display: block; font-weight: 600; margin-bottom: 8px; color: #334155; }
         .input-group input, .input-group select, .input-group textarea { width: 100%; padding: 14px; border: 1px solid var(--bordure); border-radius: 8px; font-size: 1rem; box-sizing: border-box; }
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        
         .editor-container { height: 250px; border-radius: 0 0 8px 8px; }
         .ql-toolbar { border-radius: 8px 8px 0 0; background: #f1f5f9; border-color: var(--bordure); }
         .box-info { background: #eff6ff; border: 1px solid #bfdbfe; padding: 15px; border-radius: 8px; margin-bottom: 20px; color: #1e3a8a; }
@@ -55,7 +51,7 @@
         <div class="tabs">
             <button class="tab-btn active" onclick="switchTab('articles', this)">Articles</button>
             <button class="tab-btn" onclick="switchTab('themes', this)">Rubriques</button>
-            <button class="tab-btn" onclick="switchTab('offres', this)">Offres</button>
+            <button class="tab-btn" onclick="switchTab('offres', this)">Offres (Stripe)</button>
             <button class="tab-btn" onclick="switchTab('lecteurs', this)">Lecteurs</button>
             <button class="tab-btn" onclick="switchTab('parametres', this)" style="color: #ef4444;">Paramètres</button>
         </div>
@@ -113,15 +109,33 @@
                 <button class="btn-primaire" id="btn-save-offre" onclick="sauvegarderOffre()" style="width: 100%; font-size: 1.1rem; padding: 15px;">Créer l'offre</button>
             </div>
 
-            <!-- LECTEURS -->
+            <!-- LECTEURS (RENOUVELÉ) -->
             <div id="section-lecteurs" class="section">
-                <h2>Abonnements Manuels</h2>
+                <h2>Gérer / Offrir un Abonnement</h2>
                 <div class="input-group"><label>Email du lecteur inscrit</label><input type="email" id="email-lecteur"></div>
+                
                 <div class="grid-2">
-                    <div class="input-group"><label>Action</label><select id="action-lecteur"><option value="ajouter">Ajouter des jours</option><option value="retirer">Retirer des jours</option></select></div>
-                    <div class="input-group"><label>Nombre de jours</label><input type="number" id="jours-lecteur" value="30"></div>
+                    <div class="input-group">
+                        <label>Formule à attribuer / offrir</label>
+                        <select id="formule-lecteur">
+                            <option value="">-- Conserver la formule actuelle --</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Action sur la durée</label>
+                        <div style="display:flex; gap:10px;">
+                            <select id="action-lecteur" style="width: 50%;"><option value="ajouter">Ajouter</option><option value="retirer">Retirer</option></select>
+                            <input type="number" id="jours-lecteur" value="30" style="width: 50%;">
+                        </div>
+                    </div>
                 </div>
-                <button class="btn-primaire" onclick="gererAbonnement()" style="width: 100%; padding: 15px; font-size: 1.1rem;">Mettre à jour le lecteur</button>
+
+                <div class="input-group" style="display: flex; align-items: center; gap: 10px; background: #fdf2f8; padding: 15px; border-radius: 8px; border: 1px solid #fbcfe8;">
+                    <input type="checkbox" id="est-cadeau-lecteur" style="width: 20px; height: 20px; cursor: pointer;">
+                    <label style="margin: 0; color: #be185d;">🎁 Marquer comme "Cadeau" (Affichera une remise de 100% sur son compte)</label>
+                </div>
+
+                <button class="btn-primaire" onclick="gererAbonnement()" style="width: 100%; padding: 15px; font-size: 1.1rem;">Appliquer la modification</button>
             </div>
 
             <!-- PARAMETRES -->
@@ -187,8 +201,14 @@
             const { data: offs } = await db.from('offres').select('*').order('prix_euros');
             listeOffres = offs || [];
             const selectOff = document.getElementById('select-offre');
+            const selectFormuleLecteur = document.getElementById('formule-lecteur');
             selectOff.innerHTML = '<option value="">✨ Créer une NOUVELLE offre</option>';
-            listeOffres.forEach(o => selectOff.innerHTML += `<option value="${o.id}">⚙️ Éditer : ${o.nom}</option>`);
+            selectFormuleLecteur.innerHTML = '<option value="">-- Conserver la formule actuelle --</option>';
+            
+            listeOffres.forEach(o => {
+                selectOff.innerHTML += `<option value="${o.id}">⚙️ Éditer : ${o.nom}</option>`;
+                selectFormuleLecteur.innerHTML += `<option value="${o.id}">${o.nom} (${o.prix_euros}€)</option>`;
+            });
 
             const { data: settings } = await db.from('site_settings').select('*').eq('id', 1).single();
             if (settings) {
@@ -263,19 +283,49 @@
         async function supprimerTheme(id) { if(!confirm("Supprimer ce thème ?")) return; await db.from('categories').delete().eq('id', id); chargerToutesLesDonnees(); }
         
         async function gererAbonnement() {
-            const email = document.getElementById('email-lecteur').value; const action = document.getElementById('action-lecteur').value; const jours = parseInt(document.getElementById('jours-lecteur').value);
+            const email = document.getElementById('email-lecteur').value; 
+            const action = document.getElementById('action-lecteur').value; 
+            const jours = parseInt(document.getElementById('jours-lecteur').value);
+            const formuleId = document.getElementById('formule-lecteur').value;
+            const estCadeau = document.getElementById('est-cadeau-lecteur').checked;
+
             if(!email || isNaN(jours)) return alert("Veuillez entrer un email et une durée.");
+            
             const { data: lecteur, error: errFetch } = await db.from('lecteurs').select('*').eq('email', email).single();
             if(errFetch || !lecteur) return alert("Ce lecteur n'existe pas ou n'est pas encore inscrit.");
             
-            let nouvelleDate = new Date(); if (lecteur.fin_abonnement && new Date(lecteur.fin_abonnement) > nouvelleDate) nouvelleDate = new Date(lecteur.fin_abonnement);
-            if (action === 'ajouter') nouvelleDate.setDate(nouvelleDate.getDate() + jours); else { nouvelleDate.setDate(nouvelleDate.getDate() - jours); if (nouvelleDate < new Date()) nouvelleDate = new Date(); }
+            let nouvelleDate = new Date(); 
+            if (lecteur.fin_abonnement && new Date(lecteur.fin_abonnement) > nouvelleDate) {
+                nouvelleDate = new Date(lecteur.fin_abonnement);
+            }
             
-            // Correction : L'ajout manuel ne donne plus de crédits en plus
-            let credits = lecteur.credits_partage || 0; 
+            if (action === 'ajouter') nouvelleDate.setDate(nouvelleDate.getDate() + jours); 
+            else { 
+                nouvelleDate.setDate(nouvelleDate.getDate() - jours); 
+                if (nouvelleDate < new Date()) nouvelleDate = new Date(); 
+            }
             
-            const { error: errUpdate } = await db.from('lecteurs').update({ est_abonne: nouvelleDate > new Date(), fin_abonnement: nouvelleDate.toISOString(), credits_partage: credits }).eq('id', lecteur.id);
-            if(errUpdate) alert("Erreur : " + errUpdate.message); else alert(`✅ Succès ! L'abonnement de ${email} a bien été mis à jour.`);
+            let payload = {
+                est_abonne: nouvelleDate > new Date(),
+                fin_abonnement: nouvelleDate.toISOString(),
+                credits_partage: lecteur.credits_partage || 0
+            };
+
+            if (formuleId) {
+                const off = listeOffres.find(o => o.id === formuleId);
+                if (off) {
+                    payload.formule_nom = off.nom;
+                    payload.formule_prix = off.prix_euros;
+                    payload.est_cadeau = estCadeau;
+                    if (action === 'ajouter') {
+                        payload.credits_partage += (off.partages_autorises || 0); // Donne les crédits de la formule choisie
+                    }
+                }
+            }
+            
+            const { error: errUpdate } = await db.from('lecteurs').update(payload).eq('id', lecteur.id);
+            if(errUpdate) alert("Erreur : " + errUpdate.message); 
+            else alert(`✅ Succès ! L'abonnement de ${email} a bien été mis à jour.`);
         }
     </script>
 </body>

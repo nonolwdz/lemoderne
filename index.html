@@ -79,7 +79,7 @@
         .card-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .card-categorie { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: var(--accent); letter-spacing: 0.5px; }
         
-        /* BADGES PARODIQUES */
+        /* BADGES */
         .badge-fautpayer { background: #ffe4e6; color: var(--premium); font-size: 0.75rem; padding: 4px 10px; border-radius: 50px; font-weight: bold; border: 1px solid #fda4af; }
         .badge-inclus { background: var(--vip-bg); color: var(--vip); font-size: 0.75rem; padding: 4px 10px; border-radius: 50px; font-weight: bold; border: 1px solid #fcd34d; }
         
@@ -90,29 +90,28 @@
            CORRECTIONS SPECIALES POUR SMARTPHONES 
            ========================================= */
         @media (max-width: 768px) { 
-            /* Header plus compact */
-            header { padding: 12px 5%; flex-direction: column; align-items: flex-start; gap: 12px; }
-            .logo-container { flex-direction: row; align-items: baseline; gap: 10px; }
-            .logo { font-size: 1.6rem; }
-            .tagline { font-size: 1rem; margin: 0; }
+            /* Header plus propre et centré */
+            header { padding: 15px 5%; flex-direction: column; align-items: stretch; gap: 15px; }
+            .logo-container { flex-direction: row; align-items: baseline; justify-content: center; gap: 10px; text-align: center; }
             
-            /* Boutons étirés et alignés */
-            #zone-boutons-header { width: 100%; justify-content: space-between; }
-            #zone-boutons-header .btn { flex: 1; text-align: center; padding: 8px; font-size: 0.85rem; margin: 0 2px; }
+            /* Boutons étirés proprement */
+            #zone-boutons-header { display: flex; width: 100%; justify-content: stretch; gap: 10px; }
+            #zone-boutons-header .btn, #zone-boutons-header span { flex: 1; text-align: center; padding: 10px; font-size: 0.9rem; }
+            #zone-boutons-header .btn-outline { border: 1px solid #cbd5e1 !important; text-decoration: none !important; }
             
             /* Message de bienvenue recentré */
+            #message-bienvenue { margin-top: 20px; }
             #message-bienvenue h2 { font-size: 2rem; text-align: center; }
             #message-bienvenue p { font-size: 1rem; text-align: center; }
 
             /* Fix de l'image géante à la une */
-            .card:first-child { flex-direction: column; } 
-            .card:first-child .card-img { width: 100%; height: 220px !important; min-height: 220px !important; border-radius: 16px 16px 0 0; }
-            .card:first-child .card-content { width: 100%; padding: 20px; box-sizing: border-box; }
-            .card:first-child .card-titre { font-size: 1.5rem; }
+            .card:first-child { flex-direction: column !important; display: flex !important; } 
+            .card:first-child .card-img { width: 100% !important; height: 200px !important; min-height: auto !important; border-radius: 16px 16px 0 0 !important; }
+            .card:first-child .card-content { width: 100% !important; padding: 25px !important; box-sizing: border-box !important; }
+            .card:first-child .card-titre { font-size: 1.5rem !important; }
 
             /* Flash info plus discret */
-            .flash-info { padding: 6px 5%; font-size: 0.8rem; }
-            .flash-badge { padding: 2px 6px; font-size: 0.7rem; margin-right: 10px; }
+            .flash-info { padding: 8px 5%; font-size: 0.8rem; }
         }
 
         /* VUE ARTICLE */
@@ -341,17 +340,17 @@
                 document.getElementById('message-bienvenue').style.display = 'block';
 
                 document.getElementById('zone-boutons-header').innerHTML = `
-                    <button class="btn btn-outline" style="padding:6px 12px; border-radius:8px; font-size: 0.85rem;" onclick="ouvrirCompte()">Profil</button>
-                    ${!estAbonne ? `<button class="btn btn-primaire" style="background:var(--premium); padding:6px 12px; font-size: 0.85rem;" onclick="ouvrirOffres()">S'abonner</button>` : `<span style="color:var(--vip); font-weight:800; font-size:0.75rem; background:var(--vip-bg); padding:6px 10px; border-radius:50px; border:1px solid #fcd34d;">PIGEON 🕊️</span>`}
-                    <button class="btn btn-outline" style="padding:6px 10px; border:none; text-decoration:underline; font-size: 0.85rem;" onclick="seDeconnecter()">Quitter</button>
+                    <button class="btn btn-outline" onclick="ouvrirCompte()">Profil</button>
+                    ${!estAbonne ? `<button class="btn btn-primaire" style="background:var(--premium);" onclick="ouvrirOffres()">S'abonner</button>` : `<span class="badge-inclus" style="font-size:0.8rem; padding:8px 12px; margin:0 5px;">PIGEON 🕊️</span>`}
+                    <button class="btn btn-outline" style="border:none; text-decoration:underline;" onclick="seDeconnecter()">Quitter</button>
                 `;
             } else {
                 lecteurActuel = null; profilLecteur = null; estAbonne = false; creditsPartage = 0; articlesOfferts = [];
                 document.getElementById('message-bienvenue').style.display = 'none';
                 
                 document.getElementById('zone-boutons-header').innerHTML = `
-                    <button class="btn btn-outline" style="flex:1;" onclick="ouvrirAuth()">Connexion</button>
-                    <button class="btn btn-primaire" style="background:var(--premium); flex:1;" onclick="ouvrirAuth()">S'abonner</button>
+                    <button class="btn btn-outline" onclick="ouvrirAuth()">Connexion</button>
+                    <button class="btn btn-primaire" style="background:var(--premium)" onclick="ouvrirAuth()">S'abonner</button>
                 `;
             }
         }
@@ -458,7 +457,6 @@
             conteneur.innerHTML = html;
         }
 
-        // --- GESTION COMPTE ---
         function ouvrirCompte() {
             document.getElementById('profil-prenom').value = profilLecteur?.prenom || '';
             document.getElementById('profil-statut').innerText = estAbonne ? "PIGEON PREMIUM 🕊️" : "Gratuit (La honte)";

@@ -9,6 +9,7 @@
     <style>
         :root { --primaire: #4f46e5; --secondaire: #ec4899; --fond: #f8fafc; --texte: #1e293b; --bordure: #e2e8f0; }
         body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--fond); color: var(--texte); margin: 0; }
+        
         #login-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background: #0f172a; }
         #login-screen h1 { color: white; margin-bottom: 30px; font-size: 2.5rem; }
         #password-input { padding: 15px 20px; border-radius: 8px; border: none; font-size: 1.1rem; margin-bottom: 20px; width: 300px; }
@@ -216,7 +217,6 @@
             alert(enMaintenance ? "Le site est maintenant CASSÉ pour le public." : "Le site est de nouveau EN LIGNE.");
         }
 
-        // Logic Editor (Inchangée)
         function chargerArticlePourEdition() {
             articleEditionId = document.getElementById('select-article').value;
             if (!articleEditionId) {
@@ -261,15 +261,20 @@
         }
         async function creerTheme() { const nom = document.getElementById('nom-theme').value.trim(); if(!nom) return; await db.from('categories').insert([{ nom }]); document.getElementById('nom-theme').value = ''; chargerToutesLesDonnees(); }
         async function supprimerTheme(id) { if(!confirm("Supprimer ce thème ?")) return; await db.from('categories').delete().eq('id', id); chargerToutesLesDonnees(); }
+        
         async function gererAbonnement() {
             const email = document.getElementById('email-lecteur').value; const action = document.getElementById('action-lecteur').value; const jours = parseInt(document.getElementById('jours-lecteur').value);
             if(!email || isNaN(jours)) return alert("Veuillez entrer un email et une durée.");
             const { data: lecteur, error: errFetch } = await db.from('lecteurs').select('*').eq('email', email).single();
             if(errFetch || !lecteur) return alert("Ce lecteur n'existe pas ou n'est pas encore inscrit.");
+            
             let nouvelleDate = new Date(); if (lecteur.fin_abonnement && new Date(lecteur.fin_abonnement) > nouvelleDate) nouvelleDate = new Date(lecteur.fin_abonnement);
             if (action === 'ajouter') nouvelleDate.setDate(nouvelleDate.getDate() + jours); else { nouvelleDate.setDate(nouvelleDate.getDate() - jours); if (nouvelleDate < new Date()) nouvelleDate = new Date(); }
-            let nouveauxCredits = lecteur.credits_partage || 0; if (action === 'ajouter') nouveauxCredits += 2;
-            const { error: errUpdate } = await db.from('lecteurs').update({ est_abonne: nouvelleDate > new Date(), fin_abonnement: nouvelleDate.toISOString(), credits_partage: nouveauxCredits }).eq('id', lecteur.id);
+            
+            // Correction : L'ajout manuel ne donne plus de crédits en plus
+            let credits = lecteur.credits_partage || 0; 
+            
+            const { error: errUpdate } = await db.from('lecteurs').update({ est_abonne: nouvelleDate > new Date(), fin_abonnement: nouvelleDate.toISOString(), credits_partage: credits }).eq('id', lecteur.id);
             if(errUpdate) alert("Erreur : " + errUpdate.message); else alert(`✅ Succès ! L'abonnement de ${email} a bien été mis à jour.`);
         }
     </script>

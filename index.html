@@ -11,7 +11,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <style>
-        /* FIX SAFARI : Anti-débordement global */
+        /* INTERDICTION DE DÉBORDER */
         *, *::before, *::after { box-sizing: border-box; }
 
         :root { 
@@ -40,7 +40,7 @@
         #zone-boutons-header { display: flex; gap: 10px; align-items: center; }
 
         /* FLASH INFO */
-        .flash-info { background: #1e293b; color: #f1f5f9; padding: 10px 5%; font-size: 0.9rem; font-weight: 500; display: flex; align-items: center; overflow: hidden; white-space: nowrap; border-bottom: 1px solid #334155; transform: translateZ(0); }
+        .flash-info { background: #1e293b; color: #f1f5f9; padding: 10px 5%; font-size: 0.9rem; font-weight: 500; display: flex; align-items: center; overflow: hidden; white-space: nowrap; border-bottom: 1px solid #334155; }
         .flash-badge { background: #ef4444; color: white; padding: 3px 10px; border-radius: 4px; margin-right: 20px; font-weight: 800; font-size: 0.8rem; letter-spacing: 1px; z-index: 2; position: relative; flex-shrink: 0; }
         .flash-text { animation: defilement 40s linear infinite; display: inline-block; }
         @keyframes defilement { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
@@ -67,7 +67,7 @@
         /* VUE GRILLE (BASE) */
         #vue-grille { max-width: 1200px; margin: 30px auto 40px auto; padding: 0 5%; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px; flex-grow: 1; width: 100%; }
         
-        .card { background: var(--blanc); border-radius: 16px; overflow: hidden; box-shadow: var(--shadow); cursor: pointer; transition: var(--transition); display: flex; flex-direction: column; border: 1px solid #f1f5f9; width: 100%; transform: translateZ(0); }
+        .card { background: var(--blanc); border-radius: 16px; overflow: hidden; box-shadow: var(--shadow); cursor: pointer; transition: var(--transition); display: flex; flex-direction: column; border: 1px solid #f1f5f9; width: 100%; }
         .card:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); border-color: #e2e8f0; }
         .card-img { width: 100%; height: 220px; object-fit: cover; background: #e2e8f0; display: block; }
         .card-content { padding: 25px; flex-grow: 1; display: flex; flex-direction: column; justify-content: center; width: 100%; }
@@ -75,7 +75,8 @@
         .card-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
         .card-categorie { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: var(--accent); letter-spacing: 0.5px; }
         
-        .badge-fautpayer { background: #fee2e2; color: #e11d48; font-size: 0.75rem; padding: 4px 10px; border-radius: 50px; font-weight: bold; border: 1px solid #fecdd3; white-space: nowrap; flex-shrink: 0; }
+        /* BADGES */
+        .badge-fautpayer { background: #ffe4e6; color: #e11d48; font-size: 0.75rem; padding: 4px 10px; border-radius: 50px; font-weight: bold; border: 1px solid #fda4af; white-space: nowrap; flex-shrink: 0; }
         .badge-inclus { background: #d1fae5; color: #059669; font-size: 0.75rem; padding: 4px 10px; border-radius: 50px; font-weight: bold; border: 1px solid #6ee7b7; white-space: nowrap; flex-shrink: 0; }
         
         .card-titre { font-size: 1.4rem; margin: 0 0 15px 0; line-height: 1.3; color: var(--texte); word-wrap: break-word; }
@@ -123,21 +124,23 @@
             .card:first-child .card-titre { font-size: 1.5rem; }
         }
 
-        /* VUE ARTICLE - CORRECTION BUG SAFARI (translateZ) */
-        #vue-article { display: none; max-width: 720px; margin: 0 auto; padding: 40px 5%; flex-grow: 1; transform: translateZ(0); }
+        /* VUE ARTICLE - FIX DU BUG SAFARI : UNE IMAGE PROPRE */
+        #vue-article { display: none; max-width: 720px; margin: 0 auto; padding: 40px 5%; flex-grow: 1; }
         
         .btn-retour { display: inline-flex; align-items: center; color: var(--texte-clair); text-decoration: none; font-weight: 600; cursor: pointer; margin-bottom: 30px; border: none; background: none; font-size: 1rem; padding: 0; }
         .btn-retour:hover { color: var(--accent); }
         
-        /* Retrait du box-shadow sur l'image pour éviter la bave Safari */
-        .art-header-img { width: 100%; height: 400px; object-fit: cover; border-radius: 20px; margin-bottom: 30px; display: block; transform: translateZ(0); }
+        /* La boite magique qui empêche Safari de baver */
+        .safari-img-wrapper { width: 100%; height: 400px; margin-bottom: 30px; border-radius: 20px; overflow: hidden; isolation: isolate; -webkit-mask-image: -webkit-radial-gradient(white, black); box-shadow: var(--shadow); }
+        .art-header-img { width: 100%; height: 100%; object-fit: cover; display: block; margin: 0; }
+        
         .art-titre { font-size: 3rem; line-height: 1.1; margin-bottom: 25px; color: var(--texte); }
         .art-meta { display: flex; gap: 15px; color: var(--texte-clair); margin-bottom: 40px; font-size: 0.95rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 20px; flex-wrap: wrap;}
         .art-contenu { font-size: 1.15rem; color: #334155; line-height: 1.8; }
         .art-contenu img { max-width: 100%; border-radius: 12px; margin: 30px 0; }
 
         @media (max-width: 768px) { 
-            .art-header-img { height: 250px; } 
+            .safari-img-wrapper { height: 250px; } 
             .art-titre { font-size: 2rem; }
             .art-contenu { font-size: 1.05rem; }
         }
@@ -380,7 +383,6 @@
         }
 
         function filtrerArticles(catId, elementNav = null) {
-            // Fix navigation quand on lit un article
             if (document.getElementById('vue-article').style.display === 'block') {
                 document.getElementById('vue-article').style.display = 'none';
                 document.getElementById('vue-grille').style.display = 'grid';
@@ -430,7 +432,9 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
 
             const conteneur = document.getElementById('conteneur-article-complet');
-            const imgStr = art.image_url ? `<img src="${art.image_url}" class="art-header-img" alt="cover">` : '';
+            
+            // LA BOÎTE MAGIQUE QUI EMPÊCHE SAFARI DE BAVER
+            const imgStr = art.image_url ? `<div class="safari-img-wrapper"><img src="${art.image_url}" class="art-header-img" alt="cover"></div>` : '';
             
             let html = `
                 ${imgStr}

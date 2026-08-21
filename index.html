@@ -172,7 +172,7 @@
         #maintenance-screen { display: none; height: 100vh; width: 100vw; background: #0f172a; color: white; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px; }
         #maintenance-screen h1 { font-size: 4rem; margin-bottom: 10px; color: #f43f5e; }
 
-        /* MODALES ET TOASTS (Remplacement des popups moches) */
+        /* MODALES ET TOASTS */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); z-index: 200; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
         .modal-content { background: var(--fond-modal); padding: 40px; border-radius: 24px; width: 90%; max-width: 450px; position: relative; box-shadow: var(--shadow-hover); max-height: 90vh; overflow-y: auto;}
         @media (max-width: 768px) { .modal-content { padding: 25px; } }
@@ -307,8 +307,7 @@
             </div>
 
             <div id="actions-abonne" style="display:none;">
-                <!-- LIEN DU PORTAIL CLIENT STRIPE (À REMPLACER PAR TON VRAI LIEN STRIPE) -->
-                <a href="bpc_1U6pstBRkwJFNxxjR9dFf1NO" target="_blank" class="btn btn-outline" style="width: 100%; margin-bottom: 20px; text-decoration:none;">Gérer / Résilier mon abonnement</a>
+                <a href="https://billing.stripe.com/p/login/14A5kC1SheK6ctc5MqgQE00" target="_blank" class="btn btn-outline" style="width: 100%; margin-bottom: 20px; text-decoration:none;">Gérer / Résilier mon abonnement</a>
             </div>
             
             <div id="actions-non-abonne" style="display:none;">
@@ -350,7 +349,6 @@
         let lecteurActuel = null, profilLecteur = null, estAbonne = false, creditsPartage = 0, articlesOfferts = [];
         let tousLesArticles = [], toutesLesCategories = [], articleActifId = null;
 
-        // SYSTEME DE NOTIFICATIONS (Toasts)
         function showToast(message, type = 'success') {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
@@ -360,15 +358,20 @@
             setTimeout(() => { toast.remove(); }, 4500);
         }
 
-        // SYSTEME DARK MODE
         function toggleTheme() {
+            // VERIFICATION : MODE SOMBRE RESERVE A L'OFFRE PREMIUM
+            if (!estAbonne || !profilLecteur?.offre_nom?.toLowerCase().includes('premium')) {
+                showToast("Le mode sombre est une exclusivité de l'offre Premium.", "error");
+                ouvrirOffres();
+                return;
+            }
+            
             document.body.classList.toggle('dark-mode');
             const isDark = document.body.classList.contains('dark-mode');
             localStorage.setItem('theme_moderne', isDark ? 'dark' : 'light');
             document.getElementById('btn-theme-toggle').innerText = isDark ? '☀️' : '🌙';
         }
 
-        // BARRE DE PROGRESSION LECTURE
         window.onscroll = function() {
             if(document.getElementById('vue-article').style.display === 'block') {
                 let winScroll = document.body.scrollTop || document.documentElement.scrollTop;
@@ -379,11 +382,6 @@
         };
 
         async function initialiserSite() {
-            // Restore Theme
-            if(localStorage.getItem('theme_moderne') === 'dark') {
-                document.body.classList.add('dark-mode');
-            }
-
             const { data: settings } = await db.from('site_settings').select('en_maintenance, flash_texte').eq('id', 1).single();
             if (settings && settings.en_maintenance) {
                 document.getElementById('maintenance-screen').style.display = 'flex'; return;
@@ -399,7 +397,7 @@
 
         async function verifierSession() {
             const { data: { session } } = await db.auth.getSession();
-            const btnTheme = `<button class="btn-theme" id="btn-theme-toggle" onclick="toggleTheme()">${document.body.classList.contains('dark-mode') ? '☀️' : '🌙'}</button>`;
+            let wantsDark = localStorage.getItem('theme_moderne') === 'dark';
 
             if (session) {
                 lecteurActuel = session.user;
@@ -413,6 +411,16 @@
                     estAbonne = false;
                 }
 
+                // SECU DARK MODE : On le désactive si l'utilisateur n'a plus l'offre Premium
+                const isPremium = profil && profil.est_abonne && profil.offre_nom && profil.offre_nom.toLowerCase().includes('premium');
+                if (wantsDark && isPremium) {
+                    document.body.classList.add('dark-mode');
+                } else {
+                    document.body.classList.remove('dark-mode');
+                    localStorage.setItem('theme_moderne', 'light');
+                    wantsDark = false;
+                }
+
                 const { data: partages } = await db.from('partages_articles').select('article_id').eq('email_destinataire', lecteurActuel.email);
                 if (partages) articlesOfferts = partages.map(p => p.article_id);
                 
@@ -423,18 +431,23 @@
                     <p>Prêt à lire des articles sans grand intérêt aujourd'hui ?</p>
                 `;
 
+                const btnTheme = `<button class="btn-theme" id="btn-theme-toggle" onclick="toggleTheme()">${wantsDark ? '☀️' : '🌙'}</button>`;
+
                 document.getElementById('zone-boutons-header').innerHTML = `
                     ${btnTheme}
                     <button class="btn btn-outline" style="padding:6px 14px; border-radius:8px; font-size: 0.85rem;" onclick="ouvrirCompte()">Espace Client</button>
-                    ${!estAbonne ? `<button class="btn btn-primaire" style="background:var(--premium); padding:6px 14px; font-size: 0.85rem;" onclick="ouvrirOffres()">S'abonner</button>` : `<span class="badge-inclus" style="font-size:0.8rem; padding:8px 14px; margin:0; cursor:default;">ABONNÉ 👑</span>`}
+                    ${!estAbonne ? `<button class="btn btn-primaire" style="background:var(--premium); padding:6px 14px; font-size: 0.85rem;" onclick="ouvrirOffres()">S'abonner</button>` : `<span class="badge-inclus" style="font-size:0.8rem; padding:8px 14px; margin:0; cursor:default;">ABONNÉ 🔓</span>`}
                     <button class="btn btn-outline" style="padding:6px 14px; border:none; text-decoration:underline; font-size: 0.85rem;" onclick="seDeconnecter()">Quitter</button>
                 `;
             } else {
                 lecteurActuel = null; profilLecteur = null; estAbonne = false; creditsPartage = 0; articlesOfferts = [];
                 document.getElementById('message-bienvenue').style.display = 'none';
                 
+                document.body.classList.remove('dark-mode');
+                localStorage.setItem('theme_moderne', 'light');
+
                 document.getElementById('zone-boutons-header').innerHTML = `
-                    ${btnTheme}
+                    <button class="btn-theme" id="btn-theme-toggle" onclick="toggleTheme()">🌙</button>
                     <button class="btn btn-outline" style="flex:1;" onclick="ouvrirAuth()">Connexion</button>
                     <button class="btn btn-primaire" style="background:var(--premium); flex:1;" onclick="ouvrirAuth()">S'abonner</button>
                 `;
@@ -514,7 +527,6 @@
             const conteneur = document.getElementById('conteneur-article-complet');
             const imgStr = art.image_url ? `<div class="safari-img-wrapper"><img src="${art.image_url}" class="art-header-img" alt="cover"></div>` : '';
             
-            // Calcul du temps de lecture (Mots / 200 mots par minute)
             const motsTotaux = (art.contenu_public + (art.contenu_premium || '')).split(' ').length;
             const tempsLecture = Math.max(1, Math.ceil(motsTotaux / 200));
 
@@ -562,16 +574,28 @@
 
         function ouvrirCompte() {
             document.getElementById('profil-prenom').value = profilLecteur?.prenom || '';
-            document.getElementById('profil-statut').innerText = estAbonne ? "Abonnement Premium" : "Compte Gratuit";
-            document.getElementById('profil-statut').style.color = estAbonne ? "var(--vip)" : "var(--texte-clair)";
             document.getElementById('profil-cadeaux').innerText = creditsPartage;
             
             if (estAbonne) {
+                let nomAbo = profilLecteur.offre_nom || "Abonnement Premium";
+                let detailsPrix = "";
+                
+                // Si l'abonnement a été offert manuellement via l'éditeur
+                if (profilLecteur.abonnement_offert && profilLecteur.offre_prix) {
+                    detailsPrix = `<br><span style="font-size:0.85rem; color:var(--texte-clair);"><s style="opacity:0.6;">${profilLecteur.offre_prix}€</s> <b style="color:var(--vip);">0€ (Offert)</b></span>`;
+                }
+                
+                document.getElementById('profil-statut').innerHTML = `${nomAbo} ${detailsPrix}`;
+                document.getElementById('profil-statut').style.color = "var(--vip)";
+
                 document.getElementById('ligne-date-fin').style.display = 'flex';
                 document.getElementById('profil-date-fin').innerText = new Date(profilLecteur.fin_abonnement).toLocaleDateString('fr-FR');
                 document.getElementById('actions-abonne').style.display = 'block';
                 document.getElementById('actions-non-abonne').style.display = 'none';
             } else {
+                document.getElementById('profil-statut').innerText = "Compte Gratuit";
+                document.getElementById('profil-statut').style.color = "var(--texte-clair)";
+                
                 document.getElementById('ligne-date-fin').style.display = 'none';
                 document.getElementById('actions-abonne').style.display = 'none';
                 document.getElementById('actions-non-abonne').style.display = 'block';
@@ -610,7 +634,7 @@
                 
                 conteneur.innerHTML += `
                     <div class="offre-card">
-                        <h3 class="titre-serif" style="margin-top:0;">${o.nom}</h3>
+                        <h3 class="titre-serif" style="margin-top:0; color:var(--texte);">${o.nom}</h3>
                         <div style="font-size:2.5rem; font-weight:800; color:var(--premium); margin:10px 0;">${o.prix_euros}€ <span style="font-size:1rem; color:var(--texte-clair); font-weight:500;">/mois</span></div>
                         <ul style="list-style:none; padding:0; margin-bottom:30px; flex-grow:1;">${av}</ul>
                         <a href="${lien}" class="btn btn-primaire" style="text-align:center; text-decoration:none; padding:15px; font-size:1.05rem;">S'abonner maintenant</a>

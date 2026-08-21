@@ -11,6 +11,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <style>
+        /* RESET ET VARIABLES */
         *, *::before, *::after { box-sizing: border-box; }
 
         :root { 
@@ -75,30 +76,35 @@
         .btn-danger { background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; }
         body.dark-mode .btn-danger { background: rgba(220, 38, 38, 0.1); border-color: #dc2626; }
 
-        /* BOUTON FLOTTANT CONTACT - EXPANDABLE */
+        /* BOUTON FLOTTANT CONTACT OPTIMISÉ */
         .btn-contact-float {
             position: fixed; bottom: 25px; left: 25px;
             background: var(--texte); color: var(--fond);
-            border: none; border-radius: 50px; height: 50px; width: auto;
-            font-size: 1.1rem; font-weight: 600; box-shadow: var(--shadow-hover);
+            border: none; border-radius: 25px; height: 50px;
+            font-size: 1rem; font-weight: 600; box-shadow: var(--shadow-hover);
             cursor: pointer; z-index: 9000; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            display: flex; align-items: center; justify-content: center; padding: 0 20px;
-            overflow: hidden; white-space: nowrap; gap: 8px; font-family: 'Inter', sans-serif;
+            display: flex; align-items: center; padding: 0; overflow: hidden;
+            white-space: nowrap; font-family: 'Inter', sans-serif;
+            width: 170px; /* Largeur par défaut déployée */
         }
+        .btn-contact-float .btn-content { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; padding: 0 20px; gap: 8px;}
         .btn-contact-float:hover { background: var(--accent); color: white; transform: translateY(-3px); }
-        .btn-contact-float span.text { opacity: 1; transition: opacity 0.2s; }
         
-        /* C'est ce mode "collapsé" qui sera actif pendant la lecture d'un article */
-        .btn-contact-float.is-collapsed { width: 50px; padding: 0; gap: 0; }
-        .btn-contact-float.is-collapsed span.text { display: none; opacity: 0; }
-        .btn-contact-float.is-collapsed:hover { width: 180px; padding: 0 20px; gap: 8px; justify-content: flex-start; }
-        .btn-contact-float.is-collapsed:hover span.text { display: inline; opacity: 1; }
+        .btn-contact-float.is-collapsed { width: 50px; }
+        .btn-contact-float.is-collapsed .btn-content { padding: 0; justify-content: center; gap: 0; }
+        .btn-contact-float.is-collapsed span.text { display: none; }
+        
+        .btn-contact-float.is-collapsed:hover { width: 170px; }
+        .btn-contact-float.is-collapsed:hover .btn-content { justify-content: flex-start; padding: 0 20px; gap: 8px; }
+        .btn-contact-float.is-collapsed:hover span.text { display: inline; }
 
-        #message-bienvenue { max-width: 1200px; margin: 60px auto 30px auto; padding: 0 5%; display: none; text-align: center; animation: fadeIn 0.5s ease; }
-        #message-bienvenue h2 { font-size: 3rem; margin: 0; color: var(--accent); line-height: 1.2; padding-top: 10px; }
-        #message-bienvenue p { margin-top: 15px; color: var(--texte-clair); font-size: 1.15rem; }
+        /* MESSAGE BIENVENUE : Parfaitement aligné à gauche */
+        #message-bienvenue { max-width: 1200px; margin: 40px auto 0 auto; padding: 0 5%; display: none; text-align: left; animation: fadeIn 0.5s ease; width: 100%; }
+        #message-bienvenue h2 { font-size: 2.8rem; margin: 0; color: var(--accent); line-height: 1.2; }
+        #message-bienvenue p { margin-top: 10px; color: var(--texte-clair); font-size: 1.15rem; }
 
-        #vue-grille { max-width: 1200px; margin: 0 auto 40px auto; padding: 0 5%; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px; flex-grow: 1; width: 100%; }
+        /* VUE GRILLE */
+        #vue-grille { max-width: 1200px; margin: 30px auto 40px auto; padding: 0 5%; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px; flex-grow: 1; width: 100%; }
         
         .card { background: var(--fond-card); border-radius: 16px; overflow: hidden; box-shadow: var(--shadow); cursor: pointer; transition: var(--transition); display: flex; flex-direction: column; border: 1px solid var(--bordure); width: 100%; transform: translateZ(0); }
         .card:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); border-color: var(--accent); }
@@ -108,8 +114,9 @@
         .card-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
         .card-categorie { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: var(--accent); letter-spacing: 0.5px; }
         
-        .badge-fautpayer { background: rgba(225, 29, 72, 0.1); color: var(--premium); font-size: 0.75rem; padding: 4px 10px; border-radius: 50px; font-weight: bold; border: 1px solid rgba(225, 29, 72, 0.3); white-space: nowrap; flex-shrink: 0; }
-        .badge-inclus { background: var(--vip-bg); color: var(--vip); font-size: 1.1rem; padding: 2px 10px; border-radius: 50px; border: 1px solid var(--vip); display: flex; align-items: center; justify-content: center; white-space: nowrap; flex-shrink: 0; }
+        /* NOUVEAUX CADENAS MINIMALISTES */
+        .badge-fautpayer { background: rgba(225, 29, 72, 0.1); color: var(--premium); font-size: 1rem; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid rgba(225, 29, 72, 0.3); flex-shrink: 0; }
+        .badge-inclus { background: var(--vip-bg); color: var(--vip); font-size: 1rem; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid var(--vip); flex-shrink: 0; }
         
         .card-titre { font-size: 1.4rem; margin: 0 0 15px 0; line-height: 1.3; color: var(--texte); word-wrap: break-word; }
         .card-date { font-size: 0.85rem; color: var(--texte-clair); margin-top: auto; }
@@ -134,21 +141,18 @@
             #zone-boutons-header { display: flex; width: 100%; justify-content: center; gap: 10px; }
             #zone-boutons-header .btn { flex: 1; padding: 12px 10px; font-size: 0.9rem; }
             
-            #message-bienvenue { margin: 30px 5% 15px 5%; text-align: center; }
+            #message-bienvenue { margin: 20px auto 10px auto; text-align: center; }
             #message-bienvenue h2 { font-size: 2rem; }
-            #message-bienvenue p { text-align: center; }
             
             .card:first-child { grid-column: auto; flex-direction: column; } 
             .card:first-child .card-img { width: 100%; height: 220px; min-height: 220px; border-radius: 16px 16px 0 0; }
             .card:first-child .card-content { width: 100%; padding: 25px; }
             .card:first-child .card-titre { font-size: 1.5rem; }
 
-            /* Sur mobile on force le mode compact par défaut pour gagner de la place */
-            .btn-contact-float { width: 50px; padding: 0; gap: 0; bottom: 15px; left: 15px;}
-            .btn-contact-float span.text { display: none; opacity: 0; }
-            .btn-contact-float:hover { width: 50px; }
+            .btn-contact-float { bottom: 15px; left: 15px; }
         }
 
+        /* VUE ARTICLE */
         #vue-article { display: none; max-width: 720px; margin: 0 auto; padding: 40px 5%; flex-grow: 1; }
         .btn-retour { display: inline-flex; align-items: center; color: var(--texte-clair); text-decoration: none; font-weight: 600; cursor: pointer; margin-bottom: 30px; border: none; background: none; font-size: 1rem; padding: 0; }
         .btn-retour:hover { color: var(--accent); }
@@ -157,7 +161,12 @@
         .art-header-img { width: 100%; height: 100%; object-fit: cover; display: block; margin: 0; }
         
         .art-titre { font-size: 3rem; line-height: 1.1; margin-bottom: 15px; color: var(--texte); }
-        .art-meta { display: flex; gap: 15px; justify-content: space-between; color: var(--texte-clair); margin-bottom: 40px; font-size: 0.95rem; border-bottom: 1px solid var(--bordure); padding-bottom: 20px; flex-wrap: wrap;}
+        .art-meta { display: flex; gap: 15px; justify-content: space-between; color: var(--texte-clair); margin-bottom: 40px; font-size: 0.95rem; border-bottom: 1px solid var(--bordure); padding-bottom: 20px; flex-wrap: wrap; align-items: center;}
+        
+        /* BOUTON FLeMME */
+        .btn-flemme { padding: 4px 10px; font-size: 0.8rem; border-radius: 12px; background: transparent; border: 1px solid var(--bordure); color: var(--texte); cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 5px; font-weight: 600; }
+        .btn-flemme:hover { border-color: var(--accent); color: var(--accent); }
+
         .art-contenu { font-size: 1.15rem; color: var(--texte); line-height: 1.8; }
         .art-contenu img { max-width: 100%; border-radius: 12px; margin: 30px 0; }
 
@@ -215,7 +224,9 @@
     
     <!-- BOUTON FLOTTANT DE CONTACT -->
     <button id="btn-contact-float" class="btn-contact-float" onclick="ouvrirContact()">
-        💬 <span class="text">Nous contacter</span>
+        <div class="btn-content">
+            <span class="icon">💬</span><span class="text">Nous contacter</span>
+        </div>
     </button>
 
     <div id="maintenance-screen">
@@ -253,10 +264,10 @@
 
         <footer>
             <div class="footer-links">
-                <a href="#">Mentions légales (qu'on n'a pas lues)</a>
-                <a onclick="ouvrirContact(); return false;">Nous contacter (on répondra peut-être)</a>
-                <a href="#">Recrutement (stage non rémunéré)</a>
-                <a href="#">Politique de confidentialité (on vend tout)</a>
+                <a onclick="showToast('Elles sont cachées sous le tapis.', 'error')">Mentions légales (qu'on n'a pas lues)</a>
+                <a onclick="ouvrirContact();">Nous contacter (on répondra peut-être)</a>
+                <a onclick="showToast('On a déjà trop de stagiaires, désolé.', 'error')">Recrutement (stage non rémunéré)</a>
+                <a onclick="showToast('Vos données sont en sécurité... sur le dark web.', 'error')">Politique de confidentialité (on vend tout)</a>
             </div>
             <div>&copy; 2026 Le Moderne - Le premier "média" qui s'assume. Tous droits réservés.</div>
         </footer>
@@ -327,7 +338,7 @@
         </div>
     </div>
 
-    <!-- MODALE LECTURE REPONSE (NOUVEAU) -->
+    <!-- MODALE LECTURE REPONSE -->
     <div id="reponse-modal" class="modal-overlay">
         <div class="modal-content">
             <span class="close-btn" onclick="fermerModales()">&times;</span>
@@ -339,7 +350,7 @@
                 <p id="reponse-msg-original" style="margin: 5px 0 0 0; font-style:italic; color:var(--texte);"></p>
             </div>
 
-            <div style="background: var(--fond); border: 1px solid var(--bordure); padding: 15px; border-radius: 8px;">
+            <div style="background: var(--fond-card); border: 1px solid var(--bordure); padding: 15px; border-radius: 8px;">
                 <span style="font-size:0.8rem; color:var(--premium); text-transform:uppercase; font-weight:bold;">Notre réponse ultra pro :</span>
                 <p id="reponse-msg-texte" style="margin: 5px 0 0 0; font-weight:500; color:var(--texte);"></p>
             </div>
@@ -391,6 +402,12 @@
 
         let lecteurActuel = null, profilLecteur = null, estAbonne = false, creditsPartage = 0, articlesOfferts = [];
         let tousLesArticles = [], toutesLesCategories = [], articleActifId = null;
+        let scrollInterval = null;
+
+        // TITRE DE PAGE DYNAMIQUE (Easter egg)
+        let originalTitle = document.title;
+        window.addEventListener("blur", () => { document.title = "Reviens stp 🥺"; });
+        window.addEventListener("focus", () => { document.title = originalTitle; });
 
         function showToast(message, type = 'success') {
             const container = document.getElementById('toast-container');
@@ -399,6 +416,43 @@
             toast.innerHTML = type === 'success' ? `✅ ${message}` : `⚠️ ${message}`;
             container.appendChild(toast);
             setTimeout(() => { toast.remove(); }, 4500);
+        }
+
+        // CONFETTIS EMOJI (Easter egg cadeau)
+        function lancerConfettis() {
+            const emojis = ['🎉', '🎁', '💸', '🕊️'];
+            for(let i=0; i<30; i++) {
+                let el = document.createElement('div');
+                el.innerText = emojis[Math.floor(Math.random()*emojis.length)];
+                el.style.position = 'fixed';
+                el.style.left = Math.random() * 100 + 'vw';
+                el.style.top = '100vh';
+                el.style.fontSize = (Math.random() * 20 + 20) + 'px';
+                el.style.zIndex = 10000;
+                el.style.pointerEvents = 'none';
+                el.style.transition = 'all 2s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+                document.body.appendChild(el);
+                setTimeout(() => {
+                    el.style.top = (Math.random() * 50) + 'vh';
+                    el.style.opacity = 0;
+                    el.style.transform = `rotate(${Math.random()*360}deg)`;
+                }, 50);
+                setTimeout(() => el.remove(), 2000);
+            }
+        }
+
+        // MODE FLEMME (Auto-scroll)
+        function toggleAutoScroll() {
+            const btn = document.getElementById('btn-flemme');
+            if(scrollInterval) {
+                clearInterval(scrollInterval); scrollInterval = null;
+                btn.innerHTML = "🤖 Mode Flemme";
+                btn.style.background = "transparent"; btn.style.color = "var(--texte)";
+            } else {
+                btn.innerHTML = "🛑 Stop défilement";
+                btn.style.background = "var(--accent)"; btn.style.color = "white";
+                scrollInterval = setInterval(() => { window.scrollBy(0, 1); }, 15);
+            }
         }
 
         function toggleTheme() {
@@ -477,11 +531,10 @@
                 document.getElementById('zone-boutons-header').innerHTML = `
                     ${btnTheme}
                     <button class="btn btn-outline" style="padding:6px 14px; border-radius:8px; font-size: 0.85rem;" onclick="ouvrirCompte()">Espace Client</button>
-                    ${!estAbonne ? `<button class="btn btn-primaire" style="background:var(--premium); padding:6px 14px; font-size: 0.85rem;" onclick="ouvrirOffres()">S'abonner</button>` : `<span class="badge-inclus" style="font-size:0.8rem; padding:8px 14px; margin:0; cursor:default;">${badgeNom} 🔓</span>`}
+                    ${!estAbonne ? `<button class="btn btn-primaire" style="background:var(--premium); padding:6px 14px; font-size: 0.85rem;" onclick="ouvrirOffres()">S'abonner</button>` : `<span class="badge-inclus" style="font-size:0.8rem; padding:8px 14px; margin:0; cursor:default; border-radius:50px;">${badgeNom} 🔓</span>`}
                     <button class="btn btn-outline" style="padding:6px 14px; border:none; text-decoration:underline; font-size: 0.85rem;" onclick="seDeconnecter()">Quitter</button>
                 `;
 
-                // VERIFICATION DES MESSAGES NON LUS
                 verifierReponsesContact();
 
             } else {
@@ -525,11 +578,10 @@
         }
 
         function afficherGrille() {
+            if(scrollInterval) toggleAutoScroll(); // Stoppe le mode flemme si actif
             document.getElementById('progress-bar').style.display = 'none';
             document.getElementById('vue-article').style.display = 'none'; 
             document.getElementById('vue-grille').style.display = 'grid';
-            
-            // Le bouton contact s'agrandit
             document.getElementById('btn-contact-float').classList.remove('is-collapsed');
 
             if(lecteurActuel) document.getElementById('message-bienvenue').style.display = 'block';
@@ -538,6 +590,7 @@
 
         function filtrerArticles(catId, elementNav = null) {
             if (document.getElementById('vue-article').style.display === 'block') {
+                if(scrollInterval) toggleAutoScroll();
                 document.getElementById('vue-article').style.display = 'none';
                 document.getElementById('vue-grille').style.display = 'grid';
                 document.getElementById('progress-bar').style.display = 'none';
@@ -562,9 +615,9 @@
                 let badge = '';
                 if (art.reserve_abonnes) {
                     if (estAbonne || articlesOfferts.includes(art.id)) { 
-                        badge = `<span class="badge-inclus" style="padding: 2px 10px; font-size: 1.1rem; border:none;" title="Article débloqué">🔓</span>`; 
+                        badge = `<div class="badge-inclus" title="Article débloqué">🔓</div>`; 
                     } else { 
-                        badge = `<span class="badge-fautpayer">PREMIUM 🔒</span>`; 
+                        badge = `<div class="badge-fautpayer" title="Article Premium réservé aux abonnés">🔒</div>`; 
                     }
                 }
 
@@ -590,7 +643,6 @@
             document.getElementById('vue-article').style.display = 'block';
             document.getElementById('progress-bar').style.display = 'block';
             
-            // Le bouton contact se réduit en icône pour ne pas gêner
             document.getElementById('btn-contact-float').classList.add('is-collapsed');
 
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -607,7 +659,10 @@
                 <h1 class="art-titre">${art.titre}</h1>
                 <div class="art-meta">
                     <span>Rédigé par le stagiaire le ${date}</span>
-                    <span style="color:var(--accent);">⏱️ Env. ${tempsLecture} min de lecture (si vous lisez vite)</span>
+                    <div style="display:flex; align-items:center; flex-wrap:wrap; gap:10px;">
+                        <span style="color:var(--accent);">⏱️ Env. ${tempsLecture} min de lecture</span>
+                        <button id="btn-flemme" class="btn-flemme" onclick="toggleAutoScroll()">🤖 Mode Flemme</button>
+                    </div>
                 </div>
             `;
 
@@ -775,7 +830,14 @@
             const emailAmi = document.getElementById('partage-email').value; if(!emailAmi) return showToast("Il manque l'email.", "error");
             const { error } = await db.from('partages_articles').insert([{ article_id: articleActifId, lecteur_id: lecteurActuel.id, email_destinataire: emailAmi }]);
             if (error) showToast(error.message, "error");
-            else { creditsPartage--; await db.from('lecteurs').update({ credits_partage: creditsPartage }).eq('id', lecteurActuel.id); showToast("Cadeau envoyé ! Vous êtes quelqu'un de bien."); fermerModales(); ouvrirArticle(articleActifId); }
+            else { 
+                creditsPartage--; 
+                await db.from('lecteurs').update({ credits_partage: creditsPartage }).eq('id', lecteurActuel.id); 
+                showToast("Cadeau envoyé !"); 
+                lancerConfettis();
+                fermerModales(); 
+                ouvrirArticle(articleActifId); 
+            }
         }
 
         function ouvrirAuth() { document.getElementById('auth-modal').style.display = 'flex'; }

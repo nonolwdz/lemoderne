@@ -30,7 +30,7 @@
         .editor-container { height: 250px; border-radius: 0 0 8px 8px; }
         .ql-toolbar { border-radius: 8px 8px 0 0; background: #f1f5f9; border-color: var(--bordure); }
         .box-info { background: #eff6ff; border: 1px solid #bfdbfe; padding: 15px; border-radius: 8px; margin-bottom: 20px; color: #1e3a8a; }
-        .list-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; border: 1px solid var(--bordure); border-radius: 8px; margin-bottom: 10px; background: #f8fafc; }
+        .list-item { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; padding: 15px; border: 1px solid var(--bordure); border-radius: 8px; margin-bottom: 10px; background: #f8fafc; gap: 10px; }
         .btn-danger { background: #ef4444; color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; }
         .btn-danger:hover { background: #dc2626; }
     </style>
@@ -126,10 +126,10 @@
                 <button class="btn-primaire" onclick="gererAbonnement()" style="width: 100%; padding: 15px; font-size: 1.1rem;">Mettre à jour le lecteur</button>
             </div>
 
-            <!-- MESSAGES (NOUVEAU) -->
+            <!-- MESSAGES -->
             <div id="section-messages" class="section">
                 <h2>Boîte de réception</h2>
-                <p style="color: #64748b; margin-top: -10px; margin-bottom: 25px;">Voici les messages envoyés par vos lecteurs depuis la page de contact.</p>
+                <p style="color: #64748b; margin-top: -10px; margin-bottom: 25px;">Voici les plaintes de vos lecteurs. Vous pouvez leur répondre directement ici.</p>
                 <div id="liste-messages"></div>
             </div>
 
@@ -174,7 +174,6 @@
         }
 
         async function chargerToutesLesDonnees() {
-            // Rubriques
             const { data: cats } = await db.from('categories').select('*').order('nom');
             listeCategories = cats || [];
             const selectCat = document.getElementById('categorie-article');
@@ -182,14 +181,12 @@
             selectCat.innerHTML = '<option value="">-- Choisir --</option>'; conteneurThemes.innerHTML = '';
             listeCategories.forEach(c => { selectCat.innerHTML += `<option value="${c.id}">${c.nom}</option>`; conteneurThemes.innerHTML += `<div class="list-item"><b>${c.nom}</b><button class="btn-danger" onclick="supprimerTheme('${c.id}')">Supprimer</button></div>`; });
 
-            // Articles
             const { data: arts } = await db.from('articles').select('*').order('date_publication', { ascending: false });
             listeArticles = arts || [];
             const selectArt = document.getElementById('select-article');
             selectArt.innerHTML = '<option value="">✨ Rédiger un nouvel article</option>';
             listeArticles.forEach(a => selectArt.innerHTML += `<option value="${a.id}">📝 Éditer : ${a.titre}</option>`);
 
-            // Offres
             const { data: offs } = await db.from('offres').select('*').order('prix_euros');
             listeOffres = offs || [];
             const selectOff = document.getElementById('select-offre');
@@ -201,35 +198,73 @@
                 selectOffreLecteur.innerHTML += `<option value="${o.id}">${o.nom} (${o.prix_euros}€)</option>`;
             });
 
-            // Paramètres
             const { data: settings } = await db.from('site_settings').select('*').eq('id', 1).single();
             if (settings) { enMaintenance = settings.en_maintenance; document.getElementById('texte-flash').value = settings.flash_texte || ''; actualiserBoutonMaintenance(); }
             
-            // Messages Contact
             chargerMessages();
         }
 
-        // --- GESTION DES MESSAGES ---
+        // --- GESTION DES MESSAGES ET DES RÉPONSES ---
         async function chargerMessages() {
             const { data: msgs } = await db.from('messages_contact').select('*').order('date_envoi', { ascending: false });
             const conteneur = document.getElementById('liste-messages');
             conteneur.innerHTML = '';
+            
             if(!msgs || msgs.length === 0) {
                 conteneur.innerHTML = '<p style="color: #64748b; font-style: italic;">Votre boîte est vide. Personne ne vous écrit.</p>';
                 return;
             }
+
             msgs.forEach(m => {
                 const date = new Date(m.date_envoi).toLocaleString('fr-FR', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
+                
+                let blocReponse = '';
+                if (m.reponse) {
+                    let luStatut = m.lu_par_lecteur ? "✅ Lu par le lecteur" : "⏳ Non lu";
+                    blocReponse = `
+                        <div style="background: #eff6ff; border: 1px solid #bfdbfe; padding: 15px; border-radius: 8px; margin-top: 15px; width: 100%;">
+                            <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                                <strong style="color: #1e40af; font-size: 0.85rem;">VOTRE RÉPONSE :</strong>
+                                <span style="font-size:0.8rem; color:#64748b;">${luStatut}</span>
+                            </div>
+                            <p style="margin: 0; color: #1e3a8a; font-size: 0.95rem; font-style: italic;">"${m.reponse}"</p>
+                        </div>`;
+                } else {
+                    blocReponse = `
+                        <div style="margin-top: 15px; width: 100%; display: flex; flex-direction: column; gap: 10px;">
+                            <textarea id="reponse-txt-${m.id}" rows="2" class="input-champ" style="margin-bottom:0;" placeholder="Votre réponse (soyez piquant)..."></textarea>
+                            <button class="btn-primaire" style="align-self: flex-start; padding: 8px 15px; font-size: 0.9rem;" onclick="envoyerReponse(${m.id})">Envoyer la réponse</button>
+                        </div>`;
+                }
+
                 conteneur.innerHTML += `
-                    <div class="list-item" style="flex-direction:column; align-items:flex-start; gap:10px; background: white; border: 1px solid #cbd5e1; padding: 20px;">
-                        <div style="display:flex; justify-content:space-between; width:100%; border-bottom:1px solid #e2e8f0; padding-bottom:10px;">
-                            <strong style="color: var(--primaire);">${m.email}</strong>
+                    <div class="list-item" style="flex-direction:column; align-items:flex-start; background: white; border: 1px solid #cbd5e1; padding: 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.02);">
+                        <div style="display:flex; justify-content:space-between; width:100%; border-bottom:1px solid #e2e8f0; padding-bottom:10px; margin-bottom:15px;">
+                            <strong style="color: var(--primaire); font-size:1.1rem;">${m.email}</strong>
                             <span style="color:#64748b; font-size:0.85rem;">${date}</span>
                         </div>
-                        <p style="margin:10px 0; white-space:pre-wrap; color: #334155; line-height: 1.6;">${m.message}</p>
-                        <button class="btn-danger" style="align-self:flex-end; padding:8px 12px; font-size:0.85rem;" onclick="supprimerMessage(${m.id})">Supprimer ce message</button>
+                        <p style="margin:0; white-space:pre-wrap; color: #334155; line-height: 1.6; font-size:1.05rem;">${m.message}</p>
+                        
+                        ${blocReponse}
+
+                        <div style="width:100%; border-top:1px dashed #e2e8f0; margin-top:20px; padding-top:15px; text-align:right;">
+                            <button class="btn-danger" style="padding:6px 12px; font-size:0.8rem; background:transparent; color:#ef4444; text-decoration:underline;" onclick="supprimerMessage(${m.id})">Supprimer ce message</button>
+                        </div>
                     </div>`;
             });
+        }
+
+        async function envoyerReponse(id) {
+            const texteReponse = document.getElementById(`reponse-txt-${id}`).value.trim();
+            if(!texteReponse) return alert("Veuillez taper une réponse avant d'envoyer.");
+
+            const { error } = await db.from('messages_contact').update({ 
+                reponse: texteReponse, 
+                lu_par_lecteur: false 
+            }).eq('id', id);
+
+            if(error) alert("Erreur : " + error.message);
+            else { alert("✅ Réponse envoyée ! Le lecteur la verra à sa prochaine connexion."); chargerMessages(); }
         }
 
         async function supprimerMessage(id) {

@@ -52,7 +52,7 @@
             <button class="tab-btn active" onclick="switchTab('articles', this)">Articles</button>
             <button class="tab-btn" onclick="switchTab('themes', this)">Rubriques</button>
             <button class="tab-btn" onclick="switchTab('offres', this)">Offres</button>
-            <button class="tab-btn" onclick="switchTab('lecteurs', this)">Lecteurs / Cadeaux</button>
+            <button class="tab-btn" onclick="switchTab('lecteurs', this)">Lecteurs (CRM)</button>
             <button class="tab-btn" onclick="switchTab('messages', this)">Messages 📥</button>
             <button class="tab-btn" onclick="switchTab('parametres', this)" style="color: #ef4444;">Paramètres</button>
         </div>
@@ -110,20 +110,35 @@
                 <button class="btn-primaire" id="btn-save-offre" onclick="sauvegarderOffre()" style="width: 100%; font-size: 1.1rem; padding: 15px;">Créer l'offre</button>
             </div>
 
-            <!-- LECTEURS -->
+            <!-- LECTEURS (CRM) -->
             <div id="section-lecteurs" class="section">
-                <h2>Abonnements Manuels & Cadeaux</h2>
-                <div class="input-group"><label>Email du lecteur inscrit</label><input type="email" id="email-lecteur"></div>
-                <div class="input-group">
-                    <label>Quelle offre lui attribuer ?</label>
-                    <select id="offre-attribuee"><option value="">-- Ne pas changer l'offre --</option></select>
+                <h2>Gestion CRM des Lecteurs</h2>
+                
+                <!-- Zone de Recherche -->
+                <div class="input-group" style="display:flex; gap:10px; margin-bottom: 25px;">
+                    <input type="email" id="recherche-email" placeholder="Rechercher par email (ex: jean@mail.com)" style="flex:1;">
+                    <button class="btn-primaire" onclick="rechercherLecteur()" style="white-space:nowrap;">Rechercher</button>
                 </div>
-                <div class="grid-2">
-                    <div class="input-group"><label>Action</label><select id="action-lecteur"><option value="ajouter">Ajouter des jours</option><option value="retirer">Retirer des jours</option></select></div>
-                    <div class="input-group"><label>Nombre de jours</label><input type="number" id="jours-lecteur" value="30"></div>
+
+                <!-- Fiche du Lecteur (Masquée par défaut) -->
+                <div id="fiche-lecteur" style="display:none; background:#f8fafc; border:1px solid #cbd5e1; padding:20px; border-radius:12px; margin-bottom:25px;">
+                    <!-- Rempli dynamiquement en JS -->
                 </div>
-                <div class="box-info">En attribuant une offre, il recevra automatiquement les cadeaux associés et le prix sera affiché "0€ (Offert)" sur son profil.</div>
-                <button class="btn-primaire" onclick="gererAbonnement()" style="width: 100%; padding: 15px; font-size: 1.1rem;">Mettre à jour le lecteur</button>
+
+                <!-- Formulaire de modification (Masqué par défaut) -->
+                <div id="actions-lecteur" style="display:none; border-top:1px dashed #cbd5e1; padding-top:20px;">
+                    <h3 style="margin-top:0;">Modifier l'abonnement</h3>
+                    <div class="input-group">
+                        <label>Attribuer une nouvelle offre (ou laisser vide)</label>
+                        <select id="offre-attribuee"><option value="">-- Ne pas changer l'offre --</option></select>
+                    </div>
+                    <div class="grid-2">
+                        <div class="input-group"><label>Action</label><select id="action-lecteur"><option value="ajouter">Ajouter des jours</option><option value="retirer">Retirer des jours</option></select></div>
+                        <div class="input-group"><label>Nombre de jours</label><input type="number" id="jours-lecteur" value="30"></div>
+                    </div>
+                    <div class="box-info" style="margin-bottom:20px;">En attribuant une offre manuellement, le prix sera affiché "0€ (Offert)" sur son profil.</div>
+                    <button class="btn-primaire" onclick="gererAbonnement()" style="width: 100%; padding: 15px; font-size: 1.1rem;">Mettre à jour le compte</button>
+                </div>
             </div>
 
             <!-- MESSAGES -->
@@ -154,6 +169,7 @@
 
         let listeArticles = [], listeCategories = [], listeOffres = [];
         let articleEditionId = null, offreEditionId = null, enMaintenance = false;
+        let lecteurEnCours = null; // Stocke le lecteur qu'on est en train d'éditer
 
         const quillOptions = { theme: 'snow', modules: { toolbar: [ [{ 'header': [1, 2, 3, false] }], ['bold', 'italic'], ['link', 'image'], [{'list': 'bullet'}], ['clean'] ] } };
         var quillPublic = new Quill('#quill-public', { ...quillOptions, placeholder: 'Écrivez ici l\'introduction visible par tous...' });
@@ -204,7 +220,98 @@
             chargerMessages();
         }
 
-        // --- GESTION DES MESSAGES ET DES RÉPONSES ---
+        // --- NOUVEAU CRM LECTEURS ---
+        async function rechercherLecteur() {
+            const email = document.getElementById('recherche-email').value.trim();
+            if(!email) return alert("Veuillez saisir un email à rechercher.");
+            
+            const { data: lecteur, error } = await db.from('lecteurs').select('*').eq('email', email).single();
+            if(error || !lecteur) {
+                alert("Aucun lecteur trouvé avec cet email dans la base.");
+                document.getElementById('fiche-lecteur').style.display = 'none';
+                document.getElementById('actions-lecteur').style.display = 'none';
+                return;
+            }
+            
+            lecteurEnCours = lecteur;
+            
+            // Statistiques des cadeaux
+            const { data: offerts } = await db.from('partages_articles').select('id').eq('lecteur_id', lecteur.id);
+            const { data: recus } = await db.from('partages_articles').select('id').eq('email_destinataire', lecteur.email);
+            const nbOfferts = offerts ? offerts.length : 0;
+            const nbRecus = recus ? recus.length : 0;
+
+            const isAbonne = lecteur.est_abonne && new Date(lecteur.fin_abonnement) > new Date();
+            const statutHtml = isAbonne ? `<span style="color:#059669; font-weight:700;">Abonné (${lecteur.offre_nom || 'Premium'})</span>` : `<span style="color:#64748b; font-weight:700;">Gratuit</span>`;
+            const dateFin = lecteur.fin_abonnement ? new Date(lecteur.fin_abonnement).toLocaleDateString('fr-FR') : '-';
+            const typeFact = lecteur.abonnement_offert ? 'Cadeau Admin' : 'Stripe';
+
+            document.getElementById('fiche-lecteur').innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                    <h3 style="margin:0; color:var(--primaire);">👤 ${lecteur.prenom || 'Sans prénom'} (${lecteur.email})</h3>
+                </div>
+                <div class="grid-2" style="gap:15px; margin-bottom:15px;">
+                    <div style="background:white; padding:12px; border-radius:8px; border:1px solid #e2e8f0;">
+                        <div style="font-size:0.8rem; color:#64748b; text-transform:uppercase; font-weight:600;">Statut Actuel</div>
+                        <div style="font-size:1.1rem;">${statutHtml}</div>
+                    </div>
+                    <div style="background:white; padding:12px; border-radius:8px; border:1px solid #e2e8f0;">
+                        <div style="font-size:0.8rem; color:#64748b; text-transform:uppercase; font-weight:600;">Fin d'abonnement</div>
+                        <div style="font-size:1.1rem; font-weight:600;">${dateFin}</div>
+                    </div>
+                    <div style="background:white; padding:12px; border-radius:8px; border:1px solid #e2e8f0;">
+                        <div style="font-size:0.8rem; color:#64748b; text-transform:uppercase; font-weight:600;">Origine</div>
+                        <div style="font-size:1.1rem; font-weight:600;">${isAbonne ? typeFact : '-'}</div>
+                    </div>
+                    <div style="background:white; padding:12px; border-radius:8px; border:1px solid #e2e8f0;">
+                        <div style="font-size:0.8rem; color:#64748b; text-transform:uppercase; font-weight:600;">Cadeaux restants</div>
+                        <div style="font-size:1.1rem; font-weight:600; color:var(--secondaire);">${lecteur.credits_partage || 0}</div>
+                    </div>
+                </div>
+                <div style="background:#eff6ff; padding:12px; border-radius:8px; border:1px solid #bfdbfe; font-size:0.9rem; color:#1e3a8a;">
+                    <b>Historique de la commère :</b> A offert <b>${nbOfferts}</b> article(s) à ses amis • A reçu <b>${nbRecus}</b> article(s) en cadeau.
+                </div>
+            `;
+            
+            document.getElementById('fiche-lecteur').style.display = 'block';
+            document.getElementById('actions-lecteur').style.display = 'block';
+        }
+
+        async function gererAbonnement() {
+            if(!lecteurEnCours) return;
+            const action = document.getElementById('action-lecteur').value; 
+            const jours = parseInt(document.getElementById('jours-lecteur').value);
+            const offreId = document.getElementById('offre-attribuee').value;
+
+            if(isNaN(jours)) return alert("Veuillez entrer une durée valide.");
+            
+            let nouvelleDate = new Date(); 
+            if (lecteurEnCours.fin_abonnement && new Date(lecteurEnCours.fin_abonnement) > nouvelleDate) {
+                nouvelleDate = new Date(lecteurEnCours.fin_abonnement);
+            }
+            
+            if (action === 'ajouter') nouvelleDate.setDate(nouvelleDate.getDate() + jours); 
+            else { nouvelleDate.setDate(nouvelleDate.getDate() - jours); if (nouvelleDate < new Date()) nouvelleDate = new Date(); }
+            
+            let payload = { est_abonne: nouvelleDate > new Date(), fin_abonnement: nouvelleDate.toISOString() };
+            
+            if (action === 'ajouter' && offreId !== "") {
+                const off = listeOffres.find(o => o.id.toString() === offreId.toString());
+                if (off) {
+                    payload.offre_nom = off.nom; payload.offre_prix = off.prix_euros; payload.abonnement_offert = true; payload.credits_partage = off.partages_autorises || 0;
+                }
+            }
+
+            const { error: errUpdate } = await db.from('lecteurs').update(payload).eq('id', lecteurEnCours.id);
+            if(errUpdate) {
+                alert("Erreur : " + errUpdate.message); 
+            } else { 
+                alert(`✅ Succès ! Le compte de ${lecteurEnCours.email} a été mis à jour.`); 
+                rechercherLecteur(); // Rafraîchit la fiche
+            }
+        }
+
+        // --- GESTION DES MESSAGES ---
         async function chargerMessages() {
             const { data: msgs } = await db.from('messages_contact').select('*').order('date_envoi', { ascending: false });
             const conteneur = document.getElementById('liste-messages');
@@ -258,19 +365,13 @@
             const texteReponse = document.getElementById(`reponse-txt-${id}`).value.trim();
             if(!texteReponse) return alert("Veuillez taper une réponse avant d'envoyer.");
 
-            const { error } = await db.from('messages_contact').update({ 
-                reponse: texteReponse, 
-                lu_par_lecteur: false 
-            }).eq('id', id);
-
-            if(error) alert("Erreur : " + error.message);
-            else { alert("✅ Réponse envoyée ! Le lecteur la verra à sa prochaine connexion."); chargerMessages(); }
+            const { error } = await db.from('messages_contact').update({ reponse: texteReponse, lu_par_lecteur: false }).eq('id', id);
+            if(error) alert("Erreur : " + error.message); else { alert("✅ Réponse envoyée !"); chargerMessages(); }
         }
 
         async function supprimerMessage(id) {
             if(!confirm("Supprimer définitivement ce message ?")) return;
-            await db.from('messages_contact').delete().eq('id', id);
-            chargerMessages();
+            await db.from('messages_contact').delete().eq('id', id); chargerMessages();
         }
 
         // --- AUTRES FONCTIONS (Articles, Offres, etc.) ---
@@ -296,32 +397,6 @@
         async function sauvegarderOffre() { const payload = { nom: document.getElementById('nom-offre').value, prix_euros: parseFloat(document.getElementById('prix-offre').value), stripe_price_id: document.getElementById('lien-stripe').value, partages_autorises: parseInt(document.getElementById('partages-offre').value), avantages: document.getElementById('avantages-offre').value }; if(!payload.nom || isNaN(payload.prix_euros)) return alert("Nom et prix requis."); const req = offreEditionId ? db.from('offres').update(payload).eq('id', offreEditionId) : db.from('offres').insert([payload]); const { error } = await req; if(error) alert(error.message); else { alert("✅ Offre sauvegardée !"); chargerToutesLesDonnees(); } }
         async function creerTheme() { const nom = document.getElementById('nom-theme').value.trim(); if(!nom) return; await db.from('categories').insert([{ nom }]); document.getElementById('nom-theme').value = ''; chargerToutesLesDonnees(); }
         async function supprimerTheme(id) { if(!confirm("Supprimer ce thème ?")) return; await db.from('categories').delete().eq('id', id); chargerToutesLesDonnees(); }
-        
-        async function gererAbonnement() {
-            const email = document.getElementById('email-lecteur').value; 
-            const action = document.getElementById('action-lecteur').value; 
-            const jours = parseInt(document.getElementById('jours-lecteur').value);
-            const offreId = document.getElementById('offre-attribuee').value;
-
-            if(!email || isNaN(jours)) return alert("Veuillez entrer un email et une durée.");
-            const { data: lecteur, error: errFetch } = await db.from('lecteurs').select('*').eq('email', email).single();
-            if(errFetch || !lecteur) return alert("Ce lecteur n'existe pas.");
-            
-            let nouvelleDate = new Date(); if (lecteur.fin_abonnement && new Date(lecteur.fin_abonnement) > nouvelleDate) nouvelleDate = new Date(lecteur.fin_abonnement);
-            if (action === 'ajouter') nouvelleDate.setDate(nouvelleDate.getDate() + jours); else { nouvelleDate.setDate(nouvelleDate.getDate() - jours); if (nouvelleDate < new Date()) nouvelleDate = new Date(); }
-            
-            let payload = { est_abonne: nouvelleDate > new Date(), fin_abonnement: nouvelleDate.toISOString() };
-            
-            if (action === 'ajouter' && offreId !== "") {
-                const off = listeOffres.find(o => o.id.toString() === offreId.toString());
-                if (off) {
-                    payload.offre_nom = off.nom; payload.offre_prix = off.prix_euros; payload.abonnement_offert = true; payload.credits_partage = off.partages_autorises || 0;
-                }
-            }
-
-            const { error: errUpdate } = await db.from('lecteurs').update(payload).eq('id', lecteur.id);
-            if(errUpdate) alert("Erreur : " + errUpdate.message); else alert(`✅ Succès ! Le compte de ${email} a été mis à jour.`);
-        }
     </script>
 </body>
 </html>

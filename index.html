@@ -11,7 +11,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <style>
-        /* RESET ET FIX SAFARI */
         *, *::before, *::after { box-sizing: border-box; }
 
         :root { 
@@ -23,7 +22,7 @@
             --header-bg: rgba(255, 255, 255, 0.98);
             --shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
             --shadow-hover: 0 20px 30px rgba(0, 0, 0, 0.08);
-            --transition: all 0.3s ease;
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
 
         body.dark-mode {
@@ -78,10 +77,10 @@
         .nav-link:hover, .nav-link.active { color: var(--accent); background: rgba(99, 102, 241, 0.1); border-color: var(--accent); }
 
         .btn { padding: 10px 22px; border-radius: 50px; font-weight: 600; font-size: 0.95rem; cursor: pointer; transition: var(--transition); border: none; font-family: 'Inter'; display: inline-flex; align-items: center; justify-content: center; text-decoration: none;}
-        .btn-primaire { background: var(--accent); color: white; box-shadow: 0 4px 14px rgba(99, 102, 241, 0.3); }
-        .btn-primaire:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4); }
         .btn-outline { background: transparent; color: var(--texte); border: 1px solid var(--bordure); }
         .btn-outline:hover { background: var(--fond); }
+        .btn-primaire { background: var(--accent); color: white; box-shadow: 0 4px 14px rgba(99, 102, 241, 0.3); }
+        .btn-primaire:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4); }
         .btn-danger { background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; }
         body.dark-mode .btn-danger { background: rgba(220, 38, 38, 0.1); border-color: #dc2626; }
 
@@ -146,13 +145,13 @@
             .btn-contact-float { bottom: 15px; left: 15px; }
         }
 
-        /* VUE ARTICLE ÉLARGIE POUR ORDINATEUR */
+        /* VUE ARTICLE (Élargie pour ordi) */
         #vue-article { display: none; max-width: 850px; margin: 0 auto; padding: 40px 5%; flex-grow: 1; }
-        .btn-retour { display: inline-flex; align-items: center; color: var(--texte-clair); text-decoration: none; font-weight: 600; cursor: pointer; margin-bottom: 30px; border: none; background: none; font-size: 1rem; padding: 0; }
-        .btn-retour:hover { color: var(--accent); }
+        .btn-retour { display: inline-flex; align-items: center; color: var(--texte-clair); text-decoration: none; font-weight: 600; cursor: pointer; margin-bottom: 30px; border: none; background: none; font-size: 1rem; padding: 0; transition: var(--transition);}
+        .btn-retour:hover { color: var(--accent); transform: translateX(-4px); }
         
         .safari-img-wrapper { width: 100%; height: 450px; margin-bottom: 30px; border-radius: 20px; overflow: hidden; isolation: isolate; -webkit-mask-image: -webkit-radial-gradient(white, black); box-shadow: var(--shadow); }
-        .art-header-img { width: 100%; height: 100%; object-fit: cover; display: block; margin: 0; }
+        .art-header-img { width: 100%; height: 100%; object-fit: cover; display: block; margin: 0; transition: transform 0.5s ease; }
         
         .art-titre { font-size: 3rem; line-height: 1.1; margin-bottom: 15px; color: var(--texte); }
         .art-meta { display: flex; gap: 15px; justify-content: space-between; color: var(--texte-clair); margin-bottom: 40px; font-size: 0.95rem; border-bottom: 1px solid var(--bordure); padding-bottom: 20px; flex-wrap: wrap; align-items: center;}
@@ -161,7 +160,19 @@
         .btn-flemme:hover { border-color: var(--accent); color: var(--accent); }
 
         .art-contenu { font-size: 1.15rem; color: var(--texte); line-height: 1.8; }
-        .art-contenu img { max-width: 100%; border-radius: 12px; margin: 30px 0; }
+        .art-contenu img { max-width: 100%; border-radius: 12px; margin: 30px 0; box-shadow: var(--shadow); }
+
+        /* EFFET DE FADE POUR LE TEXTE PREMIUM BLOQUÉ */
+        .premium-preview {
+            max-height: 160px;
+            overflow: hidden;
+            pointer-events: none;
+            user-select: none;
+            -webkit-mask-image: linear-gradient(to bottom, black 20%, transparent 100%);
+            mask-image: linear-gradient(to bottom, black 20%, transparent 100%);
+            opacity: 0.85;
+            margin-bottom: 20px;
+        }
 
         @media (max-width: 768px) { 
             .safari-img-wrapper { height: 250px; } 
@@ -169,22 +180,8 @@
             .art-contenu { font-size: 1.05rem; }
         }
 
-        /* NOUVEAU EFFET PAYWALL : TEXTE QUI DISPARAÎT DANS LE VIDE */
-        .premium-preview-container {
-            position: relative;
-            max-height: 250px;
-            overflow: hidden;
-            pointer-events: none;
-            user-select: none;
-            -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 90%);
-            mask-image: linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 90%);
-            margin-bottom: 20px;
-            opacity: 0.7;
-        }
-
-        .paywall-box { position: relative; text-align: center; padding-bottom: 50px; margin-top: -100px; z-index: 10; }
-        .paywall-card { background: var(--fond-card); border: 1px solid var(--bordure); border-radius: 20px; padding: 40px; box-shadow: var(--shadow-hover); max-width: 550px; margin: 0 auto; position: relative; z-index: 10; }
-        
+        .paywall-box { background: linear-gradient(to bottom, transparent, var(--fond) 20%); padding-top: 80px; margin-top: -60px; position: relative; text-align: center; padding-bottom: 50px; z-index:10; }
+        .paywall-card { background: var(--fond-card); border: 1px solid var(--bordure); border-radius: 20px; padding: 40px; box-shadow: var(--shadow-hover); max-width: 500px; margin: 0 auto; position: relative; z-index: 10; }
         .cadeau-banner { background: rgba(225, 29, 72, 0.05); border: 1px dashed var(--premium); color: var(--premium); padding: 20px; border-radius: 12px; margin-bottom: 40px; font-weight: 600; display: flex; align-items: center; gap: 15px; justify-content: center; text-align: center; line-height: 1.4;}
         .share-box { background: var(--fond-card); border: 1px solid var(--bordure); padding: 25px 30px; border-radius: 16px; margin-top: 50px; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow); flex-wrap: wrap; gap: 15px;}
 
@@ -196,7 +193,7 @@
         #maintenance-screen { display: none; height: 100vh; width: 100vw; background: #0f172a; color: white; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px; }
         #maintenance-screen h1 { font-size: 4rem; margin-bottom: 10px; color: #f43f5e; }
 
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); z-index: 200; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 200; justify-content: center; align-items: center; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
         .modal-content { background: var(--fond-modal); padding: 40px; border-radius: 24px; width: 90%; max-width: 450px; position: relative; box-shadow: var(--shadow-hover); max-height: 90vh; overflow-y: auto;}
         @media (max-width: 768px) { .modal-content { padding: 25px; } }
         
@@ -229,6 +226,7 @@
     <div id="progress-bar"></div>
     <div id="toast-container"></div>
     
+    <!-- BOUTON FLOTTANT DE CONTACT -->
     <button id="btn-contact-float" class="btn-contact-float" onclick="ouvrirContact()">
         <div class="btn-content">
             <span class="icon">💬</span><span class="text">Nous contacter</span>
@@ -304,7 +302,7 @@
         </div>
     </div>
     
-    <!-- MODALE MON COMPTE -->
+    <!-- MODALE MON COMPTE (PRO) -->
     <div id="compte-modal" class="modal-overlay">
         <div class="modal-content">
             <span class="close-btn" onclick="fermerModales()">&times;</span>
@@ -633,7 +631,8 @@
             articlesFiltres.forEach(art => {
                 const catNom = toutesLesCategories.find(c => c.id === art.categorie_id)?.nom || 'Dépêche';
                 const date = new Date(art.date_publication).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
-                const imgStr = art.image_url ? `<img src="${art.image_url}" class="card-img" alt="cover">` : `<div class="card-img" style="background: linear-gradient(135deg, var(--bordure), var(--fond-card));"></div>`;
+                const position = art.image_position || 'center';
+                const imgStr = art.image_url ? `<img src="${art.image_url}" class="card-img" style="object-position: ${position};" alt="cover">` : `<div class="card-img" style="background: linear-gradient(135deg, var(--bordure), var(--fond-card));"></div>`;
                 
                 let badge = '';
                 if (art.reserve_abonnes) {
@@ -671,7 +670,8 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
 
             const conteneur = document.getElementById('conteneur-article-complet');
-            const imgStr = art.image_url ? `<div class="safari-img-wrapper"><img src="${art.image_url}" class="art-header-img" alt="cover"></div>` : '';
+            const position = art.image_position || 'center';
+            const imgStr = art.image_url ? `<div class="safari-img-wrapper"><img src="${art.image_url}" class="art-header-img" style="object-position: ${position};" alt="cover"></div>` : '';
             
             const motsTotaux = (art.contenu_public + (art.contenu_premium || '')).split(' ').length;
             const tempsLecture = Math.max(1, Math.ceil(motsTotaux / 200));
@@ -695,7 +695,7 @@
                 html += `
                 <div class="art-contenu">${art.contenu_public}</div>
                 
-                <div class="premium-preview-container">
+                <div class="premium-preview">
                     <div class="art-contenu">${art.contenu_premium || 'Rédigez la suite captivante de votre article ici... Ce texte est masqué car réservé aux membres de l\'élite qui nous soutiennent !'}</div>
                 </div>
 

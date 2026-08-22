@@ -100,6 +100,7 @@
         #message-bienvenue h2 { font-size: 2.8rem; margin: 0; color: var(--accent); line-height: 1.2; padding-top: 5px; }
         #message-bienvenue p { margin-top: 10px; color: var(--texte-clair); font-size: 1.15rem; }
 
+        /* VUE GRILLE avec animation "Staggered" */
         #vue-grille { max-width: 1200px; margin: 30px auto 40px auto; padding: 0 5%; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px; flex-grow: 1; width: 100%; }
         
         @keyframes slideUpFade {
@@ -154,7 +155,7 @@
         .btn-retour:hover { color: var(--accent); transform: translateX(-4px); }
         
         .safari-img-wrapper { width: 100%; height: 450px; margin-bottom: 30px; border-radius: 20px; overflow: hidden; isolation: isolate; box-shadow: var(--shadow); background: linear-gradient(135deg, var(--bordure), var(--fond-card)); position: relative; }
-        .art-header-img { width: 100%; height: 100%; object-fit: cover; display: block; margin: 0; }
+        .art-header-img { width: 100%; height: 100%; object-fit: cover; display: block; margin: 0; transition: transform 0.5s ease; }
         
         .art-titre { font-size: 3rem; line-height: 1.1; margin-bottom: 15px; color: var(--texte); }
         .art-meta { display: flex; gap: 15px; justify-content: space-between; color: var(--texte-clair); margin-bottom: 40px; font-size: 0.95rem; border-bottom: 1px solid var(--bordure); padding-bottom: 20px; flex-wrap: wrap; align-items: center;}
@@ -198,18 +199,19 @@
         #maintenance-screen { display: none; height: 100vh; width: 100vw; background: #0f172a; color: white; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px; }
         #maintenance-screen h1 { font-size: 4rem; margin-bottom: 10px; color: #f43f5e; }
 
-        /* NOUVEL ÉCRAN DE BANNISSEMENT (IP + COMPTE) */
+        /* NOUVEL ÉCRAN DE BANNISSEMENT (STYILISÉ ET CYNIQUE) */
         #suspended-screen { 
-            display: none; height: 100vh; width: 100vw; background: #020617; 
+            display: none; height: 100vh; width: 100vw; background: var(--fond); 
             flex-direction: column; justify-content: center; align-items: center; 
-            text-align: center; padding: 20px; position: fixed; top: 0; left: 0; z-index: 99999;
+            text-align: center; padding: 20px; position: fixed; top: 0; left: 0; z-index: 99990;
         }
-        .ban-icon { font-size: 4.5rem; margin-bottom: 15px; }
-        .ban-title { font-family: 'Inter', sans-serif; font-weight: 800; font-size: 2.5rem; color: #f8fafc; margin: 0 0 15px 0; letter-spacing: -0.03em; }
-        .ban-ip { font-family: monospace; background: rgba(220, 38, 38, 0.15); color: #ef4444; padding: 6px 12px; border-radius: 6px; font-size: 1.1rem; margin-bottom: 20px; border: 1px solid rgba(239, 68, 68, 0.3); font-weight: 600; }
-        .ban-text { color: #94a3b8; font-size: 1.1rem; max-width: 480px; margin-bottom: 30px; line-height: 1.6; }
+        .ban-icon { font-size: 4rem; margin-bottom: 20px; filter: grayscale(100%); }
+        .ban-title { font-family: 'Playfair Display', serif; font-weight: 800; font-size: 3.5rem; color: var(--texte); margin: 0 0 10px 0; line-height: 1.1; letter-spacing: -0.02em; }
+        .ban-title span { color: var(--premium); text-decoration: line-through; }
+        .ban-text { color: var(--texte-clair); font-size: 1.15rem; max-width: 550px; margin-bottom: 30px; line-height: 1.7; }
+        .ban-ip { font-family: 'Inter', monospace; background: var(--fond-card); color: var(--texte-clair); padding: 10px 20px; border-radius: 8px; font-size: 0.95rem; margin-bottom: 35px; border: 1px solid var(--bordure); }
 
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); z-index: 200; justify-content: center; align-items: center; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); z-index: 99999; justify-content: center; align-items: center; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
         .modal-content { background: var(--fond-modal); padding: 40px; border-radius: 24px; width: 90%; max-width: 450px; position: relative; box-shadow: var(--shadow-hover); max-height: 90vh; overflow-y: auto;}
         @media (max-width: 768px) { .modal-content { padding: 25px; } }
         
@@ -253,14 +255,13 @@
         <p>Le stagiaire a trébuché sur le câble du serveur en fuyant ses responsabilités. On attend que son boss se réveille pour rebrancher la prise. Promis, on revient vite. Bisous.</p>
     </div>
 
-    <!-- ÉCRAN DE BANNISSEMENT IP + COMPTE -->
+    <!-- NOUVEL ÉCRAN DE BANNISSEMENT IP + COMPTE -->
     <div id="suspended-screen">
-        <div class="ban-icon">🛑</div>
-        <h1 class="ban-title">ACCÈS RÉVOQUÉ</h1>
-        <div class="ban-ip" id="suspended-ip-display">IP : Traçage en cours...</div>
-        <p class="ban-text">Votre compte ainsi que votre adresse réseau ont été définitivement bannis de nos serveurs suite à une violation de nos conditions ou par la simple volonté de la direction.</p>
-        <button class="btn btn-primaire" style="background:#ef4444; border:none; padding:14px 25px; margin-bottom:15px; font-size:1.05rem;" onclick="ouvrirContact();">💬 Plaider ma cause au support</button>
-        <button class="btn btn-outline" style="color:#64748b; border-color:#334155;" onclick="seDeconnecter()">Se déconnecter</button>
+        <div class="ban-icon">🚷</div>
+        <h1 class="ban-title">Vous êtes <span>banni.</span></h1>
+        <p class="ban-text">Votre accès au site a été révoqué. Pourquoi ? Probablement un abus de générosité avec vos cadeaux, un comportement insupportable, ou juste parce que notre stagiaire avait envie de cliquer sur le bouton rouge ce matin.</p>
+        <div class="ban-ip" id="suspended-ip-display">IP ciblée : ...</div>
+        <button class="btn btn-primaire" style="padding:15px 30px; font-size:1.1rem; box-shadow: var(--shadow-hover);" onclick="document.getElementById('contact-modal').style.display = 'flex';">✉️ Supplier la direction</button>
     </div>
 
     <div id="app-container" style="display: none; flex-direction: column; min-height: 100vh;">
@@ -382,12 +383,12 @@
                 <p id="reponse-msg-texte" style="margin: 5px 0 0 0; font-weight:500; color:var(--texte);"></p>
             </div>
             
-            <button class="btn btn-primaire" style="width: 100%; margin-top:20px; padding: 14px;" onclick="fermerModales()">Fermer</button>
+            <button class="btn btn-primaire" style="width: 100%; margin-top:20px; padding: 14px;" onclick="fermerModales()">Fermer (et retourner à ma vie sans intérêt)</button>
         </div>
     </div>
 
     <div id="contact-modal" class="modal-overlay">
-        <div class="modal-content" style="z-index: 999999;">
+        <div class="modal-content">
             <span class="close-btn" onclick="fermerModales()">&times;</span>
             <h2 class="titre-serif" style="margin-top:0;">Bureau des Plaintes</h2>
             <p style="color: var(--texte-clair); font-size: 0.95rem; line-height: 1.4; margin-bottom: 20px;">
@@ -559,30 +560,29 @@
 
         function afficherEcranBanni() {
             document.getElementById('app-container').style.display = 'none';
-            document.getElementById('suspended-ip-display').innerText = `IP : ${userIP}`;
+            document.getElementById('suspended-ip-display').innerText = `IP interceptée : ${userIP}`;
             document.getElementById('suspended-screen').style.display = 'flex';
         }
 
         async function initialiserSite() {
             if(localStorage.getItem('theme_moderne') === 'dark') document.body.classList.add('dark-mode');
 
-            // 1. Fetch IP Address
+            // 1. Fetch IP Address pour le Ban
             try {
                 const res = await fetch('https://api.ipify.org?format=json');
                 const data = await res.json();
                 userIP = data.ip;
                 
-                // Check if IP is banned
                 const { data: banned } = await db.from('ips_bannies').select('ip').eq('ip', userIP).single();
                 if (banned) {
                     afficherEcranBanni();
-                    return; // Stoppe le chargement total
+                    return; 
                 }
             } catch(e) {
-                console.log("Erreur de récupération IP", e);
+                console.log("Erreur IP", e);
             }
 
-            // 2. Fetch Settings
+            // 2. Initialisation normale
             const { data: settings } = await db.from('site_settings').select('en_maintenance, flash_texte').eq('id', 1).single();
             if (settings && settings.en_maintenance) {
                 document.getElementById('maintenance-screen').style.display = 'flex'; return;
@@ -605,13 +605,11 @@
                 const { data: profil } = await db.from('lecteurs').select('*').eq('id', lecteurActuel.id).single();
                 profilLecteur = profil;
 
-                // VÉRIFICATION COMPTE SUSPENDU
                 if (profilLecteur && profilLecteur.compte_suspendu) {
                     afficherEcranBanni();
                     return; 
                 }
 
-                // MISE A JOUR IP SI DIFFERENTE
                 if (profilLecteur && profilLecteur.derniere_ip !== userIP && userIP !== 'Inconnue') {
                     await db.from('lecteurs').update({ derniere_ip: userIP }).eq('id', lecteurActuel.id);
                 }

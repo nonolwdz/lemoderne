@@ -80,7 +80,6 @@
                     <input type="text" id="image-article" placeholder="https://..." oninput="updateImagePreview()">
                 </div>
 
-                <!-- CONTROLES IMAGE : Zoom commence à 0.2 maintenant -->
                 <div class="grid-2" style="background:#f8fafc; padding:20px; border-radius:12px; border:1px solid var(--bordure);">
                     <div>
                         <label style="font-size:0.9rem; margin-bottom:5px;">↕️ Cadrage vertical : <span id="pos-val">50%</span></label>
@@ -147,6 +146,9 @@
                 </div>
                 <div id="fiche-lecteur" style="display:none; background:#f8fafc; border:1px solid #cbd5e1; padding:20px; border-radius:12px; margin-bottom:25px;"></div>
                 <div id="actions-lecteur" style="display:none; border-top:1px dashed #cbd5e1; padding-top:20px;">
+                    
+                    <button id="btn-suspendre" class="btn-danger" style="width: 100%; padding: 15px; margin-bottom: 20px; font-size: 1rem;" onclick="basculerSuspension()">Suspendre le compte</button>
+
                     <h3 style="margin-top:0;">Modification manuelle</h3>
                     <div class="input-group">
                         <label>Attribuer une nouvelle offre (ou laisser vide)</label>
@@ -156,7 +158,7 @@
                         <div class="input-group"><label>Action</label><select id="action-lecteur"><option value="ajouter">Ajouter des jours</option><option value="retirer">Retirer des jours</option></select></div>
                         <div class="input-group"><label>Nombre de jours</label><input type="number" id="jours-lecteur" value="30"></div>
                     </div>
-                    <button class="btn-primaire" onclick="gererAbonnement()" style="width: 100%; padding: 15px;">Appliquer les modifications</button>
+                    <button class="btn-primaire" onclick="gererAbonnement()" style="width: 100%; padding: 15px;">Appliquer les modifications d'abonnement</button>
                 </div>
             </div>
 
@@ -314,11 +316,35 @@
             if(!email) return alert("Veuillez saisir un email.");
             const { data: lecteur, error } = await db.from('lecteurs').select('*').eq('email', email).single();
             if(error || !lecteur) { alert("Lecteur introuvable."); document.getElementById('fiche-lecteur').style.display = 'none'; document.getElementById('actions-lecteur').style.display = 'none'; return; }
+            
             lecteurEnCours = lecteur;
             const isAbonne = lecteur.est_abonne && new Date(lecteur.fin_abonnement) > new Date();
             const dateFin = lecteur.fin_abonnement ? new Date(lecteur.fin_abonnement).toLocaleDateString('fr-FR') : '-';
-            document.getElementById('fiche-lecteur').innerHTML = `<h3 style="margin:0 0 10px 0;">👤 ${lecteur.prenom || 'Sans prénom'} (${lecteur.email})</h3><p style="margin:0; font-size:1.1rem;">Statut : <b>${isAbonne ? lecteur.offre_nom : 'Gratuit'}</b> — Cadeaux restants : <b style="color:var(--secondaire);">${lecteur.credits_partage || 0}</b></p>`;
-            document.getElementById('fiche-lecteur').style.display = 'block'; document.getElementById('actions-lecteur').style.display = 'block';
+            
+            let pastilleBanni = lecteur.compte_suspendu ? `<span style="background:red; color:white; padding:2px 6px; border-radius:4px; font-size:0.8rem; margin-left:10px;">Banni</span>` : '';
+
+            document.getElementById('fiche-lecteur').innerHTML = `<h3 style="margin:0 0 10px 0;">👤 ${lecteur.prenom || 'Sans prénom'} (${lecteur.email}) ${pastilleBanni}</h3><p style="margin:0; font-size:1.1rem;">Statut : <b>${isAbonne ? lecteur.offre_nom : 'Gratuit'}</b> — Cadeaux restants : <b style="color:var(--secondaire);">${lecteur.credits_partage || 0}</b></p>`;
+            document.getElementById('fiche-lecteur').style.display = 'block'; 
+            document.getElementById('actions-lecteur').style.display = 'block';
+
+            const btnSuspendre = document.getElementById('btn-suspendre');
+            if(lecteur.compte_suspendu) {
+                btnSuspendre.innerText = "✅ Réactiver ce compte";
+                btnSuspendre.style.background = "#059669";
+            } else {
+                btnSuspendre.innerText = "🛑 Suspendre le compte (Bannir)";
+                btnSuspendre.style.background = "#ef4444";
+            }
+        }
+
+        async function basculerSuspension() {
+            if(!lecteurEnCours) return;
+            const nouvStatut = !lecteurEnCours.compte_suspendu;
+            if(nouvStatut && !confirm("Bloquer définitivement l'accès à ce lecteur ?")) return;
+            
+            const { error } = await db.from('lecteurs').update({ compte_suspendu: nouvStatut }).eq('id', lecteurEnCours.id);
+            if(error) alert(error.message); 
+            else { alert(nouvStatut ? "✅ Compte banni avec succès." : "✅ Compte réactivé."); rechercherLecteur(); }
         }
 
         async function gererAbonnement() {
@@ -329,7 +355,7 @@
             let payload = { est_abonne: nouvelleDate > new Date(), fin_abonnement: nouvelleDate.toISOString() };
             if (action === 'ajouter' && offreId !== "") { const off = listeOffres.find(o => o.id.toString() === offreId.toString()); if (off) { payload.offre_nom = off.nom; payload.offre_prix = off.prix_euros; payload.abonnement_offert = true; payload.credits_partage = off.partages_autorises || 0; } }
             const { error } = await db.from('lecteurs').update(payload).eq('id', lecteurEnCours.id);
-            if(error) alert(error.message); else { alert("✅ Compte mis à jour."); rechercherLecteur(); }
+            if(error) alert(error.message); else { alert("✅ Abonnement mis à jour."); rechercherLecteur(); }
         }
 
         async function chargerMessages() {

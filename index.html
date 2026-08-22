@@ -200,6 +200,9 @@
         #maintenance-screen { display: none; height: 100vh; width: 100vw; background: #0f172a; color: white; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px; }
         #maintenance-screen h1 { font-size: 4rem; margin-bottom: 10px; color: #f43f5e; }
 
+        /* ÉCRAN DE SUSPENSION */
+        #suspended-screen { display: none; height: 100vh; width: 100vw; background: var(--fond); flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px; }
+
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); z-index: 200; justify-content: center; align-items: center; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
         .modal-content { background: var(--fond-modal); padding: 40px; border-radius: 24px; width: 90%; max-width: 450px; position: relative; box-shadow: var(--shadow-hover); max-height: 90vh; overflow-y: auto;}
         @media (max-width: 768px) { .modal-content { padding: 25px; } }
@@ -210,9 +213,10 @@
         .input-champ:focus { outline: none; border-color: var(--accent); background: var(--fond-card); box-shadow: 0 0 0 3px rgba(99,102,241,0.1); }
         textarea.input-champ { resize: vertical; min-height: 100px; }
         
-        .offres-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-top: 20px; }
-        .offre-card { border: 2px solid var(--bordure); border-radius: 16px; padding: 30px; display: flex; flex-direction: column; transition: 0.2s; background: var(--fond-card); }
-        .offre-card:hover { border-color: var(--premium); box-shadow: var(--shadow-hover); transform: translateY(-3px); }
+        /* OFFRES AJUSTÉES */
+        .offres-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; margin-top: 30px; }
+        .offre-card { border: 2px solid var(--bordure); border-radius: 20px; padding: 35px; display: flex; flex-direction: column; transition: 0.2s; background: var(--fond-card); }
+        .offre-card:hover { border-color: var(--accent); box-shadow: var(--shadow-hover); transform: translateY(-5px); }
 
         .account-details { background: rgba(99, 102, 241, 0.05); border: 1px solid rgba(99, 102, 241, 0.2); border-radius: 12px; padding: 20px; margin-bottom: 25px; }
         .account-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 0.95rem; }
@@ -243,6 +247,13 @@
     <div id="maintenance-screen">
         <h1 class="titre-serif">le site il est cassé.</h1>
         <p>Le stagiaire a trébuché sur le câble du serveur en fuyant ses responsabilités. On attend que son boss se réveille pour rebrancher la prise. Promis, on revient vite. Bisous.</p>
+    </div>
+
+    <div id="suspended-screen">
+        <h1 class="titre-serif" style="font-size:3.5rem; color:var(--premium); margin-bottom:10px;">Oups... 🚪</h1>
+        <p style="color:var(--texte-clair); font-size:1.1rem; max-width:500px; margin-bottom: 30px;">Votre compte a été suspendu par la direction. Vous avez probablement été trop généreux avec vos articles, ou le stagiaire a cliqué sur le mauvais bouton.</p>
+        <button class="btn btn-primaire" onclick="document.getElementById('suspended-screen').style.display='none'; ouvrirContact();">💬 Contacter le support</button>
+        <button class="btn btn-outline" style="margin-top:15px;" onclick="seDeconnecter()">Se déconnecter</button>
     </div>
 
     <div id="app-container" style="display: none; flex-direction: column; min-height: 100vh;">
@@ -406,7 +417,6 @@
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpidXdqdmJjeHF4dHd1Z2h1YWRmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcyMDc2ODAsImV4cCI6MjEwMjc4MzY4MH0.lO0FizbO5jnRvRjrMERCKe6cBFFN_ttBMlRAGXtlHyo';
         const db = supabase.createClient(supabaseUrl, supabaseKey);
 
-        // Assurer le chargement asynchrone des voix pour TTS
         window.speechSynthesis.onvoiceschanged = function() { window.speechSynthesis.getVoices(); };
 
         let lecteurActuel = null, profilLecteur = null, estAbonne = false, creditsPartage = 0, articlesOfferts = [];
@@ -432,7 +442,7 @@
             });
         }
 
-        // TEXT TO SPEECH (VOIX IA) - Réservé aux abonnés (toutes formules)
+        // TEXT TO SPEECH - Réservé à tous les abonnés
         function ecouterArticle() {
             if (!estAbonne) {
                 showToast("L'écoute audio est réservée aux abonnés.", "error");
@@ -454,11 +464,12 @@
             
             const msg = new SpeechSynthesisUtterance(texte);
             msg.lang = 'fr-FR';
-            msg.rate = 1.0; 
+            msg.rate = 0.95; // Un poil plus lent pour plus de naturel
             msg.pitch = 1.0; 
             
+            // Recherche agressive d'une vraie voix agréable
             let voices = window.speechSynthesis.getVoices();
-            let bestVoice = voices.find(v => v.lang.startsWith('fr') && (v.name.includes('Premium') || v.name.includes('Thomas') || v.name.includes('Audrey') || v.name.includes('Google'))) || voices.find(v => v.lang.startsWith('fr'));
+            let bestVoice = voices.find(v => v.lang.includes('fr') && (v.name.includes('Premium') || v.name.includes('Thomas') || v.name.includes('Audrey') || v.name.includes('Google') || v.name.includes('Amelie') || v.name.includes('Hortense') || v.name.includes('Paul'))) || voices.find(v => v.lang.includes('fr'));
             
             if(bestVoice) msg.voice = bestVoice;
             
@@ -565,6 +576,13 @@
                 lecteurActuel = session.user;
                 const { data: profil } = await db.from('lecteurs').select('*').eq('id', lecteurActuel.id).single();
                 profilLecteur = profil;
+
+                // VÉRIFICATION COMPTE SUSPENDU
+                if (profilLecteur && profilLecteur.compte_suspendu) {
+                    document.getElementById('app-container').style.display = 'none';
+                    document.getElementById('suspended-screen').style.display = 'flex';
+                    return; 
+                }
                 
                 if (profil && profil.est_abonne && new Date(profil.fin_abonnement) > new Date()) {
                     estAbonne = true; creditsPartage = profil.credits_partage || 0;
@@ -668,7 +686,7 @@
 
             window.history.pushState({}, '', window.location.pathname);
 
-            if(lecteurActuel) document.getElementById('message-bienvenue').style.display = 'block';
+            if(lecteurActuel && !profilLecteur?.compte_suspendu) document.getElementById('message-bienvenue').style.display = 'block';
             filtrerArticles(null, document.querySelector('.nav-link')); 
         }
 
@@ -682,7 +700,7 @@
                 document.getElementById('progress-bar').style.display = 'none';
                 document.getElementById('btn-contact-float').classList.remove('is-collapsed');
                 window.history.pushState({}, '', window.location.pathname);
-                if(lecteurActuel) document.getElementById('message-bienvenue').style.display = 'block';
+                if(lecteurActuel && !profilLecteur?.compte_suspendu) document.getElementById('message-bienvenue').style.display = 'block';
             }
 
             if (elementNav) { document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active')); elementNav.classList.add('active'); }
@@ -740,6 +758,7 @@
             document.getElementById('progress-bar').style.display = 'block';
             
             document.getElementById('btn-contact-float').classList.add('is-collapsed');
+
             window.scrollTo({ top: 0, behavior: 'smooth' });
 
             const conteneur = document.getElementById('conteneur-article-complet');
@@ -879,7 +898,7 @@
             
             const { error } = await db.from('messages_contact').insert([{ email, message }]);
             if(error) {
-                showToast("Erreur d'envoi.", "error");
+                showToast("Erreur d'envoi. Le pigeon voyageur est mort en vol.", "error");
             } else {
                 showToast("Message bien reçu ! On le lira... ou pas.");
                 document.getElementById('contact-modal').style.display = 'none';
@@ -913,6 +932,8 @@
                 const lien = `${o.stripe_price_id}?prefilled_email=${encodeURIComponent(lecteurActuel.email)}`;
                 let av = '';
                 if(o.avantages) o.avantages.split('\n').forEach(a => { if(a.trim()) av += `<li style="margin-bottom:12px; font-size:0.95rem; color:var(--texte);">✓ ${a}</li>`; });
+                
+                // ORTHOGRAPHE DYNAMIQUE
                 if(o.partages_autorises > 0) {
                     const plurielOffre = o.partages_autorises > 1 ? 's' : '';
                     av += `<li style="margin-bottom:12px; font-size:0.95rem; color:var(--texte);">✓ <b>${o.partages_autorises} article${plurielOffre} à offrir</b> / mois</li>`;

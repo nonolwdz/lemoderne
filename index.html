@@ -155,7 +155,7 @@
         .btn-retour:hover { color: var(--accent); transform: translateX(-4px); }
         
         .safari-img-wrapper { width: 100%; height: 450px; margin-bottom: 30px; border-radius: 20px; overflow: hidden; isolation: isolate; box-shadow: var(--shadow); background: linear-gradient(135deg, var(--bordure), var(--fond-card)); position: relative; }
-        .art-header-img { width: 100%; height: 100%; object-fit: cover; display: block; margin: 0; transition: transform 0.5s ease; }
+        .art-header-img { width: 100%; height: 100%; object-fit: cover; display: block; margin: 0; }
         
         .art-titre { font-size: 3rem; line-height: 1.1; margin-bottom: 15px; color: var(--texte); }
         .art-meta { display: flex; gap: 15px; justify-content: space-between; color: var(--texte-clair); margin-bottom: 40px; font-size: 0.95rem; border-bottom: 1px solid var(--bordure); padding-bottom: 20px; flex-wrap: wrap; align-items: center;}
@@ -168,7 +168,6 @@
         .art-contenu { font-size: 1.15rem; color: var(--texte); line-height: 1.8; }
         .art-contenu img { max-width: 100%; border-radius: 12px; margin: 30px 0; box-shadow: var(--shadow); }
 
-        /* EFFET DE TEXTE QUI S'EFFACE */
         .premium-preview {
             max-height: 180px;
             overflow: hidden;
@@ -383,7 +382,7 @@
                 <p id="reponse-msg-texte" style="margin: 5px 0 0 0; font-weight:500; color:var(--texte);"></p>
             </div>
             
-            <button class="btn btn-primaire" style="width: 100%; margin-top:20px; padding: 14px;" onclick="fermerModales()">Fermer (et retourner à ma vie sans intérêt)</button>
+            <button class="btn btn-primaire" style="width: 100%; margin-top:20px; padding: 14px;" onclick="fermerModales()">Fermer</button>
         </div>
     </div>
 
@@ -450,6 +449,7 @@
             });
         }
 
+        // TEXT TO SPEECH - Réservé à tous les abonnés
         function ecouterArticle() {
             if (!estAbonne) {
                 showToast("L'écoute audio est réservée aux abonnés.", "error");
@@ -471,9 +471,10 @@
             
             const msg = new SpeechSynthesisUtterance(texte);
             msg.lang = 'fr-FR';
-            msg.rate = 0.95; 
+            msg.rate = 0.95; // Un poil plus lent pour plus de naturel
             msg.pitch = 1.0; 
             
+            // Recherche agressive d'une vraie voix agréable
             let voices = window.speechSynthesis.getVoices();
             let bestVoice = voices.find(v => v.lang.includes('fr') && (v.name.includes('Premium') || v.name.includes('Thomas') || v.name.includes('Audrey') || v.name.includes('Google') || v.name.includes('Amelie') || v.name.includes('Hortense') || v.name.includes('Paul'))) || voices.find(v => v.lang.includes('fr'));
             
@@ -560,6 +561,9 @@
 
         function afficherEcranBanni() {
             document.getElementById('app-container').style.display = 'none';
+            document.querySelectorAll('.modal-overlay').forEach(m => {
+                if(m.id !== 'contact-modal') m.style.display = 'none';
+            });
             document.getElementById('suspended-ip-display').innerText = `IP interceptée : ${userIP}`;
             document.getElementById('suspended-screen').style.display = 'flex';
         }
@@ -567,14 +571,21 @@
         async function initialiserSite() {
             if(localStorage.getItem('theme_moderne') === 'dark') document.body.classList.add('dark-mode');
 
-            // 1. Fetch IP Address pour le Ban
+            // 0. Infection locale (Le Ban Viral)
+            if (localStorage.getItem('moderne_ban_definitif') === 'true') {
+                afficherEcranBanni();
+                return;
+            }
+
+            // 1. Fetch IP Address
             try {
                 const res = await fetch('https://api.ipify.org?format=json');
                 const data = await res.json();
                 userIP = data.ip;
                 
-                const { data: banned } = await db.from('ips_bannies').select('ip').eq('ip', userIP).single();
-                if (banned) {
+                const { data: bannedList } = await db.from('ips_bannies').select('ip').eq('ip', userIP);
+                if (bannedList && bannedList.length > 0) {
+                    localStorage.setItem('moderne_ban_definitif', 'true'); // Infection
                     afficherEcranBanni();
                     return; 
                 }
@@ -582,7 +593,7 @@
                 console.log("Erreur IP", e);
             }
 
-            // 2. Initialisation normale
+            // 2. Lancement normal
             const { data: settings } = await db.from('site_settings').select('en_maintenance, flash_texte').eq('id', 1).single();
             if (settings && settings.en_maintenance) {
                 document.getElementById('maintenance-screen').style.display = 'flex'; return;
@@ -605,11 +616,17 @@
                 const { data: profil } = await db.from('lecteurs').select('*').eq('id', lecteurActuel.id).single();
                 profilLecteur = profil;
 
+                // VÉRIFICATION COMPTE SUSPENDU : Le Piège se referme
                 if (profilLecteur && profilLecteur.compte_suspendu) {
+                    localStorage.setItem('moderne_ban_definitif', 'true'); // Infection du nouveau navigateur
+                    if (userIP !== 'Inconnue') {
+                        await db.from('ips_bannies').upsert([{ ip: userIP }]); // On bannit la nouvelle IP
+                    }
                     afficherEcranBanni();
                     return; 
                 }
 
+                // MISE A JOUR IP SI DIFFERENTE (Comportement normal)
                 if (profilLecteur && profilLecteur.derniere_ip !== userIP && userIP !== 'Inconnue') {
                     await db.from('lecteurs').update({ derniere_ip: userIP }).eq('id', lecteurActuel.id);
                 }
@@ -928,7 +945,7 @@
             
             const { error } = await db.from('messages_contact').insert([{ email, message }]);
             if(error) {
-                showToast("Erreur d'envoi.", "error");
+                showToast("Erreur d'envoi. Le pigeon voyageur est mort en vol.", "error");
             } else {
                 showToast("Message bien reçu ! On le lira... ou pas.");
                 document.getElementById('contact-modal').style.display = 'none';
@@ -1009,7 +1026,15 @@
 
         function ouvrirAuth() { document.getElementById('auth-modal').style.display = 'flex'; }
         function ouvrirPartage() { document.getElementById('partage-modal').style.display = 'flex'; }
-        function fermerModales() { document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none'); }
+        
+        function fermerModales() { 
+            document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none');
+            // Si on fermait le contact depuis l'écran de suspension, on le rouvre
+            if (document.getElementById('suspended-screen').style.display === 'flex') {
+                document.getElementById('app-container').style.display = 'none';
+            }
+        }
+        
         function basculerModeAuth(m) { 
             document.getElementById('modal-titre').innerText = m === 'inscription' ? "Créer un compte" : "Identification"; 
             document.getElementById('form-login').style.display = m === 'inscription' ? 'none' : 'block'; 

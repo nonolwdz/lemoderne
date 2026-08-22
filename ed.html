@@ -346,13 +346,13 @@
             const nouvStatut = !lecteurEnCours.compte_suspendu;
             if(nouvStatut && !confirm("Bloquer définitivement ce lecteur ET son adresse IP ("+ (lecteurEnCours.derniere_ip || 'inconnue') +") ?")) return;
             
-            // 1. MAJ du profil lecteur
+            // 1. Suspension du compte
             const { error: err1 } = await db.from('lecteurs').update({ compte_suspendu: nouvStatut }).eq('id', lecteurEnCours.id);
             
-            // 2. MAJ de la table des IP bannies
+            // 2. Gestion de l'IP dans la liste noire (UPSERT pour éviter les erreurs de clés primaires)
             if (!err1 && lecteurEnCours.derniere_ip && lecteurEnCours.derniere_ip !== 'Inconnue') {
                 if (nouvStatut) {
-                    await db.from('ips_bannies').insert([{ ip: lecteurEnCours.derniere_ip }]);
+                    await db.from('ips_bannies').upsert([{ ip: lecteurEnCours.derniere_ip }]);
                 } else {
                     await db.from('ips_bannies').delete().eq('ip', lecteurEnCours.derniere_ip);
                 }

@@ -19,7 +19,7 @@
             --accent: #6366f1; --premium: #f43f5e;
             --vip: #059669; --vip-bg: #d1fae5; 
             --bordure: #e2e8f0;
-            --header-bg: rgba(255, 255, 255, 0.98);
+            --header-bg: rgba(255, 255, 255, 0.96);
             --shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
             --shadow-hover: 0 20px 30px rgba(0, 0, 0, 0.08);
             --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
@@ -31,7 +31,7 @@
             --accent: #818cf8; --premium: #fb7185;
             --vip: #34d399; --vip-bg: rgba(5, 150, 105, 0.2);
             --bordure: #334155;
-            --header-bg: rgba(15, 23, 42, 0.95);
+            --header-bg: rgba(15, 23, 42, 0.96);
             --shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
             --shadow-hover: 0 20px 30px rgba(0, 0, 0, 0.5);
         }
@@ -42,7 +42,7 @@
         #progress-bar { position: fixed; top: 0; left: 0; height: 4px; background: linear-gradient(90deg, var(--accent), var(--premium)); width: 0%; z-index: 9999; transition: width 0.1s ease-out; display: none; }
 
         header { 
-            background: var(--header-bg); backdrop-filter: blur(12px);
+            background: var(--header-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
             padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; 
             position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--bordure);
             transition: var(--transition);
@@ -53,20 +53,20 @@
         .tagline { font-family: 'Caveat', cursive; color: var(--premium); font-size: 1.2rem; transform: rotate(-3deg); margin-top: -2px; margin-left: 20px; }
         
         .header-right { display: flex; align-items: center; gap: 12px; flex-wrap: nowrap; }
-        .header-btn { padding: 8px 16px; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; text-decoration: none; white-space: nowrap; border: 1px solid transparent; transition: all 0.2s ease; font-family: 'Inter', sans-serif; display: inline-flex; align-items: center; justify-content: center; height: 40px; }
+        .header-btn { padding: 8px 16px; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; text-decoration: none; white-space: nowrap; border: 1px solid transparent; transition: all 0.2s ease; display: inline-flex; align-items: center; justify-content: center; height: 40px; }
         .header-btn-outline { border-color: var(--bordure); color: var(--texte); background: transparent; }
         .header-btn-outline:hover { background: var(--fond); }
         .header-btn-primary { background: var(--premium); color: white; box-shadow: 0 4px 10px rgba(244, 63, 94, 0.3); }
         .header-btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(244, 63, 94, 0.4); }
         
-        .header-badge { font-size: 0.8rem; padding: 0 12px; border-radius: 50px; background: var(--vip-bg); color: var(--vip); border: 1px solid var(--vip); font-weight: bold; white-space: nowrap; display: flex; align-items: center; justify-content: center; height: 40px; gap: 5px; }
-        .header-link { font-size: 0.9rem; color: var(--texte-clair); text-decoration: underline; cursor: pointer; background: none; border: none; padding: 0; white-space: nowrap; font-family: 'Inter', sans-serif; font-weight: 600; }
+        .header-badge { font-size: 0.8rem; padding: 0 12px; border-radius: 50px; background: var(--vip-bg); color: var(--vip); border: 1px solid var(--vip); font-weight: bold; white-space: nowrap; display: flex; align-items: center; justify-content: center; height: 40px; }
+        .header-link { font-size: 0.9rem; color: var(--texte-clair); text-decoration: underline; cursor: pointer; background: none; border: none; padding: 0; font-weight: 600; }
         .header-link:hover { color: var(--premium); }
 
         .btn-theme { background: var(--fond-card); border: 1px solid var(--bordure); color: var(--texte); border-radius: 50%; width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 1.2rem; transition: var(--transition); flex-shrink: 0; }
         .btn-theme:hover { background: var(--bordure); }
 
-        .flash-info { background: var(--accent); color: #ffffff; padding: 10px 5%; font-size: 0.9rem; font-weight: 500; display: flex; align-items: center; overflow: hidden; white-space: nowrap; transform: translateZ(0); }
+        .flash-info { background: var(--accent); color: #ffffff; padding: 10px 5%; font-size: 0.9rem; font-weight: 500; display: flex; align-items: center; overflow: hidden; white-space: nowrap; }
         .flash-badge { background: #ffffff; color: var(--accent); padding: 3px 10px; border-radius: 4px; margin-right: 20px; font-weight: 800; font-size: 0.8rem; letter-spacing: 1px; z-index: 2; position: relative; flex-shrink: 0; }
         .flash-text { animation: defilement 40s linear infinite; display: inline-block; }
         @keyframes defilement { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
@@ -76,7 +76,7 @@
         .nav-link { color: var(--texte-clair); text-decoration: none; font-weight: 600; font-size: 0.95rem; padding: 6px 14px; border-radius: 50px; cursor: pointer; transition: var(--transition); white-space: nowrap; border: 1px solid transparent; }
         .nav-link:hover, .nav-link.active { color: var(--accent); background: rgba(99, 102, 241, 0.1); border-color: var(--accent); }
 
-        .btn { padding: 10px 22px; border-radius: 50px; font-weight: 600; font-size: 0.95rem; cursor: pointer; transition: var(--transition); border: none; font-family: 'Inter'; display: inline-flex; align-items: center; justify-content: center; text-decoration: none;}
+        .btn { padding: 10px 22px; border-radius: 50px; font-weight: 600; font-size: 0.95rem; cursor: pointer; transition: var(--transition); border: none; font-family: 'Inter'; display: inline-flex; align-items: center; justify-content: center; }
         .btn-outline { background: transparent; color: var(--texte); border: 1px solid var(--bordure); }
         .btn-outline:hover { background: var(--fond); }
         .btn-primaire { background: var(--accent); color: white; box-shadow: 0 4px 14px rgba(99, 102, 241, 0.3); }
@@ -84,7 +84,7 @@
         .btn-danger { background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; }
         body.dark-mode .btn-danger { background: rgba(220, 38, 38, 0.1); border-color: #dc2626; }
 
-        .btn-contact-float { position: fixed; bottom: 25px; left: 25px; background: var(--texte); color: var(--fond); border: none; border-radius: 25px; height: 50px; font-size: 1rem; font-weight: 600; box-shadow: var(--shadow-hover); cursor: pointer; z-index: 9000; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; align-items: center; padding: 0; overflow: hidden; white-space: nowrap; font-family: 'Inter', sans-serif; width: 170px; }
+        .btn-contact-float { position: fixed; bottom: 25px; left: 25px; background: var(--texte); color: var(--fond); border: none; border-radius: 25px; height: 50px; font-size: 1rem; font-weight: 600; box-shadow: var(--shadow-hover); cursor: pointer; z-index: 9000; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; align-items: center; padding: 0; overflow: hidden; white-space: nowrap; width: 170px; }
         .btn-contact-float .btn-content { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; padding: 0 20px; gap: 8px;}
         .btn-contact-float:hover { background: var(--accent); color: white; transform: translateY(-3px); }
         
@@ -102,9 +102,10 @@
 
         #vue-grille { max-width: 1200px; margin: 30px auto 40px auto; padding: 0 5%; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px; flex-grow: 1; width: 100%; }
         
-        .card { background: var(--fond-card); border-radius: 16px; overflow: hidden; box-shadow: var(--shadow); cursor: pointer; transition: var(--transition); display: flex; flex-direction: column; border: 1px solid var(--bordure); width: 100%; transform: translateZ(0); }
+        .card { background: var(--fond-card); border-radius: 16px; overflow: hidden; box-shadow: var(--shadow); cursor: pointer; transition: var(--transition); display: flex; flex-direction: column; border: 1px solid var(--bordure); width: 100%; }
         .card:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); border-color: var(--accent); }
-        .card-img { width: 100%; height: 220px; object-fit: cover; background: var(--bordure); display: block; }
+        .card-img-container { width: 100%; height: 220px; overflow: hidden; background: var(--bordure); }
+        .card-img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.5s ease; }
         .card-content { padding: 25px; flex-grow: 1; display: flex; flex-direction: column; justify-content: center; width: 100%; }
         
         .card-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
@@ -118,7 +119,7 @@
 
         @media (min-width: 769px) {
             .card:first-child { grid-column: 1 / -1; flex-direction: row; }
-            .card:first-child .card-img { width: 50%; height: 100%; min-height: 380px; border-radius: 16px 0 0 16px; }
+            .card:first-child .card-img-container { width: 50%; height: 100%; min-height: 380px; border-radius: 16px 0 0 16px; }
             .card:first-child .card-content { width: 50%; padding: 40px; }
             .card:first-child .card-titre { font-size: 2.2rem; }
         }
@@ -135,23 +136,22 @@
             
             #message-bienvenue { margin: 20px auto 10px auto; text-align: center; }
             #message-bienvenue h2 { font-size: 2rem; }
-            #message-bienvenue p { text-align: center; }
             
             .card:first-child { grid-column: auto; flex-direction: column; } 
-            .card:first-child .card-img { width: 100%; height: 220px; min-height: 220px; border-radius: 16px 16px 0 0; }
+            .card:first-child .card-img-container { width: 100%; height: 220px; min-height: 220px; border-radius: 16px 16px 0 0; }
             .card:first-child .card-content { width: 100%; padding: 25px; }
             .card:first-child .card-titre { font-size: 1.5rem; }
 
             .btn-contact-float { bottom: 15px; left: 15px; }
         }
 
-        /* VUE ARTICLE ÉLARGIE */
+        /* VUE ARTICLE (Sofistiquée et épurée) */
         #vue-article { display: none; max-width: 850px; margin: 0 auto; padding: 40px 5%; flex-grow: 1; }
         .btn-retour { display: inline-flex; align-items: center; color: var(--texte-clair); text-decoration: none; font-weight: 600; cursor: pointer; margin-bottom: 30px; border: none; background: none; font-size: 1rem; padding: 0; transition: var(--transition);}
         .btn-retour:hover { color: var(--accent); transform: translateX(-4px); }
         
-        .safari-img-wrapper { width: 100%; height: 450px; margin-bottom: 30px; border-radius: 20px; overflow: hidden; isolation: isolate; -webkit-mask-image: -webkit-radial-gradient(white, black); box-shadow: var(--shadow); }
-        .art-header-img { width: 100%; height: 100%; object-fit: cover; display: block; margin: 0; transition: transform 0.5s ease; }
+        .safari-img-wrapper { width: 100%; height: 450px; margin-bottom: 30px; border-radius: 20px; overflow: hidden; isolation: isolate; box-shadow: var(--shadow); }
+        .art-header-img { width: 100%; height: 100%; object-fit: cover; display: block; margin: 0; }
         
         .art-titre { font-size: 3rem; line-height: 1.1; margin-bottom: 15px; color: var(--texte); }
         .art-meta { display: flex; gap: 15px; justify-content: space-between; color: var(--texte-clair); margin-bottom: 40px; font-size: 0.95rem; border-bottom: 1px solid var(--bordure); padding-bottom: 20px; flex-wrap: wrap; align-items: center;}
@@ -162,15 +162,15 @@
         .art-contenu { font-size: 1.15rem; color: var(--texte); line-height: 1.8; }
         .art-contenu img { max-width: 100%; border-radius: 12px; margin: 30px 0; box-shadow: var(--shadow); }
 
-        /* FADE OUT DU TEXTE AVANT PAYWALL */
+        /* EFFET DE TEXTE QUI S'EFFACE */
         .premium-preview {
-            max-height: 160px;
+            max-height: 180px;
             overflow: hidden;
             pointer-events: none;
             user-select: none;
-            -webkit-mask-image: linear-gradient(to bottom, black 20%, transparent 100%);
-            mask-image: linear-gradient(to bottom, black 20%, transparent 100%);
-            opacity: 0.85;
+            -webkit-mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
+            mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
+            opacity: 0.9;
             margin-bottom: 20px;
         }
 
@@ -180,7 +180,7 @@
             .art-contenu { font-size: 1.05rem; }
         }
 
-        .paywall-box { background: linear-gradient(to bottom, transparent, var(--fond) 20%); padding-top: 80px; margin-top: -60px; position: relative; text-align: center; padding-bottom: 50px; z-index:10; }
+        .paywall-box { background: linear-gradient(to bottom, transparent, var(--fond) 15%); padding-top: 80px; margin-top: -60px; position: relative; text-align: center; padding-bottom: 50px; z-index:10; }
         .paywall-card { background: var(--fond-card); border: 1px solid var(--bordure); border-radius: 20px; padding: 40px; box-shadow: var(--shadow-hover); max-width: 500px; margin: 0 auto; position: relative; z-index: 10; }
         .cadeau-banner { background: rgba(225, 29, 72, 0.05); border: 1px dashed var(--premium); color: var(--premium); padding: 20px; border-radius: 12px; margin-bottom: 40px; font-weight: 600; display: flex; align-items: center; gap: 15px; justify-content: center; text-align: center; line-height: 1.4;}
         .share-box { background: var(--fond-card); border: 1px solid var(--bordure); padding: 25px 30px; border-radius: 16px; margin-top: 50px; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow); flex-wrap: wrap; gap: 15px;}
@@ -193,7 +193,7 @@
         #maintenance-screen { display: none; height: 100vh; width: 100vw; background: #0f172a; color: white; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px; }
         #maintenance-screen h1 { font-size: 4rem; margin-bottom: 10px; color: #f43f5e; }
 
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 200; justify-content: center; align-items: center; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); z-index: 200; justify-content: center; align-items: center; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
         .modal-content { background: var(--fond-modal); padding: 40px; border-radius: 24px; width: 90%; max-width: 450px; position: relative; box-shadow: var(--shadow-hover); max-height: 90vh; overflow-y: auto;}
         @media (max-width: 768px) { .modal-content { padding: 25px; } }
         
@@ -226,6 +226,7 @@
     <div id="progress-bar"></div>
     <div id="toast-container"></div>
     
+    <!-- BOUTON FLOTTANT DE CONTACT -->
     <button id="btn-contact-float" class="btn-contact-float" onclick="ouvrirContact()">
         <div class="btn-content">
             <span class="icon">💬</span><span class="text">Nous contacter</span>
@@ -356,7 +357,7 @@
                 <p id="reponse-msg-texte" style="margin: 5px 0 0 0; font-weight:500; color:var(--texte);"></p>
             </div>
             
-            <button class="btn btn-primaire" style="width: 100%; margin-top:20px; padding: 14px;" onclick="fermerModales()">Fermer</button>
+            <button class="btn btn-primaire" style="width: 100%; margin-top:20px; padding: 14px;" onclick="fermerModales()">Fermer (et retourner à ma vie sans intérêt)</button>
         </div>
     </div>
 
@@ -365,11 +366,12 @@
             <span class="close-btn" onclick="fermerModales()">&times;</span>
             <h2 class="titre-serif" style="margin-top:0;">Bureau des Plaintes</h2>
             <p style="color: var(--texte-clair); font-size: 0.95rem; line-height: 1.4; margin-bottom: 20px;">
-                Une question, une remarque ? Laissez votre adresse e-mail pour obtenir une réponse.
+                Vous avez une question, une remarque ou une déclaration d'amour ? Dites-nous tout. 
+                <br><br><b style="color:var(--premium);">⚠️ Important :</b> N'oubliez pas votre email, sinon notre stagiaire ne saura pas à qui répondre (et il pleure facilement).
             </p>
-            <input type="email" id="contact-email" class="input-champ" placeholder="Votre email">
-            <textarea id="contact-message" class="input-champ" placeholder="Votre message..."></textarea>
-            <button class="btn btn-primaire" style="width: 100%; padding: 14px;" onclick="envoyerMessageContact()">Envoyer</button>
+            <input type="email" id="contact-email" class="input-champ" placeholder="Votre email pour la réponse">
+            <textarea id="contact-message" class="input-champ" placeholder="Votre message (soyez créatifs)..."></textarea>
+            <button class="btn btn-primaire" style="width: 100%; padding: 14px;" onclick="envoyerMessageContact()">Envoyer la bouteille à la mer</button>
         </div>
     </div>
 
@@ -377,7 +379,7 @@
         <div class="modal-content" style="max-width: 900px; max-height: 90vh; overflow-y: auto;">
             <span class="close-btn" onclick="fermerModales()">&times;</span>
             <h2 class="titre-serif" style="font-size: 2rem; text-align: center;">Passez à la caisse.</h2>
-            <p style="text-align: center; color: var(--texte-clair); font-size: 1rem; margin-bottom: 30px;">Soutenez notre journalisme indépendant.</p>
+            <p style="text-align: center; color: var(--texte-clair); font-size: 1rem; margin-bottom: 30px;">Soutenez notre "média" et débloquez les articles où on a vraiment fait un effort.</p>
             <div class="offres-grid" id="liste-offres"></div>
         </div>
     </div>
@@ -386,8 +388,8 @@
         <div class="modal-content">
             <span class="close-btn" onclick="fermerModales()">&times;</span>
             <h2 class="titre-serif" style="margin-top:0;">Faire un cadeau</h2>
-            <p style="color: var(--texte-clair); font-size: 0.95rem;">Entrez l'email du destinataire pour lui ouvrir l'accès à cet article.</p>
-            <input type="email" id="partage-email" class="input-champ" placeholder="ami@email.com">
+            <p style="color: var(--texte-clair); font-size: 0.95rem;">Entrez l'email d'un proche pour lui ouvrir l'accès à cet article instantanément.</p>
+            <input type="email" id="partage-email" class="input-champ" placeholder="son-email@ami.com">
             <button class="btn btn-primaire" style="width: 100%; padding: 14px;" onclick="validerPartage()">Transférer l'accès</button>
         </div>
     </div>
@@ -398,7 +400,8 @@
         const db = supabase.createClient(supabaseUrl, supabaseKey);
 
         let lecteurActuel = null, profilLecteur = null, estAbonne = false, creditsPartage = 0, articlesOfferts = [];
-        let tousLesArticles = [], toutesLesCategories = [], articleActifId = null, scrollInterval = null;
+        let tousLesArticles = [], toutesLesCategories = [], articleActifId = null;
+        let scrollInterval = null;
 
         let originalTitle = document.title;
         window.addEventListener("blur", () => { document.title = "Reviens stp 🥺"; });
@@ -437,6 +440,7 @@
 
         function toggleAutoScroll() {
             const isPremium = profilLecteur && profilLecteur.est_abonne && profilLecteur.offre_nom && profilLecteur.offre_nom.toLowerCase().includes('premium');
+            
             if (!isPremium) {
                 showToast("Le Mode Flemme est réservé aux abonnés Premium.", "error");
                 setTimeout(ouvrirOffres, 1500);
@@ -622,8 +626,10 @@
             articlesFiltres.forEach(art => {
                 const catNom = toutesLesCategories.find(c => c.id === art.categorie_id)?.nom || 'Dépêche';
                 const date = new Date(art.date_publication).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+                
                 const positionY = art.image_position || '50%';
-                const imgStr = art.image_url ? `<img src="${art.image_url}" class="card-img" style="object-position: center ${positionY};" alt="cover">` : `<div class="card-img" style="background: linear-gradient(135deg, var(--bordure), var(--fond-card));"></div>`;
+                const scale = art.image_scale || '1';
+                const imgStr = art.image_url ? `<img src="${art.image_url}" class="card-img" style="object-position: center ${positionY}; transform: scale(${scale}); transition: transform 0.5s ease;" alt="cover">` : `<div class="card-img" style="background: linear-gradient(135deg, var(--bordure), var(--fond-card));"></div>`;
                 
                 let badge = '';
                 if (art.reserve_abonnes) {
@@ -636,7 +642,7 @@
 
                 conteneur.innerHTML += `
                     <div class="card" onclick="ouvrirArticle('${art.id}')">
-                        ${imgStr}
+                        <div class="card-img-container">${imgStr}</div>
                         <div class="card-content">
                             <div class="card-meta"><span class="card-categorie">${catNom}</span> ${badge}</div>
                             <h2 class="card-titre titre-serif">${art.titre}</h2>
@@ -661,8 +667,10 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
 
             const conteneur = document.getElementById('conteneur-article-complet');
+            
             const positionY = art.image_position || '50%';
-            const imgStr = art.image_url ? `<div class="safari-img-wrapper"><img src="${art.image_url}" class="art-header-img" style="object-position: center ${positionY};" alt="cover"></div>` : '';
+            const scale = art.image_scale || '1';
+            const imgStr = art.image_url ? `<div class="safari-img-wrapper"><img src="${art.image_url}" class="art-header-img" style="object-position: center ${positionY}; transform: scale(${scale});" alt="cover"></div>` : '';
             
             const motsTotaux = (art.contenu_public + (art.contenu_premium || '')).split(' ').length;
             const tempsLecture = Math.max(1, Math.ceil(motsTotaux / 200));
@@ -708,11 +716,15 @@
                     const btnText = peutOffrir ? "🎁 Offrir à un proche" : "Cheh";
                     const bgStyle = peutOffrir ? "" : "background-color: var(--bordure); color: var(--texte-clair); cursor: not-allowed; opacity: 0.7;";
 
+                    // CORRECTION DU S MANQUANT QUAND 1 SEUL CADEAU :
+                    const pluriel = creditsPartage > 1 ? 's' : '';
+                    const texteArticles = `Vous avez encore <b>${creditsPartage} article${pluriel} à offrir</b> ce mois-ci.`;
+
                     html += `
                     <div class="share-box">
                         <div>
                             <h4 style="margin:0 0 8px 0; font-size:1.2rem; color:var(--texte);">Faites profiter un proche</h4>
-                            <div style="font-size:0.95rem; color:var(--texte-clair);">Vous avez encore <b>${creditsPartage} articles à offrir</b> ce mois-ci.</div>
+                            <div style="font-size:0.95rem; color:var(--texte-clair);">${texteArticles}</div>
                         </div>
                         <button class="${btnStyle}" style="padding:12px 25px; font-size:1.1rem; ${bgStyle}" ${actStr}>${btnText}</button>
                     </div>`;
@@ -790,7 +802,7 @@
             if(error) {
                 showToast("Erreur d'envoi.", "error");
             } else {
-                showToast("Message bien reçu !");
+                showToast("Message bien reçu ! On le lira... ou pas.");
                 document.getElementById('contact-modal').style.display = 'none';
                 document.getElementById('contact-message').value = '';
             }

@@ -67,21 +67,37 @@
                     <div class="input-group"><label>Titre de l'article</label><input type="text" id="titre-article"></div>
                     <div class="input-group"><label>Thème / Catégorie</label><select id="categorie-article"><option value="">-- Choisir --</option></select></div>
                 </div>
+                
                 <div class="grid-2">
-                    <div class="input-group"><label>URL de l'image</label><input type="text" id="image-article"></div>
                     <div class="input-group">
-                        <label>Cadrage de l'image</label>
-                        <select id="image-position">
-                            <option value="center">Centré (Défaut)</option>
-                            <option value="top">Haut (Tête)</option>
-                            <option value="bottom">Bas (Pieds)</option>
-                        </select>
+                        <label>URL de l'image</label>
+                        <input type="text" id="image-article" oninput="updateImagePreview()" placeholder="https://...">
+                        
+                        <div class="input-group" style="display: flex; align-items: center; gap: 10px; background: #fffbeb; padding: 15px; border-radius: 8px; border: 1px solid #fde68a; margin-top:20px;">
+                            <input type="checkbox" id="est-a-la-une" style="width: 20px; height: 20px; cursor: pointer;">
+                            <label style="margin: 0; color: #b45309;">🌟 Mettre "À la une"</label>
+                        </div>
+                    </div>
+                    
+                    <!-- MODULE DE CADRAGE IMAGE -->
+                    <div class="input-group" style="background:#f8fafc; border:1px solid var(--bordure); padding:15px; border-radius:8px;">
+                        <label>Cadrage & Zoom</label>
+                        <div style="width:100%; height:130px; border-radius:8px; overflow:hidden; background:#e2e8f0; margin-bottom:15px;">
+                            <img id="img-preview" src="" style="width:100%; height:100%; object-fit:cover; transform-origin:center; transition:0.1s;">
+                        </div>
+                        <div style="display:flex; gap:15px;">
+                            <div style="flex:1;">
+                                <label style="font-size:0.8rem; font-weight:normal; margin-bottom:2px;">Ajuster (Haut/Bas)</label>
+                                <input type="range" id="slider-y" min="0" max="100" value="50" oninput="updateImagePreview()">
+                            </div>
+                            <div style="flex:1;">
+                                <label style="font-size:0.8rem; font-weight:normal; margin-bottom:2px;">Zoom (Échelle)</label>
+                                <input type="range" id="slider-z" min="1" max="2.5" step="0.1" value="1" oninput="updateImagePreview()">
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="input-group" style="display: flex; align-items: center; gap: 10px; background: #fffbeb; padding: 15px; border-radius: 8px; border: 1px solid #fde68a;">
-                    <input type="checkbox" id="est-a-la-une" style="width: 20px; height: 20px; cursor: pointer;">
-                    <label style="margin: 0; color: #b45309;">🌟 Mettre "À la une"</label>
-                </div>
+                
                 <div class="box-info"><strong>Gestion du Paywall :</strong> Remplis la partie 1. Si tu ajoutes du texte dans la partie 2, le mur payant s'activera.</div>
                 <div class="input-group"><label style="color: #059669;">1. Partie Gratuite (Accroche)</label><div id="quill-public" class="editor-container"></div></div>
                 <div class="input-group"><label style="color: #be123c;">2. Partie Payante (Cachée)</label><div id="quill-premium" class="editor-container"></div></div>
@@ -107,12 +123,12 @@
                     <select id="select-offre" onchange="chargerOffrePourEdition()"><option value="">✨ Créer une NOUVELLE offre</option></select>
                 </div>
                 <div class="grid-2">
-                    <div class="input-group"><label>Nom de l'offre</label><input type="text" id="nom-offre"></div>
+                    <div class="input-group"><label>Nom de l'offre (Ex: Premium)</label><input type="text" id="nom-offre"></div>
                     <div class="input-group"><label>Prix (€)</label><input type="number" id="prix-offre" step="0.01"></div>
                 </div>
                 <div class="grid-2">
                     <div class="input-group"><label>Lien Stripe</label><input type="text" id="lien-stripe"></div>
-                    <div class="input-group"><label>Articles à offrir</label><input type="number" id="partages-offre"></div>
+                    <div class="input-group"><label>Articles à offrir par mois</label><input type="number" id="partages-offre"></div>
                 </div>
                 <div class="input-group"><label>Avantages (1 par ligne)</label><textarea id="avantages-offre" rows="4"></textarea></div>
                 <button class="btn-primaire" id="btn-save-offre" onclick="sauvegarderOffre()" style="width: 100%; font-size: 1.1rem; padding: 15px;">Créer l'offre</button>
@@ -129,7 +145,7 @@
                 <div id="actions-lecteur" style="display:none; border-top:1px dashed #cbd5e1; padding-top:20px;">
                     <h3 style="margin-top:0;">Modifier l'abonnement</h3>
                     <div class="input-group">
-                        <label>Attribuer une nouvelle offre (ou laisser vide)</label>
+                        <label>Attribuer une nouvelle offre</label>
                         <select id="offre-attribuee"><option value="">-- Ne pas changer l'offre --</option></select>
                     </div>
                     <div class="grid-2">
@@ -173,6 +189,16 @@
         const quillOptions = { theme: 'snow', modules: { toolbar: [ [{ 'header': [1, 2, 3, false] }], ['bold', 'italic'], ['link', 'image'], [{'list': 'bullet'}], ['clean'] ] } };
         var quillPublic = new Quill('#quill-public', { ...quillOptions, placeholder: 'Écrivez ici l\'introduction visible par tous...' });
         var quillPremium = new Quill('#quill-premium', { ...quillOptions, placeholder: 'Écrivez ici le contenu exclusif aux abonnés...' });
+
+        function updateImagePreview() {
+            const url = document.getElementById('image-article').value;
+            const y = document.getElementById('slider-y').value;
+            const z = document.getElementById('slider-z').value;
+            const img = document.getElementById('img-preview');
+            img.src = url;
+            img.style.objectPosition = `center ${y}%`;
+            img.style.transform = `scale(${z})`;
+        }
 
         async function checkPassword() {
             if (document.getElementById('password-input').value === 'ided13') {
@@ -224,30 +250,49 @@
             if (!articleEditionId) {
                 document.getElementById('titre-article').value = ''; 
                 document.getElementById('image-article').value = ''; 
-                document.getElementById('image-position').value = 'center';
+                document.getElementById('slider-y').value = '50';
+                document.getElementById('slider-z').value = '1';
                 document.getElementById('categorie-article').value = ''; 
                 document.getElementById('est-a-la-une').checked = false; 
                 quillPublic.root.innerHTML = ''; quillPremium.root.innerHTML = ''; 
                 document.getElementById('btn-save-article').innerText = "Publier l'article"; 
                 document.getElementById('btn-delete-article').style.display = 'none';
+                updateImagePreview();
             } else {
                 const art = listeArticles.find(a => a.id.toString() === articleEditionId.toString()); 
                 document.getElementById('titre-article').value = art.titre; 
                 document.getElementById('image-article').value = art.image_url || ''; 
-                document.getElementById('image-position').value = art.image_position || 'center';
                 document.getElementById('categorie-article').value = art.categorie_id || ''; 
                 document.getElementById('est-a-la-une').checked = art.est_a_la_une || false; 
                 quillPublic.root.innerHTML = art.contenu_public || ''; 
                 quillPremium.root.innerHTML = art.contenu_premium || ''; 
+                
+                // Parsing des positions (JSON)
+                try {
+                    const pos = JSON.parse(art.image_position);
+                    document.getElementById('slider-y').value = pos.y || 50;
+                    document.getElementById('slider-z').value = pos.z || 1;
+                } catch(e) {
+                    document.getElementById('slider-y').value = 50;
+                    document.getElementById('slider-z').value = 1;
+                }
+
                 document.getElementById('btn-save-article').innerText = "Enregistrer les modifs"; 
                 document.getElementById('btn-delete-article').style.display = 'block';
+                updateImagePreview();
             }
         }
+
         async function sauvegarderArticle() { 
+            const positionJSON = JSON.stringify({ 
+                y: document.getElementById('slider-y').value, 
+                z: document.getElementById('slider-z').value 
+            });
+
             const payload = { 
                 titre: document.getElementById('titre-article').value, 
                 image_url: document.getElementById('image-article').value, 
-                image_position: document.getElementById('image-position').value,
+                image_position: positionJSON,
                 categorie_id: document.getElementById('categorie-article').value || null, 
                 est_a_la_une: document.getElementById('est-a-la-une').checked, 
                 contenu_public: quillPublic.root.innerHTML === '<p><br></p>' ? '' : quillPublic.root.innerHTML, 
@@ -258,6 +303,7 @@
             const req = articleEditionId ? db.from('articles').update(payload).eq('id', articleEditionId) : db.from('articles').insert([payload]); 
             const { error } = await req; if(error) alert("Erreur: " + error.message); else { alert("✅ Article sauvegardé !"); chargerToutesLesDonnees(); } 
         }
+
         async function supprimerArticle() { if(!articleEditionId || !confirm("Supprimer cet article DÉFINITIVEMENT ?")) return; const { error } = await db.from('articles').delete().eq('id', articleEditionId); if(error) alert("Erreur: " + error.message); else { document.getElementById('select-article').value = ''; chargerArticlePourEdition(); chargerToutesLesDonnees(); } }
         
         async function rechercherLecteur() {

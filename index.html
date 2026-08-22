@@ -42,7 +42,6 @@
 
         #progress-bar { position: fixed; top: 0; left: 0; height: 4px; background: linear-gradient(90deg, var(--accent), var(--premium)); width: 0%; z-index: 9999; transition: width 0.1s ease-out; display: none; }
 
-        /* HEADER COMPLETEMENT REFAIT POUR ETRE PARFAIT */
         header { 
             background: var(--header-bg); backdrop-filter: blur(12px);
             padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; 
@@ -54,7 +53,6 @@
         .logo span { color: var(--accent); }
         .tagline { font-family: 'Caveat', cursive; color: var(--premium); font-size: 1.2rem; transform: rotate(-3deg); margin-top: -2px; margin-left: 20px; }
         
-        /* ALIGNEMENT STRICT DES BOUTONS DU HEADER */
         .header-right { display: flex; align-items: center; gap: 12px; flex-wrap: nowrap; }
         .header-btn { padding: 8px 16px; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; text-decoration: none; white-space: nowrap; border: 1px solid transparent; transition: all 0.2s ease; font-family: 'Inter', sans-serif; display: inline-flex; align-items: center; justify-content: center; height: 40px; }
         .header-btn-outline { border-color: var(--bordure); color: var(--texte); background: transparent; }
@@ -79,15 +77,14 @@
         .nav-link { color: var(--texte-clair); text-decoration: none; font-weight: 600; font-size: 0.95rem; padding: 6px 14px; border-radius: 50px; cursor: pointer; transition: var(--transition); white-space: nowrap; border: 1px solid transparent; }
         .nav-link:hover, .nav-link.active { color: var(--accent); background: rgba(99, 102, 241, 0.1); border-color: var(--accent); }
 
-        /* BOUTONS GENERAUX */
         .btn { padding: 10px 22px; border-radius: 50px; font-weight: 600; font-size: 0.95rem; cursor: pointer; transition: var(--transition); border: none; font-family: 'Inter'; display: inline-flex; align-items: center; justify-content: center; text-decoration: none;}
         .btn-primaire { background: var(--accent); color: white; box-shadow: 0 4px 14px rgba(99, 102, 241, 0.3); }
         .btn-primaire:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4); }
         .btn-outline { background: transparent; color: var(--texte); border: 1px solid var(--bordure); }
         .btn-outline:hover { background: var(--fond); }
         .btn-danger { background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; }
+        body.dark-mode .btn-danger { background: rgba(220, 38, 38, 0.1); border-color: #dc2626; }
 
-        /* BOUTON FLOTTANT CONTACT OPTIMISÉ */
         .btn-contact-float { position: fixed; bottom: 25px; left: 25px; background: var(--texte); color: var(--fond); border: none; border-radius: 25px; height: 50px; font-size: 1rem; font-weight: 600; box-shadow: var(--shadow-hover); cursor: pointer; z-index: 9000; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; align-items: center; padding: 0; overflow: hidden; white-space: nowrap; font-family: 'Inter', sans-serif; width: 170px; }
         .btn-contact-float .btn-content { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; padding: 0 20px; gap: 8px;}
         .btn-contact-float:hover { background: var(--accent); color: white; transform: translateY(-3px); }
@@ -100,12 +97,10 @@
         .btn-contact-float.is-collapsed:hover .btn-content { justify-content: flex-start; padding: 0 20px; gap: 8px; }
         .btn-contact-float.is-collapsed:hover span.text { display: inline; }
 
-        /* MESSAGE BIENVENUE : Parfaitement aligné */
         #message-bienvenue { max-width: 1200px; margin: 40px auto 0 auto; padding: 0 5%; display: none; text-align: left; animation: fadeIn 0.5s ease; width: 100%; }
         #message-bienvenue h2 { font-size: 2.8rem; margin: 0; color: var(--accent); line-height: 1.2; padding-top: 5px; }
         #message-bienvenue p { margin-top: 10px; color: var(--texte-clair); font-size: 1.15rem; }
 
-        /* VUE GRILLE */
         #vue-grille { max-width: 1200px; margin: 30px auto 40px auto; padding: 0 5%; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px; flex-grow: 1; width: 100%; }
         
         .card { background: var(--fond-card); border-radius: 16px; overflow: hidden; box-shadow: var(--shadow); cursor: pointer; transition: var(--transition); display: flex; flex-direction: column; border: 1px solid var(--bordure); width: 100%; transform: translateZ(0); }
@@ -116,7 +111,6 @@
         .card-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
         .card-categorie { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: var(--accent); letter-spacing: 0.5px; }
         
-        /* NOUVEAUX CADENAS MINIMALISTES */
         .badge-fautpayer { background: rgba(225, 29, 72, 0.1); color: var(--premium); font-size: 1rem; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid rgba(225, 29, 72, 0.3); flex-shrink: 0; }
         .badge-inclus { background: var(--vip-bg); color: var(--vip); font-size: 1rem; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid var(--vip); flex-shrink: 0; }
         
@@ -130,7 +124,6 @@
             .card:first-child .card-titre { font-size: 2.2rem; }
         }
 
-        /* RESPONSIVE MOBILE */
         @media (max-width: 768px) { 
             header { padding: 15px 5%; flex-direction: column; gap: 15px; align-items: center; }
             .header-right { width: 100%; justify-content: center; flex-wrap: wrap; gap: 8px; }
@@ -153,12 +146,12 @@
             .btn-contact-float { bottom: 15px; left: 15px; }
         }
 
-        /* VUE ARTICLE */
-        #vue-article { display: none; max-width: 720px; margin: 0 auto; padding: 40px 5%; flex-grow: 1; }
+        /* VUE ARTICLE ÉLARGIE POUR ORDINATEUR */
+        #vue-article { display: none; max-width: 850px; margin: 0 auto; padding: 40px 5%; flex-grow: 1; }
         .btn-retour { display: inline-flex; align-items: center; color: var(--texte-clair); text-decoration: none; font-weight: 600; cursor: pointer; margin-bottom: 30px; border: none; background: none; font-size: 1rem; padding: 0; }
         .btn-retour:hover { color: var(--accent); }
         
-        .safari-img-wrapper { width: 100%; height: 400px; margin-bottom: 30px; border-radius: 20px; overflow: hidden; isolation: isolate; -webkit-mask-image: -webkit-radial-gradient(white, black); box-shadow: var(--shadow); }
+        .safari-img-wrapper { width: 100%; height: 450px; margin-bottom: 30px; border-radius: 20px; overflow: hidden; isolation: isolate; -webkit-mask-image: -webkit-radial-gradient(white, black); box-shadow: var(--shadow); }
         .art-header-img { width: 100%; height: 100%; object-fit: cover; display: block; margin: 0; }
         
         .art-titre { font-size: 3rem; line-height: 1.1; margin-bottom: 15px; color: var(--texte); }
@@ -176,8 +169,22 @@
             .art-contenu { font-size: 1.05rem; }
         }
 
-        .paywall-box { background: linear-gradient(to bottom, transparent, var(--fond) 20%); padding-top: 80px; margin-top: -60px; position: relative; text-align: center; padding-bottom: 50px; }
-        .paywall-card { background: var(--fond-card); border: 1px solid var(--bordure); border-radius: 20px; padding: 40px; box-shadow: var(--shadow-hover); max-width: 500px; margin: 0 auto; position: relative; z-index: 10; }
+        /* NOUVEAU EFFET PAYWALL : TEXTE QUI DISPARAÎT DANS LE VIDE */
+        .premium-preview-container {
+            position: relative;
+            max-height: 250px;
+            overflow: hidden;
+            pointer-events: none;
+            user-select: none;
+            -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 90%);
+            mask-image: linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 90%);
+            margin-bottom: 20px;
+            opacity: 0.7;
+        }
+
+        .paywall-box { position: relative; text-align: center; padding-bottom: 50px; margin-top: -100px; z-index: 10; }
+        .paywall-card { background: var(--fond-card); border: 1px solid var(--bordure); border-radius: 20px; padding: 40px; box-shadow: var(--shadow-hover); max-width: 550px; margin: 0 auto; position: relative; z-index: 10; }
+        
         .cadeau-banner { background: rgba(225, 29, 72, 0.05); border: 1px dashed var(--premium); color: var(--premium); padding: 20px; border-radius: 12px; margin-bottom: 40px; font-weight: 600; display: flex; align-items: center; gap: 15px; justify-content: center; text-align: center; line-height: 1.4;}
         .share-box { background: var(--fond-card); border: 1px solid var(--bordure); padding: 25px 30px; border-radius: 16px; margin-top: 50px; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow); flex-wrap: wrap; gap: 15px;}
 
@@ -222,7 +229,6 @@
     <div id="progress-bar"></div>
     <div id="toast-container"></div>
     
-    <!-- BOUTON FLOTTANT DE CONTACT -->
     <button id="btn-contact-float" class="btn-contact-float" onclick="ouvrirContact()">
         <div class="btn-content">
             <span class="icon">💬</span><span class="text">Nous contacter</span>
@@ -298,7 +304,7 @@
         </div>
     </div>
     
-    <!-- MODALE MON COMPTE (PRO) -->
+    <!-- MODALE MON COMPTE -->
     <div id="compte-modal" class="modal-overlay">
         <div class="modal-content">
             <span class="close-btn" onclick="fermerModales()">&times;</span>
@@ -325,7 +331,7 @@
             </div>
 
             <div id="actions-abonne" style="display:none;">
-                <a id="btn-gerer-stripe" href="https://billing.stripe.com/p/login/14A5kC1SheK6ctc5MqgQE00" target="_blank" class="btn-outline" style="display:block; text-align:center; width: 100%; padding:12px; border-radius:8px; margin-bottom: 20px; text-decoration:none; font-weight:600;">Gérer / Résilier mon abonnement</a>
+                <a id="btn-gerer-stripe" href="https://billing.stripe.com/p/login/14A5kC1SheK6ctc5MqgQE00" target="_blank" class="btn btn-outline" style="width: 100%; margin-bottom: 20px; text-decoration:none;">Gérer / Résilier mon abonnement</a>
             </div>
             
             <div id="actions-non-abonne" style="display:none;">
@@ -404,7 +410,6 @@
         let tousLesArticles = [], toutesLesCategories = [], articleActifId = null;
         let scrollInterval = null;
 
-        // TITRE DE PAGE DYNAMIQUE (Easter egg)
         let originalTitle = document.title;
         window.addEventListener("blur", () => { document.title = "Reviens stp 🥺"; });
         window.addEventListener("focus", () => { document.title = originalTitle; });
@@ -418,7 +423,6 @@
             setTimeout(() => { toast.remove(); }, 4500);
         }
 
-        // CONFETTIS EMOJI (Easter egg cadeau)
         function lancerConfettis() {
             const emojis = ['🎉', '🎁', '💸', '🕊️'];
             for(let i=0; i<30; i++) {
@@ -441,7 +445,6 @@
             }
         }
 
-        // MODE FLEMME (Auto-scroll restreint et qui s'arrête)
         function toggleAutoScroll() {
             const isPremium = profilLecteur && profilLecteur.est_abonne && profilLecteur.offre_nom && profilLecteur.offre_nom.toLowerCase().includes('premium');
             
@@ -461,7 +464,6 @@
                 btn.style.background = "var(--accent)"; btn.style.color = "white";
                 scrollInterval = setInterval(() => { 
                     window.scrollBy(0, 1); 
-                    // Vérifie si on est arrivé en bas de page pour s'arrêter
                     if (Math.ceil(window.innerHeight + window.scrollY) >= document.documentElement.scrollHeight) {
                         toggleAutoScroll(); 
                     }
@@ -542,7 +544,6 @@
 
                 const btnTheme = `<button class="btn-theme" id="btn-theme-toggle" onclick="toggleTheme()">${wantsDark ? '☀️' : '🌙'}</button>`;
 
-                // EN-TÊTE FIXÉ (Plus de texte qui dépasse)
                 document.getElementById('zone-boutons-header').innerHTML = `
                     <div class="header-right">
                         ${btnTheme}
@@ -693,11 +694,16 @@
             if (art.reserve_abonnes && !accesAutorise) {
                 html += `
                 <div class="art-contenu">${art.contenu_public}</div>
+                
+                <div class="premium-preview-container">
+                    <div class="art-contenu">${art.contenu_premium || 'Rédigez la suite captivante de votre article ici... Ce texte est masqué car réservé aux membres de l\'élite qui nous soutiennent !'}</div>
+                </div>
+
                 <div class="paywall-box">
                     <div class="paywall-card">
-                        <h3 class="titre-serif" style="font-size:2rem; margin:0 0 10px 0; color:var(--texte);">Le meilleur reste à venir.</h3>
-                        <p style="color:var(--texte-clair); margin-bottom:25px; font-size:1.05rem;">C'est ici qu'on arrête de travailler gratuitement. Abonnez-vous pour lire la suite de cet article.</p>
-                        <button class="btn btn-primaire" style="background:var(--premium); width:100%; padding:15px; font-size:1.1rem;" onclick="ouvrirOffres()">Voir nos offres</button>
+                        <h3 class="titre-serif" style="font-size:2.2rem; margin:0 0 10px 0; color:var(--texte);">Le meilleur reste à venir.</h3>
+                        <p style="color:var(--texte-clair); margin-bottom:30px; font-size:1.05rem;">C'est ici qu'on arrête de travailler gratuitement. Abonnez-vous pour lire la suite de cet article.</p>
+                        <button class="btn btn-primaire" style="background:var(--premium); width:100%; padding:15px; font-size:1.15rem;" onclick="ouvrirOffres()">Débloquer la suite</button>
                     </div>
                 </div>`;
             } else {

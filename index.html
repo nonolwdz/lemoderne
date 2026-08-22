@@ -20,8 +20,8 @@
             --vip: #059669; --vip-bg: #d1fae5; 
             --bordure: #e2e8f0;
             --header-bg: rgba(255, 255, 255, 0.96);
-            --shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-            --shadow-hover: 0 20px 30px rgba(0, 0, 0, 0.08);
+            --shadow: 0 8px 30px rgba(0, 0, 0, 0.04);
+            --shadow-hover: 0 15px 35px rgba(0, 0, 0, 0.08);
             --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
 
@@ -32,8 +32,8 @@
             --vip: #34d399; --vip-bg: rgba(5, 150, 105, 0.2);
             --bordure: #334155;
             --header-bg: rgba(15, 23, 42, 0.96);
-            --shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-            --shadow-hover: 0 20px 30px rgba(0, 0, 0, 0.5);
+            --shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+            --shadow-hover: 0 15px 35px rgba(0, 0, 0, 0.5);
         }
         
         body { font-family: 'Inter', sans-serif; background: var(--fond); color: var(--texte); margin: 0; padding: 0; line-height: 1.7; overflow-x: hidden; display: flex; flex-direction: column; min-height: 100vh; transition: background-color 0.3s ease, color 0.3s ease; }
@@ -84,7 +84,7 @@
         .btn-danger { background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; }
         body.dark-mode .btn-danger { background: rgba(220, 38, 38, 0.1); border-color: #dc2626; }
 
-        .btn-contact-float { position: fixed; bottom: 25px; left: 25px; background: var(--texte); color: var(--fond); border: none; border-radius: 25px; height: 50px; font-size: 1rem; font-weight: 600; box-shadow: var(--shadow-hover); cursor: pointer; z-index: 9000; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; align-items: center; padding: 0; overflow: hidden; white-space: nowrap; width: 170px; }
+        .btn-contact-float { position: fixed; bottom: 25px; left: 25px; background: var(--texte); color: var(--fond); border: none; border-radius: 25px; height: 50px; font-size: 1rem; font-weight: 600; box-shadow: var(--shadow-hover); cursor: pointer; z-index: 9000; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; align-items: center; padding: 0; overflow: hidden; white-space: nowrap; font-family: 'Inter', sans-serif; width: 170px; }
         .btn-contact-float .btn-content { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; padding: 0 20px; gap: 8px;}
         .btn-contact-float:hover { background: var(--accent); color: white; transform: translateY(-3px); }
         
@@ -100,14 +100,23 @@
         #message-bienvenue h2 { font-size: 2.8rem; margin: 0; color: var(--accent); line-height: 1.2; padding-top: 5px; }
         #message-bienvenue p { margin-top: 10px; color: var(--texte-clair); font-size: 1.15rem; }
 
+        /* VUE GRILLE avec animation "Staggered" */
         #vue-grille { max-width: 1200px; margin: 30px auto 40px auto; padding: 0 5%; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px; flex-grow: 1; width: 100%; }
         
+        @keyframes slideUpFade {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         .card { background: var(--fond-card); border-radius: 16px; overflow: hidden; box-shadow: var(--shadow); cursor: pointer; transition: var(--transition); display: flex; flex-direction: column; border: 1px solid var(--bordure); width: 100%; }
         .card:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); border-color: var(--accent); }
-        .card-img-container { width: 100%; height: 220px; overflow: hidden; background: var(--bordure); }
-        .card-img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.5s ease; }
-        .card-content { padding: 25px; flex-grow: 1; display: flex; flex-direction: column; justify-content: center; width: 100%; }
         
+        /* Conteneur d'image propre pour le zoom in/out */
+        .card-img-container { width: 100%; height: 220px; overflow: hidden; background: linear-gradient(135deg, var(--bordure), var(--fond-card)); position: relative; }
+        .card-img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1); }
+        .card:hover .card-img { transform: scale(1.05) !important; } /* Petit effet au survol, écrase le scale en ligne */
+        
+        .card-content { padding: 25px; flex-grow: 1; display: flex; flex-direction: column; justify-content: center; width: 100%; }
         .card-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
         .card-categorie { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: var(--accent); letter-spacing: 0.5px; }
         
@@ -130,34 +139,32 @@
             .header-btn { flex: 1; text-align: center; padding: 8px 10px; font-size: 0.85rem; }
             .header-badge { flex: 1; justify-content: center; }
             .header-link { width: 100%; text-align: center; margin-top: 5px; }
-
             .logo-container { align-items: center; }
             .tagline { margin-left: 0; margin-top: 5px; }
-            
             #message-bienvenue { margin: 20px auto 10px auto; text-align: center; }
             #message-bienvenue h2 { font-size: 2rem; }
-            
             .card:first-child { grid-column: auto; flex-direction: column; } 
             .card:first-child .card-img-container { width: 100%; height: 220px; min-height: 220px; border-radius: 16px 16px 0 0; }
             .card:first-child .card-content { width: 100%; padding: 25px; }
             .card:first-child .card-titre { font-size: 1.5rem; }
-
             .btn-contact-float { bottom: 15px; left: 15px; }
         }
 
-        /* VUE ARTICLE (Sofistiquée et épurée) */
-        #vue-article { display: none; max-width: 850px; margin: 0 auto; padding: 40px 5%; flex-grow: 1; }
+        /* VUE ARTICLE ÉLARGIE */
+        #vue-article { display: none; max-width: 850px; margin: 0 auto; padding: 40px 5%; flex-grow: 1; animation: slideUpFade 0.4s ease both; }
         .btn-retour { display: inline-flex; align-items: center; color: var(--texte-clair); text-decoration: none; font-weight: 600; cursor: pointer; margin-bottom: 30px; border: none; background: none; font-size: 1rem; padding: 0; transition: var(--transition);}
         .btn-retour:hover { color: var(--accent); transform: translateX(-4px); }
         
-        .safari-img-wrapper { width: 100%; height: 450px; margin-bottom: 30px; border-radius: 20px; overflow: hidden; isolation: isolate; box-shadow: var(--shadow); }
+        .safari-img-wrapper { width: 100%; height: 450px; margin-bottom: 30px; border-radius: 20px; overflow: hidden; isolation: isolate; box-shadow: var(--shadow); background: linear-gradient(135deg, var(--bordure), var(--fond-card)); position: relative; }
         .art-header-img { width: 100%; height: 100%; object-fit: cover; display: block; margin: 0; }
         
         .art-titre { font-size: 3rem; line-height: 1.1; margin-bottom: 15px; color: var(--texte); }
         .art-meta { display: flex; gap: 15px; justify-content: space-between; color: var(--texte-clair); margin-bottom: 40px; font-size: 0.95rem; border-bottom: 1px solid var(--bordure); padding-bottom: 20px; flex-wrap: wrap; align-items: center;}
         
-        .btn-flemme { padding: 4px 10px; font-size: 0.8rem; border-radius: 12px; background: transparent; border: 1px solid var(--bordure); color: var(--texte); cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 5px; font-weight: 600; }
-        .btn-flemme:hover { border-color: var(--accent); color: var(--accent); }
+        /* BOUTONS ACTIONS ARTICLE (Flemme, Écouter, Partager) */
+        .btn-action-art { padding: 6px 12px; font-size: 0.85rem; border-radius: 8px; background: transparent; border: 1px solid var(--bordure); color: var(--texte); cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 6px; font-weight: 600; font-family: 'Inter', sans-serif;}
+        .btn-action-art:hover { border-color: var(--accent); color: var(--accent); background: var(--fond-card); }
+        .btn-action-art.active { background: var(--accent); color: white; border-color: var(--accent); }
 
         .art-contenu { font-size: 1.15rem; color: var(--texte); line-height: 1.8; }
         .art-contenu img { max-width: 100%; border-radius: 12px; margin: 30px 0; box-shadow: var(--shadow); }
@@ -413,7 +420,42 @@
             toast.className = `toast ${type}`;
             toast.innerHTML = type === 'success' ? `✅ ${message}` : `⚠️ ${message}`;
             container.appendChild(toast);
-            setTimeout(() => { toast.remove(); }, 4500);
+            setTimeout(() => { toast.remove(); }, 3500);
+        }
+
+        function copierLien() {
+            navigator.clipboard.writeText(window.location.href).then(() => {
+                showToast("Lien de l'article copié !", "success");
+            });
+        }
+
+        // TEXT TO SPEECH (VOIX IA)
+        function ecouterArticle() {
+            const btn = document.getElementById('btn-ecouter');
+            if(window.speechSynthesis.speaking) {
+                window.speechSynthesis.cancel();
+                btn.innerHTML = "🎧 Écouter";
+                btn.classList.remove('active');
+                return;
+            }
+            
+            const titre = document.querySelector('.art-titre').innerText;
+            const contenu = document.querySelector('.art-contenu').innerText;
+            const texte = titre + ". " + contenu;
+            
+            const msg = new SpeechSynthesisUtterance(texte);
+            msg.lang = 'fr-FR';
+            msg.rate = 1.1; 
+            msg.pitch = 0.9; // Voix un peu blasée
+            
+            window.speechSynthesis.speak(msg);
+            btn.innerHTML = "⏹️ Arrêter";
+            btn.classList.add('active');
+            
+            msg.onend = () => {
+                btn.innerHTML = "🎧 Écouter";
+                btn.classList.remove('active');
+            };
         }
 
         function lancerConfettis() {
@@ -451,10 +493,10 @@
             if(scrollInterval) {
                 clearInterval(scrollInterval); scrollInterval = null;
                 btn.innerHTML = "🤖 Mode Flemme";
-                btn.style.background = "transparent"; btn.style.color = "var(--texte)";
+                btn.classList.remove('active');
             } else {
                 btn.innerHTML = "🛑 Stop défilement";
-                btn.style.background = "var(--accent)"; btn.style.color = "white";
+                btn.classList.add('active');
                 scrollInterval = setInterval(() => { 
                     window.scrollBy(0, 1); 
                     if (Math.ceil(window.innerHeight + window.scrollY) >= document.documentElement.scrollHeight) {
@@ -594,7 +636,9 @@
         }
 
         function afficherGrille() {
-            if(scrollInterval) toggleAutoScroll(); 
+            if(scrollInterval) toggleAutoScroll();
+            if(window.speechSynthesis.speaking) window.speechSynthesis.cancel();
+             
             document.getElementById('progress-bar').style.display = 'none';
             document.getElementById('vue-article').style.display = 'none'; 
             document.getElementById('vue-grille').style.display = 'grid';
@@ -607,6 +651,8 @@
         function filtrerArticles(catId, elementNav = null) {
             if (document.getElementById('vue-article').style.display === 'block') {
                 if(scrollInterval) toggleAutoScroll();
+                if(window.speechSynthesis.speaking) window.speechSynthesis.cancel();
+
                 document.getElementById('vue-article').style.display = 'none';
                 document.getElementById('vue-grille').style.display = 'grid';
                 document.getElementById('progress-bar').style.display = 'none';
@@ -623,13 +669,17 @@
             
             if(articlesFiltres.length === 0) { conteneur.innerHTML = "<p style='grid-column: 1/-1; text-align:center;'>Aucun article dans cette rubrique.</p>"; return; }
 
-            articlesFiltres.forEach(art => {
+            articlesFiltres.forEach((art, index) => {
                 const catNom = toutesLesCategories.find(c => c.id === art.categorie_id)?.nom || 'Dépêche';
                 const date = new Date(art.date_publication).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
                 
                 const positionY = art.image_position || '50%';
                 const scale = art.image_scale || '1';
-                const imgStr = art.image_url ? `<img src="${art.image_url}" class="card-img" style="object-position: center ${positionY}; transform: scale(${scale}); transition: transform 0.5s ease;" alt="cover">` : `<div class="card-img" style="background: linear-gradient(135deg, var(--bordure), var(--fond-card));"></div>`;
+                
+                // Animation Staggered (en cascade)
+                const delay = index * 0.08;
+
+                const imgStr = art.image_url ? `<img src="${art.image_url}" class="card-img" style="object-position: center ${positionY}; transform: scale(${scale});" alt="cover">` : `<div class="card-img" style="background: linear-gradient(135deg, var(--bordure), var(--fond-card));"></div>`;
                 
                 let badge = '';
                 if (art.reserve_abonnes) {
@@ -641,7 +691,7 @@
                 }
 
                 conteneur.innerHTML += `
-                    <div class="card" onclick="ouvrirArticle('${art.id}')">
+                    <div class="card" onclick="ouvrirArticle('${art.id}')" style="animation: slideUpFade 0.5s cubic-bezier(0.16, 1, 0.3, 1) ${delay}s both;">
                         <div class="card-img-container">${imgStr}</div>
                         <div class="card-content">
                             <div class="card-meta"><span class="card-categorie">${catNom}</span> ${badge}</div>
@@ -681,9 +731,11 @@
                 <h1 class="art-titre">${art.titre}</h1>
                 <div class="art-meta">
                     <span>Rédigé par le stagiaire le ${date}</span>
-                    <div style="display:flex; align-items:center; flex-wrap:wrap; gap:10px;">
-                        <span style="color:var(--accent);">⏱️ Env. ${tempsLecture} min de lecture</span>
-                        <button id="btn-flemme" class="btn-flemme" onclick="toggleAutoScroll()">🤖 Mode Flemme</button>
+                    <div style="display:flex; align-items:center; flex-wrap:wrap; gap:8px;">
+                        <span style="color:var(--accent); margin-right:10px;">⏱️ Env. ${tempsLecture} min</span>
+                        <button id="btn-ecouter" class="btn-action-art" onclick="ecouterArticle()">🎧 Écouter</button>
+                        <button id="btn-flemme" class="btn-action-art" onclick="toggleAutoScroll()">🤖 Mode Flemme</button>
+                        <button class="btn-action-art" onclick="copierLien()">🔗 Copier lien</button>
                     </div>
                 </div>
             `;
@@ -716,9 +768,10 @@
                     const btnText = peutOffrir ? "🎁 Offrir à un proche" : "Cheh";
                     const bgStyle = peutOffrir ? "" : "background-color: var(--bordure); color: var(--texte-clair); cursor: not-allowed; opacity: 0.7;";
 
-                    // CORRECTION DU S MANQUANT QUAND 1 SEUL CADEAU :
                     const pluriel = creditsPartage > 1 ? 's' : '';
-                    const texteArticles = `Vous avez encore <b>${creditsPartage} article${pluriel} à offrir</b> ce mois-ci.`;
+                    const texteArticles = creditsPartage > 0 
+                        ? `Vous avez encore <b>${creditsPartage} article${pluriel} à offrir</b> ce mois-ci.`
+                        : `Vous n'avez plus d'articles à offrir ce mois-ci. L'avarice gagne du terrain.`;
 
                     html += `
                     <div class="share-box">
@@ -800,7 +853,7 @@
             
             const { error } = await db.from('messages_contact').insert([{ email, message }]);
             if(error) {
-                showToast("Erreur d'envoi.", "error");
+                showToast("Erreur d'envoi. Le pigeon voyageur est mort en vol.", "error");
             } else {
                 showToast("Message bien reçu ! On le lira... ou pas.");
                 document.getElementById('contact-modal').style.display = 'none';

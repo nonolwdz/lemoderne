@@ -60,7 +60,7 @@
         .header-btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(244, 63, 94, 0.4); }
         
         .header-badge { font-size: 0.8rem; padding: 0 12px; border-radius: 50px; background: var(--vip-bg); color: var(--vip); border: 1px solid var(--vip); font-weight: bold; white-space: nowrap; display: flex; align-items: center; justify-content: center; height: 40px; }
-        .header-link { font-size: 0.9rem; color: var(--texte-clair); text-decoration: underline; cursor: pointer; background: none; border: none; padding: 0; font-weight: 600; }
+        .header-link { font-size: 0.9rem; color: var(--texte-clair); text-decoration: underline; cursor: pointer; background: none; border: none; padding: 0; white-space: nowrap; font-family: 'Inter', sans-serif; font-weight: 600; }
         .header-link:hover { color: var(--premium); }
 
         .btn-theme { background: var(--fond-card); border: 1px solid var(--bordure); color: var(--texte); border-radius: 50%; width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 1.2rem; transition: var(--transition); flex-shrink: 0; }
@@ -76,7 +76,7 @@
         .nav-link { color: var(--texte-clair); text-decoration: none; font-weight: 600; font-size: 0.95rem; padding: 6px 14px; border-radius: 50px; cursor: pointer; transition: var(--transition); white-space: nowrap; border: 1px solid transparent; }
         .nav-link:hover, .nav-link.active { color: var(--accent); background: rgba(99, 102, 241, 0.1); border-color: var(--accent); }
 
-        .btn { padding: 10px 22px; border-radius: 50px; font-weight: 600; font-size: 0.95rem; cursor: pointer; transition: var(--transition); border: none; font-family: 'Inter'; display: inline-flex; align-items: center; justify-content: center; }
+        .btn { padding: 10px 22px; border-radius: 50px; font-weight: 600; font-size: 0.95rem; cursor: pointer; transition: var(--transition); border: none; font-family: 'Inter'; display: inline-flex; align-items: center; justify-content: center; text-decoration: none;}
         .btn-outline { background: transparent; color: var(--texte); border: 1px solid var(--bordure); }
         .btn-outline:hover { background: var(--fond); }
         .btn-primaire { background: var(--accent); color: white; box-shadow: 0 4px 14px rgba(99, 102, 241, 0.3); }
@@ -111,10 +111,9 @@
         .card { background: var(--fond-card); border-radius: 16px; overflow: hidden; box-shadow: var(--shadow); cursor: pointer; transition: var(--transition); display: flex; flex-direction: column; border: 1px solid var(--bordure); width: 100%; }
         .card:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); border-color: var(--accent); }
         
-        /* Conteneur d'image propre pour le zoom in/out */
         .card-img-container { width: 100%; height: 220px; overflow: hidden; background: linear-gradient(135deg, var(--bordure), var(--fond-card)); position: relative; }
         .card-img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1); }
-        .card:hover .card-img { transform: scale(1.05) !important; } /* Petit effet au survol, écrase le scale en ligne */
+        .card:hover .card-img { transform: scale(1.05) !important; } 
         
         .card-content { padding: 25px; flex-grow: 1; display: flex; flex-direction: column; justify-content: center; width: 100%; }
         .card-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
@@ -161,7 +160,6 @@
         .art-titre { font-size: 3rem; line-height: 1.1; margin-bottom: 15px; color: var(--texte); }
         .art-meta { display: flex; gap: 15px; justify-content: space-between; color: var(--texte-clair); margin-bottom: 40px; font-size: 0.95rem; border-bottom: 1px solid var(--bordure); padding-bottom: 20px; flex-wrap: wrap; align-items: center;}
         
-        /* BOUTONS ACTIONS ARTICLE (Flemme, Écouter, Partager) */
         .btn-action-art { padding: 6px 12px; font-size: 0.85rem; border-radius: 8px; background: transparent; border: 1px solid var(--bordure); color: var(--texte); cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 6px; font-weight: 600; font-family: 'Inter', sans-serif;}
         .btn-action-art:hover { border-color: var(--accent); color: var(--accent); background: var(--fond-card); }
         .btn-action-art.active { background: var(--accent); color: white; border-color: var(--accent); }
@@ -169,7 +167,6 @@
         .art-contenu { font-size: 1.15rem; color: var(--texte); line-height: 1.8; }
         .art-contenu img { max-width: 100%; border-radius: 12px; margin: 30px 0; box-shadow: var(--shadow); }
 
-        /* EFFET DE TEXTE QUI S'EFFACE */
         .premium-preview {
             max-height: 180px;
             overflow: hidden;
@@ -233,7 +230,6 @@
     <div id="progress-bar"></div>
     <div id="toast-container"></div>
     
-    <!-- BOUTON FLOTTANT DE CONTACT -->
     <button id="btn-contact-float" class="btn-contact-float" onclick="ouvrirContact()">
         <div class="btn-content">
             <span class="icon">💬</span><span class="text">Nous contacter</span>
@@ -406,6 +402,9 @@
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpidXdqdmJjeHF4dHd1Z2h1YWRmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcyMDc2ODAsImV4cCI6MjEwMjc4MzY4MH0.lO0FizbO5jnRvRjrMERCKe6cBFFN_ttBMlRAGXtlHyo';
         const db = supabase.createClient(supabaseUrl, supabaseKey);
 
+        // Assurer le chargement asynchrone des voix pour TTS
+        window.speechSynthesis.onvoiceschanged = function() { window.speechSynthesis.getVoices(); };
+
         let lecteurActuel = null, profilLecteur = null, estAbonne = false, creditsPartage = 0, articlesOfferts = [];
         let tousLesArticles = [], toutesLesCategories = [], articleActifId = null;
         let scrollInterval = null;
@@ -424,13 +423,22 @@
         }
 
         function copierLien() {
+            // Utilise l'URL courante qui a maintenant le paramètre ?article=ID
             navigator.clipboard.writeText(window.location.href).then(() => {
                 showToast("Lien de l'article copié !", "success");
             });
         }
 
-        // TEXT TO SPEECH (VOIX IA)
+        // TEXT TO SPEECH (VOIX IA PREMIUM)
         function ecouterArticle() {
+            const isPremium = profilLecteur && profilLecteur.est_abonne && profilLecteur.offre_nom && profilLecteur.offre_nom.toLowerCase().includes('premium');
+            
+            if (!isPremium) {
+                showToast("L'écoute audio est réservée aux abonnés Premium.", "error");
+                setTimeout(ouvrirOffres, 1500);
+                return;
+            }
+
             const btn = document.getElementById('btn-ecouter');
             if(window.speechSynthesis.speaking) {
                 window.speechSynthesis.cancel();
@@ -445,8 +453,14 @@
             
             const msg = new SpeechSynthesisUtterance(texte);
             msg.lang = 'fr-FR';
-            msg.rate = 1.1; 
-            msg.pitch = 0.9; // Voix un peu blasée
+            msg.rate = 1.0; 
+            msg.pitch = 1.0; 
+            
+            // On essaie de trouver une voix française naturelle (Thomas, Google, Audrey, Premium...)
+            let voices = window.speechSynthesis.getVoices();
+            let bestVoice = voices.find(v => v.lang.startsWith('fr') && (v.name.includes('Premium') || v.name.includes('Thomas') || v.name.includes('Audrey') || v.name.includes('Google'))) || voices.find(v => v.lang.startsWith('fr'));
+            
+            if(bestVoice) msg.voice = bestVoice;
             
             window.speechSynthesis.speak(msg);
             btn.innerHTML = "⏹️ Arrêter";
@@ -632,7 +646,16 @@
 
             const { data: arts } = await db.from('articles').select('*').order('date_publication', { ascending: false });
             tousLesArticles = arts || [];
-            afficherGrille(); 
+
+            // GESTION DU LIEN DIRECT VERS UN ARTICLE (?article=123)
+            const urlParams = new URLSearchParams(window.location.search);
+            const articleIdURL = urlParams.get('article');
+            
+            if(articleIdURL && tousLesArticles.find(a => a.id.toString() === articleIdURL)) {
+                ouvrirArticle(articleIdURL, false); // On l'ouvre directement
+            } else {
+                afficherGrille(); 
+            }
         }
 
         function afficherGrille() {
@@ -643,6 +666,9 @@
             document.getElementById('vue-article').style.display = 'none'; 
             document.getElementById('vue-grille').style.display = 'grid';
             document.getElementById('btn-contact-float').classList.remove('is-collapsed');
+
+            // On nettoie l'URL quand on revient à l'accueil
+            window.history.pushState({}, '', window.location.pathname);
 
             if(lecteurActuel) document.getElementById('message-bienvenue').style.display = 'block';
             filtrerArticles(null, document.querySelector('.nav-link')); 
@@ -657,6 +683,7 @@
                 document.getElementById('vue-grille').style.display = 'grid';
                 document.getElementById('progress-bar').style.display = 'none';
                 document.getElementById('btn-contact-float').classList.remove('is-collapsed');
+                window.history.pushState({}, '', window.location.pathname); // Clean URL
                 if(lecteurActuel) document.getElementById('message-bienvenue').style.display = 'block';
             }
 
@@ -676,7 +703,6 @@
                 const positionY = art.image_position || '50%';
                 const scale = art.image_scale || '1';
                 
-                // Animation Staggered (en cascade)
                 const delay = index * 0.08;
 
                 const imgStr = art.image_url ? `<img src="${art.image_url}" class="card-img" style="object-position: center ${positionY}; transform: scale(${scale});" alt="cover">` : `<div class="card-img" style="background: linear-gradient(135deg, var(--bordure), var(--fond-card));"></div>`;
@@ -702,8 +728,15 @@
             });
         }
 
-        function ouvrirArticle(id) {
-            articleActifId = id; const art = tousLesArticles.find(a => a.id === id);
+        function ouvrirArticle(id, pushUrl = true) {
+            articleActifId = id; const art = tousLesArticles.find(a => a.id.toString() === id.toString());
+            if(!art) return;
+            
+            // Mise à jour de l'URL pour le partage
+            if(pushUrl) {
+                window.history.pushState({}, '', '?article=' + id);
+            }
+
             const catNom = toutesLesCategories.find(c => c.id === art.categorie_id)?.nom || 'Dépêche';
             const date = new Date(art.date_publication).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year:'numeric' });
             
@@ -853,7 +886,7 @@
             
             const { error } = await db.from('messages_contact').insert([{ email, message }]);
             if(error) {
-                showToast("Erreur d'envoi. Le pigeon voyageur est mort en vol.", "error");
+                showToast("Erreur d'envoi.", "error");
             } else {
                 showToast("Message bien reçu ! On le lira... ou pas.");
                 document.getElementById('contact-modal').style.display = 'none';
